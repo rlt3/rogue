@@ -34,6 +34,8 @@ int main()
    bool playerInput=true;
    bool running=true;
    map.draw(); //map.draw(floor);
+   player.draw();
+   mvaddch(MAP_HEIGHT+2,0,32);
    while(running)
    {
       loops=0;
@@ -43,6 +45,7 @@ int main()
          gob1->draw();
          gob2->draw();
          gob3->draw();
+         mvaddch(MAP_HEIGHT+2,0,32);
 
          gob1->move(Location (1,0));
          gob2->move(Location (1,0));
@@ -51,36 +54,45 @@ int main()
          next_game_tick += SKIP_TICKS;
          loops++;
       }
-      while(playerInput)
-      {
-         player.draw();
-         playerInput=false;
-      }
+      //while(playerInput)
+      //{
+      //   player.draw();
+      //   mvaddch(MAP_HEIGHT+2,0,32);
+      //   playerInput=false;
+      //}
       if((ch = getch())!=ERR)
       {
          switch (ch)
          {
             case 'j' :
                player.move(Location (0,1));
-               playerInput=true;
+               player.draw();
+               mvaddch(MAP_HEIGHT+2,0,32);
+               //playerInput=true;
                //next_game_tick -= SKIP_TICKS;
                break;
             
             case 'k' :
                player.move(Location (0,-1));
-               playerInput=true;
+               player.draw();
+               mvaddch(MAP_HEIGHT+2,0,32);
+               //playerInput=true;
                //next_game_tick -= SKIP_TICKS;
                break;
 
             case 'l' :
                player.move(Location (1,0));
-               playerInput=true;
+               player.draw();
+               mvaddch(MAP_HEIGHT+2,0,32);
+               //playerInput=true;
                //next_game_tick -= SKIP_TICKS;
                break;
 
             case 'h' :
                player.move(Location (-1,0));
-               playerInput=true;
+               player.draw();
+               mvaddch(MAP_HEIGHT+2,0,32);
+               //playerInput=true;
                //next_game_tick -= SKIP_TICKS;
                break;
             
