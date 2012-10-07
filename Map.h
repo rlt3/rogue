@@ -25,33 +25,8 @@ void Map::draw(void)
 {
    clear();
    for (int y=OFFSET;y<=MAP_HEIGHT;y++)
-   {
       for (int x=OFFSET;x<=MAP_WIDTH;x++)
-      {
-         //mvaddch(y,x,array[y-OFFSET][x-OFFSET]);
-         init_pair(2, COLOR_RED, COLOR_BLACK);
-         attron(COLOR_PAIR(2)); 
          mvaddch(y,x,Map::getTile(Location(x-OFFSET,y-OFFSET)));//array[y-OFFSET][x-OFFSET]);
-         attroff(COLOR_PAIR(2));
-         //switch( array[y-OFFSET][x-OFFSET] )
-         //{
-         //   case TILE_FLOOR:
-         //      mvaddch(y,x,46);
-         //      break;
-
-         //   case TILE_WALL:
-         //      mvaddch(y,x,35);
-         //      break;
-
-         //   default:
-         //      init_pair(2, COLOR_RED, COLOR_BLACK);
-         //      attron(COLOR_PAIR(2)); 
-         //      mvaddch(y,x,array[y-OFFSET][x-OFFSET]);
-         //      attroff(COLOR_PAIR(2));
-         //      break;
-         //}
-      }
-   }
 }
 
 int Map::getTile(Location location)

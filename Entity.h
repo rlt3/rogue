@@ -29,14 +29,17 @@ void Entity::move(Location destination)
       this->location.second = this->location.second+destination.second;
    }
 }
+
 void Entity::attack(Entity* enemy)
 {
    enemy->damage(this->getDamage());
 }
+
 void Entity::damage(int damage)
 {
    this->health = health-damage;
 }
+
 void Entity::draw(void)
 {
    mvaddch(this->previous.second,this->previous.first,Map::getTile(this->previous));
@@ -45,6 +48,7 @@ void Entity::draw(void)
    mvaddch(location.second,location.first,64);
    attroff(COLOR_PAIR(1));
 }
+
 bool Entity::canMove(Location destination)
 {
    int x = this->location.first+destination.first;
@@ -66,6 +70,7 @@ bool Entity::canMove(Location destination)
 
    return false;
 }
+
 int Entity::getDamage()
 {
    return this->level*3;
