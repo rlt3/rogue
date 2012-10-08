@@ -1,10 +1,27 @@
 #include <time.h>
+#include <iostream>
 #include <curses.h>
 #include "typedef.h"
 #include "Entity.h"
 #include "Map.h"
 #include "Player.h"
 #include "Monster.h"
+
+Location move(int seedx)
+{
+   long now = time(NULL);
+   long seed = (time(&now))+seedx;
+   srand( seed ); //Randomize seed initialization
+   int sign = rand() % 2; 
+   int x = rand() % 2;
+   if(sign==0) x=-x;
+
+   sign = rand() % 2; 
+   int y = rand() % 2;
+   if(sign==0) y=-y;
+
+   return Location (x, y); 
+}
 
 int main()
 {
@@ -35,6 +52,9 @@ int main()
    bool running=true;
    map.draw(); //map.draw(floor);
    player.draw();
+   gob1->draw();
+   gob2->draw();
+   gob3->draw();
    mvaddch(MAP_HEIGHT+2,0,32);
    while(running)
    {
@@ -47,19 +67,13 @@ int main()
          gob3->draw();
          mvaddch(MAP_HEIGHT+2,0,32);
 
-         gob1->move(Location (1,0));
-         gob2->move(Location (1,0));
-         gob3->move(Location (1,0));
+         gob1->move(move(13));
+         gob2->move(move(23));
+         gob3->move(move(4));
 
          next_game_tick += SKIP_TICKS;
          loops++;
       }
-      //while(playerInput)
-      //{
-      //   player.draw();
-      //   mvaddch(MAP_HEIGHT+2,0,32);
-      //   playerInput=false;
-      //}
       if((ch = getch())!=ERR)
       {
          switch (ch)
@@ -68,32 +82,24 @@ int main()
                player.move(Location (0,1));
                player.draw();
                mvaddch(MAP_HEIGHT+2,0,32);
-               //playerInput=true;
-               //next_game_tick -= SKIP_TICKS;
                break;
             
             case 'k' :
                player.move(Location (0,-1));
                player.draw();
                mvaddch(MAP_HEIGHT+2,0,32);
-               //playerInput=true;
-               //next_game_tick -= SKIP_TICKS;
                break;
 
             case 'l' :
                player.move(Location (1,0));
                player.draw();
                mvaddch(MAP_HEIGHT+2,0,32);
-               //playerInput=true;
-               //next_game_tick -= SKIP_TICKS;
                break;
 
             case 'h' :
                player.move(Location (-1,0));
                player.draw();
                mvaddch(MAP_HEIGHT+2,0,32);
-               //playerInput=true;
-               //next_game_tick -= SKIP_TICKS;
                break;
             
             case 'Q' :
