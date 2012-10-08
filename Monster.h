@@ -15,7 +15,8 @@ class Monster : public Entity
       }
       void draw(void)
       {
-         mvaddch(this->previous.second,this->previous.first,Map::getTile(this->previous));
+         Location before (this->previous.first-OFFSET, this->previous.second-OFFSET);
+         mvaddch(this->previous.second,this->previous.first,Map::getTile(before));
          init_pair(2, COLOR_RED, COLOR_BLACK);
          attron(COLOR_PAIR(2)); 
          mvaddch(location.second,location.first,103);

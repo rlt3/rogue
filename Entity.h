@@ -42,7 +42,8 @@ void Entity::damage(int damage)
 
 void Entity::draw(void)
 {
-   mvaddch(this->previous.second,this->previous.first,Map::getTile(this->previous));
+   Location before (this->previous.first-OFFSET, this->previous.second-OFFSET);
+   mvaddch(this->previous.second,this->previous.first,Map::getTile(before));
    init_pair(1, COLOR_GREEN, COLOR_BLACK);
    attron(COLOR_PAIR(1)); 
    mvaddch(location.second,location.first,64);
