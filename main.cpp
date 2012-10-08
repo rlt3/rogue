@@ -1,44 +1,11 @@
 #include <time.h>
 #include <iostream>
 #include <curses.h>
-#include "typedef.h"
-#include "Entity.h"
-#include "Map.h"
-#include "Player.h"
-#include "Monster.h"
-
-Location move(int seedx)
-{
-   long now = time(NULL);
-   long seed = (time(&now))+seedx;
-   srand( seed ); //Randomize seed initialization
-   int sign = rand() % 2; 
-   int x = rand() % 2;
-   if(sign==0) x=-x;
-
-   sign = rand() % 2; 
-   int y = rand() % 2;
-   if(sign==0) y=-y;
-
-   return Location (x, y); 
-}
+#include "Game.h"
 
 int main()
 {
-   keypad(initscr(),1);
-   curs_set(0);
-   start_color(); 
-   nodelay(stdscr, TRUE);
-
-   char ch;
-   int floor;
-
-   Map map;
-   Player player;
-   
-   Monster* gob1 = new Monster(Location (4, 12));
-   Monster* gob2 = new Monster(Location (4, 13));
-   Monster* gob3 = new Monster(Location (4, 14));
+   Game game;
 
    const int TICKS_PER_SECOND = 60;
    const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
@@ -47,30 +14,15 @@ int main()
    long next_game_tick = time(NULL);
 
    int loops;
-
-   bool playerInput=true;
+   char ch;
    bool running=true;
-   map.draw(); //map.draw(floor);
-   player.draw();
-   gob1->draw();
-   gob2->draw();
-   gob3->draw();
-   mvaddch(MAP_HEIGHT+2,0,32);
+
    while(running)
    {
       loops=0;
       while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP)
       {
-         floor = player.floor;
-         gob1->draw();
-         gob2->draw();
-         gob3->draw();
-         mvaddch(MAP_HEIGHT+2,0,32);
-
-         gob1->move(move(13));
-         gob2->move(move(23));
-         gob3->move(move(4));
-
+         game.moveEntities();
          next_game_tick += SKIP_TICKS;
          loops++;
       }
@@ -79,27 +31,19 @@ int main()
          switch (ch)
          {
             case 'j' :
-               player.move(Location (0,1));
-               player.draw();
-               mvaddch(MAP_HEIGHT+2,0,32);
+               game.movePlayer(Location (0,1));
                break;
             
             case 'k' :
-               player.move(Location (0,-1));
-               player.draw();
-               mvaddch(MAP_HEIGHT+2,0,32);
+               game.movePlayer(Location (0,-1));
                break;
 
             case 'l' :
-               player.move(Location (1,0));
-               player.draw();
-               mvaddch(MAP_HEIGHT+2,0,32);
+               game.movePlayer(Location (1,0));
                break;
 
             case 'h' :
-               player.move(Location (-1,0));
-               player.draw();
-               mvaddch(MAP_HEIGHT+2,0,32);
+               game.movePlayer(Location (-1,0));
                break;
             
             case 'Q' :
