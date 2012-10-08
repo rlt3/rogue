@@ -1,7 +1,10 @@
+#ifndef GAME_H
+#define GAME_H
 #include "typedef.h"
 #include "Player.h"
+#include "Dungeon.h"
 #include "Monster.h"
-#include "Map.h"
+//#include "Map.h"
 
 class Game
 {
@@ -15,19 +18,19 @@ class Game
          nodelay(stdscr, TRUE); // getch() is non-blocking
 
          this->player = new Player();
-         this->map = new Map();
-         this->monster = new Monster(Location (4,15));
+         this->dungeon = new Dungeon();
+         //this->monster = new Monster(Location (4,15));
 
          this->map->draw();
          this->player->draw();
-         this->monster->draw();
+         this->dungeon->draw();
 
          this->catchInput();
       }
       void moveEntities()
       {
-         this->monster->move(Game::direction(this->monster));
-         this->monster->draw();
+         this->dungeon->moveEntities();
+         this->dungeon->drawEntities();
          this->catchInput();
       }
       void movePlayer(Location destination)
@@ -38,25 +41,12 @@ class Game
       }
    protected:
       Player *player;
-      Map *map;
-      Monster *monster;
+      Dugeon *dungeon;
+      //Monster *monster;
       void catchInput()
       {
          // primitively removes user input from messing up the map
          mvaddch(MAP_HEIGHT+2,0,32);
       }
-      Location direction(Monster *monster)
-      {
-         long seed = (time((time_t*) monster));
-         srand( seed ); //Randomize seed initialization
-         int sign = rand() % 2; 
-         int x = rand() % 2;
-         if(sign==0) x=-x;
-
-         sign = rand() % 2; 
-         int y = rand() % 2;
-         if(sign==0) y=-y;
-
-         return Location (x, y); 
-      }
 };
+#endif
