@@ -13,7 +13,11 @@ class Dungeon
       Dungeon()
       {
          this->floor=0;
-         this->Monsters[MAP_HEIGHT][MAP_WIDTH] = { NULL };
+
+         // c++ is retarded what the fuck
+         for (int y=OFFSET;y<=MAP_HEIGHT;y++)
+            for (int x=OFFSET;x<=MAP_WIDTH;x++)
+               this->Monsters[y-OFFSET][x-OFFSET] = NULL;
 
          this->generateMap();
          this->generateMonsters();
@@ -32,7 +36,10 @@ class Dungeon
          for(int y=OFFSET;y<MAP_HEIGHT;y++)
             for(int x=OFFSET;x<MAP_WIDTH;x++)
                if(this->Monsters[y-OFFSET][x-OFFSET]!=NULL)
-                  mvaddch(location.second,location.first,103);
+               {
+                  Monster *monster = this->Monsters[y-OFFSET][x-OFFSET];
+                  mvaddch(monster->location.second,monster->location.first,103);
+               }
          attroff(COLOR_PAIR(2));
       }
       void moveEntities()
@@ -56,7 +63,8 @@ class Dungeon
    protected: 
       void generateMap()
       {
-         this->Map[MAP_HEIGHT][MAP_WIDTH] =
+         // can't initialize class arrays, so we'll just memcopy a local one
+         int array[MAP_HEIGHT][MAP_WIDTH] =
          {
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -74,6 +82,7 @@ class Dungeon
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
          };
+         memcpy(this->Map,array,sizeof(array));
          this->floor++;
       }
       void generateMonsters()
