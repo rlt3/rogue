@@ -1,59 +1,47 @@
-#include <time.h>
-#include <iostream>
-#include <curses.h>
 #include "Game.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-   Game game;
+   Game* game = new Game();
 
-   const int TICKS_PER_SECOND = 60;
-   const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
-   const int MAX_FRAMESKIP = 10;
+   SDL_Event event;
 
-   long next_game_tick = time(NULL);
+   int keypress = 0;
+   int h=0; 
 
-   int loops;
-   char ch;
-   bool running=true;
-
-   while(running)
+   while(!keypress) 
    {
-      loops=0;
-      while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP)
-      {
-         game.moveEntities();
-         next_game_tick += SKIP_TICKS;
-         loops++;
-      }
-      if((ch = getch())!=ERR)
-      {
-         switch (ch)
+      game->draw();
+      while(SDL_PollEvent(&event)) 
+      {      
+         switch (event.type) 
          {
-            case 'j' :
-               game.movePlayer(Location (0,1));
-               break;
-            
-            case 'k' :
-               game.movePlayer(Location (0,-1));
-               break;
-
-            case 'l' :
-               game.movePlayer(Location (1,0));
-               break;
-
-            case 'h' :
-               game.movePlayer(Location (-1,0));
-               break;
-            
-            case 'Q' :
-               running=false;
-               break;
-            
-            default:
+            case SDL_KEYDOWN:
+               switch(event.key.keysym.sym)
+               {
+                  case SDLK_j:
+                     game->movePlayer(Location (0,1));
+                     break;
+                  case SDLK_k:
+                     game->movePlayer(Location (0,-1));
+                     break;
+                  case SDLK_l:
+                     game->movePlayer(Location (1,0));
+                     break;
+                  case SDLK_h:
+                     game->movePlayer(Location (-1,0));
+                     break;
+                  case SDLK_ESCAPE:
+                    keypress = 1;
+                    break;
+                  case SDL_QUIT:
+                    keypress = 1;
+                    break;
+               }
                break;
          }
       }
    }
-   return endwin();
+   SDL_Quit();
+   return 0;
 }
