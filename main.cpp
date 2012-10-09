@@ -1,3 +1,4 @@
+#include <time.h>
 #include "Game.h"
 
 int main(int argc, char* argv[])
@@ -6,12 +7,28 @@ int main(int argc, char* argv[])
 
    SDL_Event event;
 
-   int keypress = 0;
-   int h=0; 
+   int loops;
+   bool running=true;
 
-   while(!keypress) 
+   const int TICKS_PER_SECOND = 60;
+   const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
+   const int MAX_FRAMESKIP = 10;
+
+   long next_game_tick = time(NULL);
+
+   while(running)
    {
       game->draw();
+      loops=0;
+      while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP)
+      {
+         // only update entities and mechanics in here
+         // probably not a good idea to redraw the screen all the time
+         // but I dunno
+         game->updateEntities();
+         next_game_tick += SKIP_TICKS;
+         loops++;
+      }
       while(SDL_PollEvent(&event)) 
       {      
          switch (event.type) 
@@ -32,10 +49,10 @@ int main(int argc, char* argv[])
                      game->movePlayer(Location (-1,0));
                      break;
                   case SDLK_ESCAPE:
-                    keypress = 1;
+                    running=false;
                     break;
                   case SDL_QUIT:
-                    keypress = 1;
+                    running=false;
                     break;
                }
                break;

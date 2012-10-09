@@ -1,7 +1,9 @@
+#include <time.h>
 #include <SDL/SDL.h>
 #include <SDL_image/SDL_image.h>
 #include "defs.h"
 #include "Player.h"
+#include "Monster.h"
 
 class Game
 {
@@ -24,7 +26,11 @@ class Game
 
          this->assignTextures();
          this->generateDungeon();
+
          this->player = new Player();
+         this->test1 = new Monster(Location (5,5));
+         this->test2 = new Monster(Location (10,13));
+         this->test3 = new Monster(Location (8,2));
       }
       void draw() {
          // clear the screen
@@ -33,6 +39,7 @@ class Game
          // redraw the necessary stuff
          this->drawMap();
          this->drawPlayer();
+         this->drawEntities();
 
          // apply
          SDL_Flip(this->screen);
@@ -42,10 +49,33 @@ class Game
          this->player->location.first += direction.first;
          this->player->location.second += direction.second;
       }
+      void updateEntities()
+      {
+         this->test1->move(Game::direction());
+         this->test2->move(Game::direction());
+         this->test3->move(Game::direction());
+      }
    protected:
       int Map[MAP_HEIGHT][MAP_WIDTH];
       Player *player;
-      SDL_Surface *screen, *brickImage, *backgroundImage, *playerImage;
+      Monster *test1, *test2, *test3;
+      SDL_Surface *screen, *brickImage, *backgroundImage, *playerImage, *monsterImage;
+
+      static Location direction()
+      {
+         long seed = (time(NULL))+rand();
+         srand(seed); 
+
+         int sign = rand() % 2; 
+         int x = rand() % 2;
+         if(sign==0) x=-x;
+
+         sign = rand() % 2; 
+         int y = rand() % 2;
+         if(sign==0) y=-y;
+
+         return Location (x, y); 
+      }
 
       void drawMap() {
 
@@ -57,10 +87,19 @@ class Game
             }
          }
       }
+
+      void drawEntities()
+      {
+         this->drawImage(this->monsterImage, this->test1->location.first * TILE_SIZE, this->test1->location.second * TILE_SIZE);
+         this->drawImage(this->monsterImage, this->test2->location.first * TILE_SIZE, this->test2->location.second * TILE_SIZE);
+         this->drawImage(this->monsterImage, this->test3->location.first * TILE_SIZE, this->test3->location.second * TILE_SIZE);
+      }
+
       void drawPlayer()
       {
          this->drawImage(this->playerImage, this->player->location.first * TILE_SIZE, this->player->location.second * TILE_SIZE);
       }
+
       void generateDungeon() {
          int array[MAP_HEIGHT][MAP_WIDTH] = {
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -96,6 +135,11 @@ class Game
 
          this->playerImage = this->loadImage("gfx/player.png");
          if (playerImage == NULL) {
+            exit(1);
+         }
+         
+         this->monsterImage = this->loadImage("gfx/monster.png");
+         if (monsterImage == NULL) {
             exit(1);
          }
       }
