@@ -4,7 +4,7 @@ LDFLAGS=-I/Library/Frameworks/SDL.framework/Headers
 FRAMEWORKS=-framework SDL -framework Cocoa
 SOURCES=main.cpp Render.cpp Animation.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=game
+EXECUTABLE=rogue
 
 all: $(SOURCES) $(EXECUTABLE)
 		
