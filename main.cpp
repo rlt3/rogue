@@ -1,24 +1,17 @@
 #include <time.h>
 #include "Render.h"
 #include "Animation.h"
+#include "Player.h"
 
 int main(int argc, char* argv[]) {
    Render::init();
    Animation animation;
+   Player player;
 
-   SDL_Surface *player, *floor;
-   SDL_Rect animate, location, floorLocation;
+   SDL_Surface *floor;
+   SDL_Rect floorLocation;
 
-   player = animation.loadSprite("player.bmp");
    floor = animation.loadSprite("floor.bmp");
-
-   location.x = 250;
-   location.y = 250;
-
-   animate.x = 128;
-   animate.y = 0;
-   animate.w = SPRITE_SIZE;
-   animate.h = SPRITE_SIZE;
 
    const int TICKS_PER_SECOND = 60;
    const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
@@ -32,6 +25,7 @@ int main(int argc, char* argv[]) {
       loops=0;
 
       while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP) {
+         player.update(NULL);
          next_game_tick += SKIP_TICKS;
          loops++;
       }
@@ -44,8 +38,26 @@ int main(int argc, char* argv[]) {
                   case SDL_QUIT:
                     running=false;
                     break;
+                  case SDLK_a:
+                     player.update("WALK_LEFT");
+                     break;
+                  case SDLK_d:
+                     player.update("WALK_RIGHT");
+                     break;
+                  case SDLK_w:
+                     player.update("WALK_UP");
+                     break;
+                  case SDLK_s:
+                     player.update("WALK_DOWN");
+                     break;
+                  case SDLK_1:
+                     //player.update("ATTACK");
+                     break;
                }
-            break;
+               break;
+            case SDL_KEYUP:
+               player.update("IDLE");
+               break;
          }
       }
 
@@ -56,9 +68,7 @@ int main(int argc, char* argv[]) {
             Render::draw(floor, NULL, &floorLocation);
 			}
 		}
-
-      Render::draw(player, &animate, &location);
-
+      player.draw();
       Render::game();
    }
    Render::quit();

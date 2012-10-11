@@ -9,6 +9,7 @@ class Animation
       Animation();
       ~Animation();
       SDL_Surface *loadSprite(const char *filename);
+      //void animate(SDL_Surface *sprite, const char *state);
       void deleteSprite(SDL_Surface *sprite);
    private:
       SDL_Surface *temp;
