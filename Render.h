@@ -1,19 +1,27 @@
+#ifndef RENDER_H
+#define RENDER_H
 #include <SDL/SDL.h>
-//#include <SDL_image/SDL_image.h>
+
+#define SCREEN_WIDTH  640
+#define SCREEN_HEIGHT 480
+#define SPRITE_SIZE    32
 
 class Render
 {
    public:
+      SDL_Surface static *screen;
+
       // Initialize SDL
-      Render();
-      // SDL_Quit -- Make sure to SDL_FreeSurface on sprites
-      ~Render();
+      void static init();
+
+      // SDL_Quit
+      void static quit();
 
       // SDL_Blit the sprite, animation, and position to screen
-      void draw(SDL_Surface *sprite, SDL_Rect *animation, SDL_Rect *location);
+      void static draw(SDL_Surface *sprite, SDL_Rect *animation, SDL_Rect *location);
 
       // render the screen
-      void game();
-   private:
-      SDL_Surface *screen;
-}
+      void static game();
+};
+extern Render render;
+#endif

@@ -1,64 +1,66 @@
 #include <time.h>
-#include "Game.h"
+#include "Render.h"
+#include "Animation.h"
 
-int main(int argc, char* argv[])
-{
-   Game* game = new Game();
+int main(int argc, char* argv[]) {
+   Render::init();
+   Animation animation;
 
-   SDL_Event event;
+   SDL_Surface *player, *floor;
+   SDL_Rect animate, location, floorLocation;
 
-   int loops;
-   bool running=true;
+   player = animation.loadSprite("player.bmp");
+   floor = animation.loadSprite("floor.bmp");
+
+   location.x = 250;
+   location.y = 250;
+
+   animate.x = 128;
+   animate.y = 0;
+   animate.w = SPRITE_SIZE;
+   animate.h = SPRITE_SIZE;
 
    const int TICKS_PER_SECOND = 60;
    const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
    const int MAX_FRAMESKIP = 10;
-
    long next_game_tick = time(NULL);
+   int loops;
 
-   while(running)
-   {
-      game->draw();
+   bool running = true;
+   while(running) {
+      SDL_Event event;
       loops=0;
-      while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP)
-      {
-         // only update entities and mechanics in here
-         // probably not a good idea to redraw the screen all the time
-         // but I dunno
-         game->updateEntities();
+
+      while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP) {
          next_game_tick += SKIP_TICKS;
          loops++;
       }
-      while(SDL_PollEvent(&event)) 
-      {      
-         switch (event.type) 
-         {
+
+      while(SDL_PollEvent(&event)) {
+         switch (event.type) {
             case SDL_KEYDOWN:
-               switch(event.key.keysym.sym)
-               {
-                  case SDLK_j:
-                     game->movePlayer(Location (0,1));
-                     break;
-                  case SDLK_k:
-                     game->movePlayer(Location (0,-1));
-                     break;
-                  case SDLK_l:
-                     game->movePlayer(Location (1,0));
-                     break;
-                  case SDLK_h:
-                     game->movePlayer(Location (-1,0));
-                     break;
+               switch(event.key.keysym.sym) {
                   case SDLK_ESCAPE:
-                    running=false;
-                    break;
                   case SDL_QUIT:
                     running=false;
                     break;
                }
-               break;
+            break;
          }
       }
+
+		for (int x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
+			for (int y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
+				floorLocation.x = x * SPRITE_SIZE;
+				floorLocation.y = y * SPRITE_SIZE;
+            Render::draw(floor, NULL, &floorLocation);
+			}
+		}
+
+      Render::draw(player, &animate, &location);
+
+      Render::game();
    }
-   SDL_Quit();
+   Render::quit();
    return 0;
 }

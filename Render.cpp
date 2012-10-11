@@ -1,25 +1,27 @@
 #include "Render.h"
 
-Render::Render()
+SDL_Surface *Render::screen;
+
+void Render::init()
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_WM_SetCaption("Dearth", "Dearth");
-	this->screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0);
+   Render::screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0);
 
 	SDL_EnableKeyRepeat(70, 70);
 }
 
-~Render::Render()
+void Render::quit()
 {
 	SDL_Quit();
 }
 
-void draw(SDL_Surface *sprite, SDL_Rect *animation, SDL_Rect *location)
+void Render::draw(SDL_Surface *sprite, SDL_Rect *animation, SDL_Rect *location)
 {
-   SDL_BlitSurface(sprite, animation, this->screen, location);
+   SDL_BlitSurface(sprite, animation, Render::screen, location);
 }
 
-void game()
+void Render::game()
 {
-   SDL_UpdateRect(this->screen, 0, 0, 0, 0);
+   SDL_UpdateRect(Render::screen, 0, 0, 0, 0);
 }
