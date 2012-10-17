@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
    SDL_Surface *floor;
    SDL_Rect floorLocation;
 
-   floor = animation.loadSprite("floor.bmp");
+   floor = animation.loadSprite("floor64.bmp");
 
    const int TICKS_PER_SECOND = 60;
    const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
@@ -34,20 +34,19 @@ int main(int argc, char* argv[]) {
          switch (event.type) {
             case SDL_KEYDOWN:
                switch(event.key.keysym.sym) {
-                  case SDLK_ESCAPE:
-                  case SDL_QUIT:
+                  case SDLK_ESCAPE: case SDL_QUIT:
                     running=false;
                     break;
-                  case SDLK_a:
+                  case SDLK_a: case SDLK_LEFT:
                      player.update("WALK_LEFT");
                      break;
-                  case SDLK_d:
+                  case SDLK_d: case SDLK_RIGHT:
                      player.update("WALK_RIGHT");
                      break;
-                  case SDLK_w:
+                  case SDLK_w: case SDLK_UP:
                      player.update("WALK_UP");
                      break;
-                  case SDLK_s:
+                  case SDLK_s: case SDLK_DOWN:
                      player.update("WALK_DOWN");
                      break;
                   case SDLK_1:
@@ -68,9 +67,11 @@ int main(int argc, char* argv[]) {
             Render::draw(floor, NULL, &floorLocation);
 			}
 		}
+
       player.draw();
       Render::game();
    }
+
    Render::quit();
    return 0;
 }
