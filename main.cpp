@@ -37,17 +37,17 @@ int main(int argc, char* argv[]) {
                   case SDLK_ESCAPE: case SDL_QUIT:
                     running=false;
                     break;
-                  case SDLK_a: case SDLK_LEFT:
-                     player.update("WALK_LEFT");
-                     break;
-                  case SDLK_d: case SDLK_RIGHT:
-                     player.update("WALK_RIGHT");
-                     break;
-                  case SDLK_w: case SDLK_UP:
+                  case SDLK_w: case SDLK_UP: case SDLK_k:
                      player.update("WALK_UP");
                      break;
-                  case SDLK_s: case SDLK_DOWN:
+                  case SDLK_a: case SDLK_LEFT: case SDLK_h:
+                     player.update("WALK_LEFT");
+                     break;
+                  case SDLK_s: case SDLK_DOWN: case SDLK_j:
                      player.update("WALK_DOWN");
+                     break;
+                  case SDLK_d: case SDLK_RIGHT: case SDLK_l:
+                     player.update("WALK_RIGHT");
                      break;
                   case SDLK_1:
                      //player.update("ATTACK");
