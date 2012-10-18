@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-c
 LDFLAGS=-I/Library/Frameworks/SDL.framework/Headers
-FRAMEWORKS=-framework SDL -framework Cocoa
+FRAMEWORKS=-framework SDL -framework SDL_image -framework Cocoa
 SOURCES=main.cpp Render.cpp Animation.cpp Player.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=rogue
