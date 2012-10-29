@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
    SDL_Surface *floor;
    SDL_Rect floorLocation;
 
-   floor = animation.loadSprite("floor64.bmp");
+   floor = animation.loadSprite("graphics/floor64.bmp");
 
    const int TICKS_PER_SECOND = 60;
    const int SKIP_TICKS = 60 / TICKS_PER_SECOND;

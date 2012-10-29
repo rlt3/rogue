@@ -1,6 +1,7 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 #include <SDL/SDL.h>
+#include <SDL_image/SDL_image.h>
 #include "Render.h"
 
 class Animation

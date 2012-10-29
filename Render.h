@@ -3,8 +3,8 @@
 #include <SDL/SDL.h>
 
 #define SCREEN_WIDTH  640
-#define SCREEN_HEIGHT 480
-#define SPRITE_SIZE    32
+#define SCREEN_HEIGHT 512
+#define SPRITE_SIZE    64
 
 class Render
 {
@@ -23,5 +23,4 @@ class Render
       // render the screen
       void static game();
 };
-extern Render render;
 #endif

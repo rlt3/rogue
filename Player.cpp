@@ -3,8 +3,8 @@
 Player::Player()
 {
    Animation animation;
-   this->sprite = animation.loadSprite("player.bmp");
-   this->animate.x = 160;
+   this->sprite = animation.loadSprite("graphics/monster.png");
+   this->animate.x = 256;
    this->animate.y = 0;
    this->animate.w = SPRITE_SIZE;
    this->animate.h = SPRITE_SIZE;
@@ -24,10 +24,10 @@ void Player::update(const char *state)
    this->count++;
    if(state == NULL && this->state == "IDLE") {
       if(this->count%2 == 0) {
-         if(this->animate.x == 128)
-            this->animate.x = 160; 
+         if(this->animate.x == 256)
+            this->animate.x = 320; 
          else
-            this->animate.x = 128; 
+            this->animate.x = 256; 
       }
       return;
    }
@@ -35,38 +35,38 @@ void Player::update(const char *state)
    this->state = state;
 
    if(this->state == "WALK_LEFT") {
-      if(this->animate.x == 192)
-         this->animate.x = 224; 
+      if(this->animate.x == 384)
+         this->animate.x = 448; 
       else
-         this->animate.x = 192; 
+         this->animate.x = 384; 
 
-      this->location.x -= 5;
+      this->location.x -= 10;
    }
 
    if(this->state == "WALK_RIGHT") {
-      if(this->animate.x == 64)
-         this->animate.x = 96; 
+      if(this->animate.x == 128)
+         this->animate.x = 192; 
       else
-         this->animate.x = 64; 
+         this->animate.x = 128; 
 
-      this->location.x += 5;
+      this->location.x += 10;
    }
 
    if(this->state == "WALK_UP") {
       if(this->animate.x == 0)
-         this->animate.x = 32; 
+         this->animate.x = 64; 
       else
          this->animate.x = 0; 
 
-      this->location.y -= 5;
+      this->location.y -= 10;
    }
 
    if(this->state == "WALK_DOWN") {
-      if(this->animate.x == 128)
-         this->animate.x = 160; 
+      if(this->animate.x == 256)
+         this->animate.x = 320; 
       else
-         this->animate.x = 128; 
+         this->animate.x = 256; 
 
-      this->location.y += 5;
+      this->location.y += 10;
    }
 }
