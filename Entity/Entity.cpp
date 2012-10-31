@@ -16,3 +16,8 @@ void Entity::update(const char *state)
 {
    this->state = state;
 }
+
+void Entity::move(Location direction)
+{
+   this->location = std::make_pair(this->location.first+direction.first,this->location.second+direction.second);
+}

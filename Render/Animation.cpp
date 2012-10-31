@@ -8,26 +8,27 @@ Animation::Animation()
 {
    this->colorkey = SDL_MapRGB(Render::screen()->surface->format, 255, 0, 255);
 
-   Animation::sprites["player"] = this->loadSprite("graphics/player.png");
+   Animation::sprites["player"]  = this->loadSprite("graphics/player.png");
    Animation::sprites["monster"] = this->loadSprite("graphics/monster.png");
+   Animation::sprites["floor"]   = this->loadSprite("graphics/floor64.bmp");
 
    SDL_Rect frame;
    animationQueue idle, w_left, w_right, w_up, w_down; 
 
-   frame.y=0; frame.x=256; idle.push(frame);
-   frame.y=0; frame.x=320; idle.push(frame);
+   frame.y=0; frame.x=256; idle.push(&frame);
+   frame.y=0; frame.x=320; idle.push(&frame);
 
-   frame.y=0; frame.x=384; w_left.push(frame);
-   frame.y=0; frame.x=448; w_left.push(frame);
+   frame.y=0; frame.x=384; w_left.push(&frame);
+   frame.y=0; frame.x=448; w_left.push(&frame);
 
-   frame.y=0; frame.x=128; w_right.push(frame);
-   frame.y=0; frame.x=192; w_right.push(frame);
+   frame.y=0; frame.x=128; w_right.push(&frame);
+   frame.y=0; frame.x=192; w_right.push(&frame);
 
-   frame.y=0; frame.x=0;   w_up.push(frame);
-   frame.y=0; frame.x=64;  w_up.push(frame);
+   frame.y=0; frame.x=0;   w_up.push(&frame);
+   frame.y=0; frame.x=64;  w_up.push(&frame);
 
-   frame.y=0; frame.x=256; w_down.push(frame);
-   frame.y=0; frame.x=320; w_down.push(frame);
+   frame.y=0; frame.x=256; w_down.push(&frame);
+   frame.y=0; frame.x=320; w_down.push(&frame);
 
    Animation::keyframes["IDLE"] = idle;
    Animation::keyframes["WALK_LEFT"] = w_left;
@@ -43,20 +44,30 @@ Animation* Animation::instance()
    return Animation::object;
 }
 
-void animate(const char *type, Location location, SDL_Rect animation)
+void Animation::draw(const char *type, Location location, const char *state)
 {
    /**
-    * Animation State Machine:
-    *    Every frame the Entity will give its state to the state machine.
-    *    The state machine has an instruction set that says to animate
-    *    a particular state. Until the state machine is given new instructions,
-    *    it will animate that particular state:
+    * Do all the necessary conversions for the specific proprietary
+    * calls that need to be made.
     *
-    *    IDLE, IDLE, IDLE, IDLE, etc.
+    * We convert the location pair into a SDL_Rect and use the state
+    * to look up a frame from the assosciative state array.
     *
-    *    Because it is idling, it will simply go back and forth between
-    *    the animations/
+    * The same goes for picking out the sprite.
     */
+
+   SDL_Rect spriteLocation;
+   spriteLocation.x = location.first;
+   spriteLocation.y = location.second;
+
+   SDL_Rect *frame;
+   if(state==NULL)
+      frame = NULL;
+   else
+      frame = Animation::keyframes[state].next();
+   //SDL_Rect frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
+   
+   Render::screen()->draw(Animation::sprites[type], &spriteLocation, frame);
 }
 
 SDL_Surface *Animation::loadSprite(const char *filename)

@@ -9,6 +9,8 @@ class Entity
       Entity(const char *type);
       void draw();
       void update(const char *state);
+      void move(Location direction);
+
       Location location;
       const char *type;
    protected:

@@ -1,17 +1,8 @@
 #include <time.h>
-#include "Render.h"
-#include "Animation.h"
-#include "Player.h"
+#include "Game.h"
 
 int main(int argc, char* argv[]) {
-   Render::init();
-   Animation animation;
-   Player player;
-
-   SDL_Surface *floor;
-   SDL_Rect floorLocation;
-
-   floor = animation.loadSprite("graphics/floor64.bmp");
+   Game game;
 
    const int TICKS_PER_SECOND = 60;
    const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
@@ -25,7 +16,9 @@ int main(int argc, char* argv[]) {
       loops=0;
 
       while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP) {
-         player.update(NULL);
+         /**
+          * Update the Dungeon Entities
+          */
          next_game_tick += SKIP_TICKS;
          loops++;
       }
@@ -38,16 +31,16 @@ int main(int argc, char* argv[]) {
                     running=false;
                     break;
                   case SDLK_w: case SDLK_UP: case SDLK_k:
-                     player.update("WALK_UP");
+                     game.updatePlayer("WALK_UP");
                      break;
                   case SDLK_a: case SDLK_LEFT: case SDLK_h:
-                     player.update("WALK_LEFT");
+                     game.updatePlayer("WALK_LEFT");
                      break;
                   case SDLK_s: case SDLK_DOWN: case SDLK_j:
-                     player.update("WALK_DOWN");
+                     game.updatePlayer("WALK_DOWN");
                      break;
                   case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-                     player.update("WALK_RIGHT");
+                     game.updatePlayer("WALK_RIGHT");
                      break;
                   case SDLK_1:
                      //player.update("ATTACK");
@@ -55,23 +48,13 @@ int main(int argc, char* argv[]) {
                }
                break;
             case SDL_KEYUP:
-               player.update("IDLE");
+               game.updatePlayer("IDLE");
                break;
          }
       }
-
-		for (int x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
-			for (int y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
-				floorLocation.x = x * SPRITE_SIZE;
-				floorLocation.y = y * SPRITE_SIZE;
-            Render::draw(floor, NULL, &floorLocation);
-			}
-		}
-
-      player.draw();
-      Render::game();
+      game.display();
    }
 
-   Render::quit();
+   Render::screen()->quit();
    return 0;
 }

@@ -2,12 +2,14 @@
 
 Game::Game()
 {
-   Render::init();
-}
+   // instantiate the Render class
+   Render::screen(); 
 
-Game::~Game()
-{
-   // foo
+   // instantiate the animation class
+   Render::animation(); 
+
+   this->player = new Player();
+   this->dungeon = new Dungeon(5);
 }
 
 void Game::handleInput(SDL_Event event)
@@ -17,10 +19,15 @@ void Game::handleInput(SDL_Event event)
 
 void Game::update()
 {
-   // dungeon update
+   this->dungeon->draw();
+}
+
+void Game::updatePlayer(const char *state)
+{
+   this->player->update(state);
 }
 
 void Game::display()
 {
-   Render::game();
+   Render::screen()->update();
 }
