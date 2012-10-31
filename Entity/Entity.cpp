@@ -1,7 +1,5 @@
 #include "Entity.h"
 
-std::map<const char *state, animationQueue> Entity::keyframes;
-
 Entity::Entity(const char* type)
 {
    this->type = type;
@@ -11,7 +9,7 @@ Entity::Entity(const char* type)
 
 void Entity::draw()
 {
-   //Render::draw(this->sprite, &this->animate, &this->location);
+   Render::animation()->draw(this->type, this->location, this->state);
 }
 
 void Entity::update(const char *state)

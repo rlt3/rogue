@@ -3,11 +3,9 @@
 #include <map>
 #include <SDL/SDL.h>
 #include <SDL_image/SDL_image.h>
+#include "../typedef/location.h"
+#include "../typedef/animationQueue.h"
 #include "Render.h"
-#include "../Entity/Entity.h"
-#include "Queue.h"
-
-typedef Queue<SDL_Rect> animationQueue;
 
 /**
  * This is the Animation State Machine. Each entity holds a particular
