@@ -11,7 +11,7 @@ class Queue
    private:
       int front;
       int size;
-      int items[QUEUE_MAX];
+      Type items[QUEUE_MAX];
 };
 
 template <class Type>
@@ -24,7 +24,7 @@ Queue<Type>::Queue()
 template <class Type>
 Type Queue<Type>::next()
 {
-   int item = this->items[this->front];
+   Type item = this->items[this->front];
    this->front = ++this->front%this->size;
    return item;
 }

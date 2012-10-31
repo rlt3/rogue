@@ -26,7 +26,7 @@ Animation* Render::animation()
 
 void Render::draw(SDL_Surface *sprite, SDL_Rect *animation, SDL_Rect *location)
 {
-   SDL_BlitSurface(sprite, animation, Render::screen, location);
+   SDL_BlitSurface(sprite, animation, this->surface, location);
 }
 
 void Render::updateScreen()

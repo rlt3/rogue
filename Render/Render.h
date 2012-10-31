@@ -3,6 +3,8 @@
 #include <SDL/SDL.h>
 #include "Animation.h"
 
+class Animation;
+
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 512
 #define SPRITE_SIZE    64
@@ -26,13 +28,12 @@ class Render
    public:
       static Render *screen();
       static Animation *animation();
+      SDL_Surface *surface;
       void draw(SDL_Surface *sprite, SDL_Rect *animation, SDL_Rect *location);
       void update();
       void quit();
-   protected:
-      SDL_Surface *screen;
    private:
-      Render::Render();
+      Render();
       static Render *Render_Instance;
       static Animation *Animation_Instance;
 };
