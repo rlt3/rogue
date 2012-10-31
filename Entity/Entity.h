@@ -1,19 +1,22 @@
 #ifndef ENTITY_H
 #define ENTITY_H
+#include <utility>
 #include "../Graphics/Animation.h"
+#include "../Graphics/Render.h"
+
+typedef std::pair<int, int> Location; // coordinate pair (x,y)
 
 class Entity
 {
    public:
-      Entity();
+      Entity(const char *type);
       void draw();
       void update(const char *state);
+
+      Location location;
+      const char *type;
+      static std::map<const char *state, animationQueue> keyframes;
    protected:
-      // probably need map or something so Entities can 'choose'
-      // which sprite to use based on their type: Goblins use
-      // the goblin sprite, etc.
-      SDL_Surface *sprite;
-      Animation animation;
       const char *state;
 };
 #endif
