@@ -15,7 +15,7 @@ Animation::Animation()
 
    Animation::sprites["player"]  = this->loadSprite("graphics/player.png");
    Animation::sprites["monster"] = this->loadSprite("graphics/monster.png");
-   Animation::sprites["floor"]   = this->loadSprite("graphics/floor64.bmp");
+   Animation::sprites["floor"]   = this->loadSprite("graphics/floor.png");
 
    /**
     * Make a queue that alternates between frames, which are written
@@ -73,24 +73,26 @@ void Animation::draw(const char *type, Location location, const char *state)
     * The same goes for picking out the sprite.
     */
 
-   //SDL_Rect spriteLocation;
-   //spriteLocation.x = location.first;
-   //spriteLocation.y = location.second;
+   SDL_Rect spriteLocation;
+   spriteLocation.x = location.first;
+   spriteLocation.y = location.second;
 
-   //SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
-   //
-   //Render::screen()->draw(Animation::sprites[type], &spriteLocation, frame);
+   SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
+   
+   Render::screen()->draw(Animation::sprites[type], &spriteLocation, frame);
 
-   SDL_Rect floorLocation;
-   SDL_Surface *floor = this->loadSprite("graphics/floor.png");
+   //printf("drawing floor...\n");
 
-   for (int x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
-      for (int y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
-         floorLocation.x = x * SPRITE_SIZE;
-         floorLocation.y = y * SPRITE_SIZE;
-         Render::screen()->draw(floor,NULL,&floorLocation); 
-      }
-   }
+   //SDL_Rect floorLocation;
+   //SDL_Surface *floor = this->loadSprite("graphics/floor.png");
+
+   //for (int x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
+   //   for (int y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
+   //      floorLocation.x = x * SPRITE_SIZE;
+   //      floorLocation.y = y * SPRITE_SIZE;
+   //      Render::screen()->draw(floor,NULL,&floorLocation); 
+   //   }
+   //}
 }
 
 SDL_Surface *Animation::loadSprite(const char *filename)
