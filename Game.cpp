@@ -19,11 +19,13 @@ void Game::handleInput(SDL_Event event)
 
 void Game::update()
 {
-   this->dungeon->draw();
+   this->dungeon->update();
+   this->player->draw();
 }
 
-void Game::updatePlayer(const char *state)
+void Game::updatePlayer(const char *state, Location direction)
 {
+   this->player->move(direction);
    this->player->update(state);
 }
 

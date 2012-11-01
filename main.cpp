@@ -35,16 +35,16 @@ int main(int argc, char* argv[]) {
                     running=false;
                     break;
                   case SDLK_w: case SDLK_UP: case SDLK_k:
-                     game.updatePlayer("WALK_UP");
+                     game.updatePlayer("WALK_UP", std::make_pair(0,-10));
                      break;
                   case SDLK_a: case SDLK_LEFT: case SDLK_h:
-                     game.updatePlayer("WALK_LEFT");
+                     game.updatePlayer("WALK_LEFT", std::make_pair(-10,0));
                      break;
                   case SDLK_s: case SDLK_DOWN: case SDLK_j:
-                     game.updatePlayer("WALK_DOWN");
+                     game.updatePlayer("WALK_DOWN", std::make_pair(0,10));
                      break;
                   case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-                     game.updatePlayer("WALK_RIGHT");
+                     game.updatePlayer("WALK_RIGHT", std::make_pair(10,0));
                      break;
                   case SDLK_1:
                      //player.update("ATTACK");
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
                }
                break;
             case SDL_KEYUP:
-               game.updatePlayer("IDLE");
+               game.updatePlayer("IDLE", std::make_pair(0,0));
                break;
          }
       }

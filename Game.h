@@ -15,7 +15,7 @@ class Game
       // update entities (animation states, position, etc)
       void update();
 
-      void updatePlayer(const char *state);
+      void updatePlayer(const char *state, Location direction);
       
       // display these updates
       void display();

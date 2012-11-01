@@ -37,6 +37,9 @@ Animation::Animation()
    frame.y=0; frame.x=256; idle.push(frame);
    frame.y=0; frame.x=320; idle.push(frame);
 
+   frame.y=0; frame.x=384; w_left.push(frame);
+   frame.y=0; frame.x=448; w_left.push(frame);
+
    frame.y=0; frame.x=128; w_right.push(frame);
    frame.y=0; frame.x=192; w_right.push(frame);
 
