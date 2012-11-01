@@ -39,5 +39,6 @@ class Animation
    private:
       Animation();
       static Animation *object;
+      int count;
 };
 #endif
