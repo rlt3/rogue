@@ -73,26 +73,18 @@ void Animation::draw(const char *type, Location location, const char *state)
     * The same goes for picking out the sprite.
     */
 
+   // SDL_Rect for the Sprite's location
    SDL_Rect spriteLocation;
    spriteLocation.x = location.first;
    spriteLocation.y = location.second;
 
+   // SDL_Rect for the specific animation frame
    SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
-   
-   Render::screen()->draw(Animation::sprites[type], &spriteLocation, frame);
 
-   //printf("drawing floor...\n");
+   // Get the sprite based on the type received
+   SDL_Surface *sprite = Animation::sprites[type];
 
-   //SDL_Rect floorLocation;
-   //SDL_Surface *floor = this->loadSprite("graphics/floor.png");
-
-   //for (int x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
-   //   for (int y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
-   //      floorLocation.x = x * SPRITE_SIZE;
-   //      floorLocation.y = y * SPRITE_SIZE;
-   //      Render::screen()->draw(floor,NULL,&floorLocation); 
-   //   }
-   //}
+   Render::screen()->draw(sprite,frame,&spriteLocation); 
 }
 
 SDL_Surface *Animation::loadSprite(const char *filename)
