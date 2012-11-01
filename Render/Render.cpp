@@ -26,12 +26,15 @@ Animation* Render::animation()
 
 void Render::draw(SDL_Surface *sprite, SDL_Rect *animation, SDL_Rect *location)
 {
-   SDL_BlitSurface(sprite, animation, this->surface, location);
+   if(SDL_BlitSurface(sprite, animation, this->surface, location) < 0)
+   {
+      printf("Error!\n");
+   }
 }
 
 void Render::update()
 {
-   SDL_UpdateRect(this->surface, 0, 0, 0, 0);
+   //SDL_UpdateRect(this->surface, 0, 0, 0, 0);
 }
 
 void Render::quit()

@@ -8,9 +8,26 @@ Animation::Animation()
 {
    this->colorkey = SDL_MapRGB(Render::screen()->surface->format, 255, 0, 255);
 
+   /**
+    * Loading each of the sprites to an associative array so each Entity
+    * does not have a sprite in memory.
+    */
+
    Animation::sprites["player"]  = this->loadSprite("graphics/player.png");
    Animation::sprites["monster"] = this->loadSprite("graphics/monster.png");
    Animation::sprites["floor"]   = this->loadSprite("graphics/floor64.bmp");
+
+   /**
+    * Make a queue that alternates between frames, which are written
+    * onto the screen.
+    *
+    * Each queue is associative to a certain state. So, the IDLE
+    * state has two frames, which show the Entity idling. The
+    * WALK_RIGHT has two frames showing an Entity walking right.
+    *
+    * These frames simply correspond with the pixels on the
+    * sprite sheet.
+    */
 
    SDL_Rect frame;
    animationQueue idle, w_left, w_right, w_up, w_down; 
@@ -56,18 +73,24 @@ void Animation::draw(const char *type, Location location, const char *state)
     * The same goes for picking out the sprite.
     */
 
-   SDL_Rect spriteLocation;
-   spriteLocation.x = location.first;
-   spriteLocation.y = location.second;
+   //SDL_Rect spriteLocation;
+   //spriteLocation.x = location.first;
+   //spriteLocation.y = location.second;
 
-   SDL_Rect *frame;
-   if(state==NULL)
-      frame = NULL;
-   else
-      frame = Animation::keyframes[state].next();
-   //SDL_Rect frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
-   
-   Render::screen()->draw(Animation::sprites[type], &spriteLocation, frame);
+   //SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
+   //
+   //Render::screen()->draw(Animation::sprites[type], &spriteLocation, frame);
+
+   SDL_Rect floorLocation;
+   SDL_Surface *floor = this->loadSprite("graphics/floor.png");
+
+   for (int x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
+      for (int y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
+         floorLocation.x = x * SPRITE_SIZE;
+         floorLocation.y = y * SPRITE_SIZE;
+         Render::screen()->draw(floor,NULL,&floorLocation); 
+      }
+   }
 }
 
 SDL_Surface *Animation::loadSprite(const char *filename)
@@ -77,7 +100,7 @@ SDL_Surface *Animation::loadSprite(const char *filename)
 
    if (temp == NULL)
    {
-      printf("Failed to load image %s\n", filename);
+      printf("Error: %s\n", IMG_GetError());
       exit(1);
    }
 
