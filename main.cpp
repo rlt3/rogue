@@ -1,5 +1,6 @@
 #include <time.h>
 #include "Game.h"
+#include "Entity/Entity.h"
 
 int main(int argc, char* argv[]) {
    Game game;
@@ -10,6 +11,8 @@ int main(int argc, char* argv[]) {
    long next_game_tick = time(NULL);
    int loops;
 
+   game.update();
+
    bool running = true;
    while(running) {
       SDL_Event event;
@@ -19,6 +22,7 @@ int main(int argc, char* argv[]) {
          /**
           * Update the Dungeon Entities
           */
+         game.update();
          next_game_tick += SKIP_TICKS;
          loops++;
       }
@@ -52,6 +56,7 @@ int main(int argc, char* argv[]) {
                break;
          }
       }
+
       game.display();
    }
 

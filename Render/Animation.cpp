@@ -33,31 +33,24 @@ Animation::Animation()
 
    SDL_Rect frame;
    frame.w = SPRITE_SIZE; frame.h = SPRITE_SIZE;
-   frame.y=0; frame.x=256; idle.push(&frame);
 
-   SDL_Rect frame2;
-   frame2.w = SPRITE_SIZE; frame2.h = SPRITE_SIZE;
-   frame2.y=0; frame2.x=320; idle.push(&frame2);
+   frame.y=0; frame.x=256; idle.push(frame);
+   frame.y=0; frame.x=320; idle.push(frame);
 
-   //frame.y=0; frame.x=384; w_left.push(&frame);
-   //frame.y=0; frame.x=448; w_left.push(&frame);
+   frame.y=0; frame.x=128; w_right.push(frame);
+   frame.y=0; frame.x=192; w_right.push(frame);
 
-   //frame.y=0; frame.x=128; w_right.push(&frame);
-   //frame.y=0; frame.x=192; w_right.push(&frame);
+   frame.y=0; frame.x=0;   w_up.push(frame);
+   frame.y=0; frame.x=64;  w_up.push(frame);
 
-   //frame.y=0; frame.x=0;   w_up.push(&frame);
-   //frame.y=0; frame.x=64;  w_up.push(&frame);
-
-   //frame.y=0; frame.x=256; w_down.push(&frame);
-   //frame.y=0; frame.x=320; w_down.push(&frame);
+   frame.y=0; frame.x=256; w_down.push(frame);
+   frame.y=0; frame.x=320; w_down.push(frame);
 
    Animation::keyframes["IDLE"] = idle;
-   //Animation::keyframes["WALK_LEFT"] = w_left;
-   //Animation::keyframes["WALK_RIGHT"] = w_right;
-   //Animation::keyframes["WALK_UP"] = w_up;
-   //Animation::keyframes["WALK_DOWN"] = w_down;
-   
-   this->count=0;
+   Animation::keyframes["WALK_LEFT"] = w_left;
+   Animation::keyframes["WALK_RIGHT"] = w_right;
+   Animation::keyframes["WALK_UP"] = w_up;
+   Animation::keyframes["WALK_DOWN"] = w_down;
 }
 
 Animation* Animation::instance()
@@ -78,48 +71,22 @@ void Animation::draw(const char *type, Location location, const char *state)
     *
     * The same goes for picking out the sprite.
     */
-   if(type=="player")
-   {
-      printf("drawing player...\n");
-      SDL_Rect spriteLocation;
-      spriteLocation.x = location.first;
-      spriteLocation.y = location.second;
 
-      SDL_Rect frame;
-      frame.w = SPRITE_SIZE; frame.h = SPRITE_SIZE;
-      frame.y=0; frame.x=256;
+   // The actual location of the sprite on the screen
+   SDL_Rect spriteLocation;
+   spriteLocation.x = location.first;
+   spriteLocation.y = location.second;
 
-      SDL_Rect frame2;
-      frame2.w = SPRITE_SIZE; frame2.h = SPRITE_SIZE;
-      frame2.y=0; frame2.x=320;
+   // If state is null, assign the Locatio rectangle. It doesn't get used anyway
+   SDL_Rect frame = (state==NULL) ? spriteLocation : Animation::keyframes[state].next();
 
-      SDL_Rect keyframes[2];
-      keyframes[0] = frame;
-      keyframes[1] = frame2;
+   // Get sprite based on entity type
+   SDL_Surface *sprite = Animation::sprites[type];
 
-      //SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
-
-      SDL_Surface *sprite = Animation::sprites[type];
-
-      Render::screen()->draw(sprite,&keyframes[this->count%2],&spriteLocation); 
-      printf("%d mod 2 = %d\n", this->count, this->count%2);
-      this->count++;
-   }
+   if(state!=NULL)
+      Render::screen()->draw(sprite,&frame,&spriteLocation); 
    else
-   {
-      // SDL_Rect for the Sprite's location
-      SDL_Rect spriteLocation;
-      spriteLocation.x = location.first*SPRITE_SIZE;
-      spriteLocation.y = location.second*SPRITE_SIZE;
-
-      // SDL_Rect for the specific animation frame
-      SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
-
-      // Get the sprite based on the type received
-      SDL_Surface *sprite = Animation::sprites[type];
-
-      Render::screen()->draw(sprite,frame,&spriteLocation); 
-   }
+      Render::screen()->draw(sprite,NULL,&spriteLocation); 
 }
 
 SDL_Surface *Animation::loadSprite(const char *filename)
