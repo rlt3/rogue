@@ -30,6 +30,7 @@ Animation::Animation()
     */
 
    SDL_Rect frame;
+   frame.w = SPRITE_SIZE; frame.h = SPRITE_SIZE;
    animationQueue idle, w_left, w_right, w_up, w_down; 
 
    frame.y=0; frame.x=256; idle.push(&frame);
@@ -72,19 +73,36 @@ void Animation::draw(const char *type, Location location, const char *state)
     *
     * The same goes for picking out the sprite.
     */
+   if(type=="player")
+   {
+      printf("drawing player...\n");
+      SDL_Rect spriteLocation;
+      spriteLocation.x = location.first;
+      spriteLocation.y = location.second;
 
-   // SDL_Rect for the Sprite's location
-   SDL_Rect spriteLocation;
-   spriteLocation.x = location.first;
-   spriteLocation.y = location.second;
+      SDL_Rect frame;
+      frame.w = SPRITE_SIZE; frame.h = SPRITE_SIZE;
+      frame.y=0; frame.x=256;
 
-   // SDL_Rect for the specific animation frame
-   SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
+      SDL_Surface *sprite = Animation::sprites[type];
 
-   // Get the sprite based on the type received
-   SDL_Surface *sprite = Animation::sprites[type];
+      Render::screen()->draw(sprite,&frame,&spriteLocation); 
+   }
+   else
+   {
+      // SDL_Rect for the Sprite's location
+      SDL_Rect spriteLocation;
+      spriteLocation.x = location.first*SPRITE_SIZE;
+      spriteLocation.y = location.second*SPRITE_SIZE;
 
-   Render::screen()->draw(sprite,frame,&spriteLocation); 
+      // SDL_Rect for the specific animation frame
+      SDL_Rect *frame = (state==NULL) ? NULL : Animation::keyframes[state].next();
+
+      // Get the sprite based on the type received
+      SDL_Surface *sprite = Animation::sprites[type];
+
+      Render::screen()->draw(sprite,frame,&spriteLocation); 
+   }
 }
 
 SDL_Surface *Animation::loadSprite(const char *filename)
