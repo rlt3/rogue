@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
                }
                break;
             case SDL_KEYUP:
-               game.updatePlayer("IDLE", std::make_pair(0,0));
+               //game.updatePlayer("IDLE", std::make_pair(0,0));
                break;
          }
       }

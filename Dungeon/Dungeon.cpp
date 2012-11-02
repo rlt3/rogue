@@ -18,7 +18,8 @@ void Dungeon::draw()
 
 void Dungeon::update()
 {
-   // update the monsters
+   this->draw();
+   //this->monster->draw();
 }
 
 void Dungeon::generate()

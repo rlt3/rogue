@@ -19,8 +19,7 @@ void Game::handleInput(SDL_Event event)
 
 void Game::update()
 {
-   this->dungeon->update();
-   this->player->draw();
+   //this->dungeon->update();
 }
 
 void Game::updatePlayer(const char *state, Location direction)
@@ -31,5 +30,7 @@ void Game::updatePlayer(const char *state, Location direction)
 
 void Game::display()
 {
+   this->dungeon->draw();
+   this->player->draw();
    Render::screen()->update();
 }
