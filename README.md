@@ -1,5 +1,5 @@
 Another Roguelike!
-#################
+================
 
 ### Who doesn't like roguelikes?
 
