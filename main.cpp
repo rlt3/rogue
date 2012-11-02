@@ -6,12 +6,12 @@ int main(int argc, char* argv[]) {
    Game game;
 
    const int TICKS_PER_SECOND = 60;
-   const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
+   const float SKIP_TICKS = 60 / TICKS_PER_SECOND;
    const int MAX_FRAMESKIP = 10;
    long next_game_tick = time(NULL);
    int loops;
 
-   game.update();
+   game.display();
 
    bool running = true;
    while(running) {
@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
           * Update the Dungeon Entities
           */
          game.update();
+         game.display();
          next_game_tick += SKIP_TICKS;
          loops++;
       }
@@ -56,8 +57,6 @@ int main(int argc, char* argv[]) {
                break;
          }
       }
-
-      game.display();
    }
 
    Render::screen()->quit();
