@@ -1,3 +1,4 @@
+#include <iostream>
 #include <time.h>
 #include "Game.h"
 #include "Entity/Entity.h"
@@ -5,19 +6,26 @@
 int main(int argc, char* argv[]) {
    Game game;
 
+   //const int TICKS_PER_SECOND = 17;
+   //const int SKIP_TICKS = 100 * TICKS_PER_SECOND;
+   //const int MAX_FRAMESKIP = 10;
+   //clock_t next_game_tick = clock();
+
    const int TICKS_PER_SECOND = 60;
    const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
    const int MAX_FRAMESKIP = 10;
    long next_game_tick = time(NULL);
    int loops;
 
-   game.display();
+   //game.display();
+   game.update();
 
    bool running = true;
    while(running) {
       SDL_Event event;
       loops=0;
 
+      //while(clock() > next_game_tick && loops < MAX_FRAMESKIP) {
       while(time(NULL) > next_game_tick && loops < MAX_FRAMESKIP) {
          game.update();
          next_game_tick += SKIP_TICKS;
