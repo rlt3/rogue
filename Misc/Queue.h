@@ -5,7 +5,8 @@ class Queue
 {
    public:
       Queue();
-      Type next();
+      Type value();
+      void next();
       void push(Type item);
       bool isEmpty();
    private:
@@ -22,11 +23,16 @@ Queue<Type>::Queue()
 }
 
 template <class Type>
-Type Queue<Type>::next()
+void Queue<Type>::next()
 {
    Type item = this->items[this->front];
    this->front = ++this->front%this->size;
-   return item;
+}
+
+template <class Type>
+Type Queue<Type>::value()
+{
+   return this->items[this->front];
 }
 
 template <class Type>
