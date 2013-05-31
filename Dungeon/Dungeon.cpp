@@ -1,35 +1,21 @@
 #include "Dungeon.h"
 
-Dungeon::Dungeon(int level)
+Dungeon::Dungeon(int difficulty)
 {
-   this->level = level;
-   this->generate();
-}
-
-void Dungeon::draw()
-{
-   for (int x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
-      for (int y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
-         Location location = std::make_pair(x*SPRITE_SIZE,y*SPRITE_SIZE);
-         Render::animation()->draw("floor", location, NULL);
-      }
-   }
+   /* Difficulty is number of spawning monsters! */
+   generate();
 }
 
 void Dungeon::update()
 {
-   this->draw();
-   //this->monster->draw();
+   /* Update entities existing within dungeon */
 }
 
 void Dungeon::generate()
 {
-   /**
-    * There would be an algorithm determining the
-    * number of monsters based on the floor level
-    *
-    * There would also be an algorithm drawing 
-    * the actual dungeon
-    */
-   this->monster = new Entity("monster");
+   for (int x = 0; x < MAP_WIDTH; x++) {
+      for (int y = 0; y < MAP_HEIGHT; y++) {
+         map[y][x] = TILE_FLOOR;
+      }
+   }
 }

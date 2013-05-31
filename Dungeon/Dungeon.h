@@ -1,8 +1,12 @@
 #ifndef DUNGEON_H
 #define DUNGEON_H
-#include "../typedef/location.h"
-#include "../Render/Render.h"
-#include "../Entity/Entity.h"
+
+#define MAP_HEIGHT     20
+#define MAP_WIDTH      20
+#define TILE_FLOOR     '.'
+#define TILE_WALL      '#'
+#define TILE_DOOR      '/'
+#define TILE_OPENDOOR  '|'
 
 /**
  * This class controls the Dungeon and all the 
@@ -21,12 +25,12 @@
 class Dungeon
 {
    public:
-      Dungeon(int level);
-      void draw();
+      Dungeon(int difficulty);
       void update();
-      void generate();
+
+      char map[MAP_HEIGHT][MAP_WIDTH];
+
    protected:
-      Entity *monster;
-      int level;
+      void generate();
 };
 #endif

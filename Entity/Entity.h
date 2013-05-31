@@ -1,19 +1,30 @@
 #ifndef ENTITY_H
 #define ENTITY_H
-#include "../Render/Render.h"
-#include "../typedef/location.h"
+#include "../Misc/Typedef.h"
+#include "../Misc/Location.h"
 
 class Entity
 {
    public:
-      Entity(const char *type);
-      void draw();
-      void update(const char *state);
-      void move(Location direction);
+      Entity(int type);
+      void nextFrame();
+      void update(int state);
+      void move();
+      void interpolate();
 
+      int state;
+      int speed;
+      int type;
+      
       Location location;
-      const char *type;
+      Location direction;
+      Location destination;
+      Location grid;
+
+      Queue<int> frame;
+
    protected:
-      const char *state;
+      Location randomDirection();
+      int getState(Location Direction);
 };
 #endif

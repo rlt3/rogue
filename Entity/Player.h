@@ -5,6 +5,10 @@
 class Player : public Entity
 {
    public:
-      Player();
+      Player() : Entity(PLAYER) {}
+      void move(Location direction)
+      {
+         location = location + direction;
+      }
 };
 #endif
