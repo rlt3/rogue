@@ -1,7 +1,8 @@
 #include "Entity.h"
 
 Entity::Entity(int type)
-{ this->type = type;
+{ 
+   this->type = type;
    this->state = IDLE;
    this->speed = 40;
 
@@ -25,6 +26,19 @@ void Entity::update(int state)
 
 void Entity::move()
 {
+   /**
+    * If Entity is IDLE and doesn't have any objective,
+    * then that Entity simply walks around randomly.
+    *
+    * If a player comes within 3 squares of the entity,
+    * then the entity gains the destination of the player
+    * (which updates as the player moves) and the entity
+    * moves towards that player.
+    *
+    * If the entity has moved X distance and hasn't reached
+    * its goal, then stop chasing the player.
+    */
+   
    if(destination.empty())
    {
       this->direction = randomDirection();
@@ -43,7 +57,7 @@ void Entity::interpolate()
       Location difference = destination - location;
 
       if(location != destination)
-         location.nextLocation( destination, direction, speed );
+         location.step( destination, direction, speed );
 
       int walking_direction = 0;
 
@@ -67,14 +81,18 @@ Location Entity::randomDirection()
 
 int Entity::getState(Location direction)
 {
+   int state;
+
    if(direction.x == 0 && direction.y == 1)
-      return WALK_DOWN;
+      state = WALK_DOWN;
    else if(direction.x == 0 && direction.y == -1)
-      return WALK_UP;
+      state = WALK_UP;
    else if(direction.x == 1 && direction.y == 0)
-      return WALK_RIGHT;
+      state = WALK_RIGHT;
    else if(direction.x == -1 && direction.y == 0)
-      return WALK_LEFT;
+      state = WALK_LEFT;
+   else
+      state = IDLE;
    
-   return IDLE;
+   return state;
 }

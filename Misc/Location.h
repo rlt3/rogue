@@ -29,9 +29,10 @@ class Location {
          return (this->null);
       }
 
-      void nextLocation( const Location& destination, const Location& direction, int speed ) {
-         x += (x != destination.x) ? direction.x : 0;
-         y += (y != destination.y) ? direction.y : 0;
+      void step( const Location& destination, const Location& direction, int speed ) {
+         /* direction.x * speed ? */
+         x += (x != destination.x) ? direction.x*(speed/(speed/2)) : 0;
+         y += (y != destination.y) ? direction.y*(speed/(speed/2)) : 0;
       }
 
       bool operator ==(const Location &other ) {
