@@ -3,10 +3,10 @@
 #include <iostream>
 #include <time.h>
 
-#include "Render/Render.h"
-#include "Dungeon/Dungeon.h"
-#include "Entity/Player.h"
-#include "Entity/Monster.h"
+#include "../Render/Render.h"
+#include "../Dungeon/Dungeon.h"
+#include "../Entity/Player.h"
+#include "../Entity/Monster.h"
 
 const int TICKS_PER_SECOND = 60;
 const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
