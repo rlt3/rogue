@@ -132,5 +132,5 @@ void Game::drawDungeon()
 
 Location Game::worldLoc(Location screenLoc)
 {
-   return Location( ((screenLoc.x+32)/64), ((screenLoc.y+32)/64) );
+   return Location( ((screenLoc.x+(SPRITE_SIZE/2))/SPRITE_SIZE), ((screenLoc.y+(SPRITE_SIZE/2))/SPRITE_SIZE) );
 }
