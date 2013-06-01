@@ -26,12 +26,6 @@ void Game::run()
     * and render animations without limits to the framerate. Interpolation
     * will handle the animations between point X to point Y and the
     * game can still update at a regular interval.
-
-   while(time(NULL) > t && loops < MAX_FRAMESKIP) {
-      update();
-      t += dt;
-      loops++;
-   }
     */
 
    while(time(NULL) > t && loops < MAX_FRAMESKIP) {

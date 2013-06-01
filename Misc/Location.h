@@ -29,6 +29,11 @@ class Location {
          return (this->null);
       }
 
+      bool nearby(const Location& location, int radius) {
+         Location diff = *this - location;
+         return (abs(diff.x) <= radius, abs(diff.y) <= radius);
+      }
+
       void step( const Location& destination, const Location& direction, int speed ) {
          /* direction.x * speed ? */
          x += (x != destination.x) ? direction.x*(speed/(speed/2)) : 0;
