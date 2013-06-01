@@ -5,11 +5,10 @@ Game::Game()
    t = time(NULL);
    running = true;
 
-   render  = Render();
    //dungeon = Dungeon(5);
+   render  = Render();
    player  = Player();
    monster = Monster();
-   baddie = Monster();
 }
 
 Game::~Game()
@@ -44,7 +43,6 @@ void Game::run()
 void Game::update()
 {
    monster.move();
-   baddie.move();
 
    printf(" Monster screen location: (%d, %d)\n", monster.location.x, monster.location.y);
    Location world = worldLoc(monster.location);
@@ -53,21 +51,7 @@ void Game::update()
 
 void Game::interpolation()
 {
-   /*
-      if (walkingKey.pressed) {
-      frameTime += timeSinceLastUpdate
-      }
-
-      if (frameTime >= frameStep){
-      animFrame++
-      if (animFrame > totalAnimFrames) {
-      animFrame = 0
-      }
-      sprite = animation[animFrame]
-      }
-   */
    monster.interpolate();
-   baddie.interpolate();
 }
 
 void Game::updatePlayer(int state, Location direction)
@@ -81,7 +65,6 @@ void Game::display()
 {
    drawDungeon();
    render.drawEntity(monster.type, monster.state, monster.location, monster.frame.value());
-   render.drawEntity(baddie.type, baddie.state, baddie.location, baddie.frame.value());
    render.drawEntity(player.type, player.state, player.location, player.frame.value());
    render.update();
 }

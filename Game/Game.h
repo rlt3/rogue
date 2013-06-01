@@ -2,6 +2,7 @@
 #define GAME_H
 #include <iostream>
 #include <time.h>
+#include <map>
 
 #include "../Render/Render.h"
 #include "../Dungeon/Dungeon.h"
@@ -18,21 +19,22 @@ class Game
       Game();
       ~Game();
       void run();
+      void quit();
+      bool running; // states of the game (on or off)
 
+   protected:
       void update();
       void updatePlayer(int state, Location direction);
       void interpolation();
       void display();
-      void quit();
+      static Location worldLoc(Location screenLoc);
 
-      bool running; // states of the game (on or off)
-
-   protected:
       Render render;
-      //Dungeon dungeon;
       Player player;
       Monster monster;
-      Monster baddie;
+      std::map<int, Monster> monsters;
+
+      //Dungeon dungeon;
 
       void handleInput(SDL_Event event);
       void drawDungeon();
