@@ -45,6 +45,10 @@ void Game::update()
 {
    monster.move();
    baddie.move();
+
+   printf(" Monster screen location: (%d, %d)\n", monster.location.x, monster.location.y);
+   Location world = worldLoc(monster.location);
+   printf(" Monster world location:  (%d, %d)\n", world.x, world.y);
 }
 
 void Game::interpolation()
@@ -68,9 +72,6 @@ void Game::interpolation()
 
 void Game::updatePlayer(int state, Location direction)
 {
-   //int x = (player.location.first + 32) / 64;
-   //int y = (player.location.second + 32) / 64;
-   //printf("Player grid coordinates: %d, %d!\n", x, y);
    player.move(direction);
    player.update(state);
    player.nextFrame();
@@ -127,4 +128,9 @@ void Game::drawDungeon()
          render.drawTile("floor", Location (x,y));
       }
    }
+}
+
+Location Game::worldLoc(Location screenLoc)
+{
+   return Location( ((screenLoc.x+32)/64), ((screenLoc.y+32)/64) );
 }
