@@ -42,15 +42,15 @@ void Game::run()
 
 void Game::update()
 {
-   Location monsterWorld = worldLoc(monster.location);
-   Location playerWorld = worldLoc(player.location);
-   if(monsterWorld.nearby(playerWorld, 2))
-   {
-      printf("monster (%d, %d) is near player (%d, %d) \n", monsterWorld.x, monsterWorld.y, playerWorld.x, playerWorld.y);
-      monster.direction = (playerWorld - monsterWorld);
-      monster.destination = player.location;
-      printf("monster destination (%d, %d) and direction (%d, %d)\n", monster.destination.x, monster.destination.y, monster.direction.x, monster.direction.y);
-   }
+   //Location monsterWorld = worldLoc(monster.location);
+   //Location playerWorld = worldLoc(player.location);
+   //if(monsterWorld.nearby(playerWorld, 2))
+   //{
+   //   printf("monster (%d, %d) is near player (%d, %d) \n", monsterWorld.x, monsterWorld.y, playerWorld.x, playerWorld.y);
+   //   monster.direction = (playerWorld - monsterWorld);
+   //   monster.destination = player.location;
+   //   printf("monster destination (%d, %d) and direction (%d, %d)\n", monster.destination.x, monster.destination.y, monster.direction.x, monster.direction.y);
+   //}
 
    monster.move();
 
