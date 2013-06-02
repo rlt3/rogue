@@ -3,6 +3,11 @@
 #include <utility>
 #define PAIR(x, y) std::pair<int, int>(x, y)
 
+/* Get sign of a value represented as -1, 1, or 0 */
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
 class Location {
    public:
       int x;
@@ -38,18 +43,13 @@ class Location {
          Location diff = destination - *this;
          diff.x = abs(diff.x);
          diff.y = abs(diff.y);
-         printf("(%d, %d) - (%d, %d) = (%d, %d)\n", destination.x, destination.y, x, y, diff.x, diff.y);
+
+         //printf("(%d, %d) - (%d, %d) = (%d, %d)\n", destination.x, destination.y, x, y, diff.x, diff.y);
          
-        
-         if(diff.x != 0 && diff.x > diff.y)
+         if(diff.x != 0 && diff.x >= diff.y)
             x += direction.x*(speed/(speed/2));
-         else if(diff.y != 0 && diff.y > diff.x)
+         else if(diff.y != 0 && diff.y >= diff.x)
             y += direction.y*(speed/(speed/2));
-         
-            //printf("X distance is shorter than Y, walking along X\n");
-            //printf("Y distance is shorter than X, walking along Y\n");
-         //x += (x != destination.x) ? direction.x*(speed/(speed/2)) : 0;
-         //y += (y != destination.y) ? direction.y*(speed/(speed/2)) : 0;
       }
 
       bool operator ==(const Location &other ) {

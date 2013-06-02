@@ -20,8 +20,7 @@ void Entity::nextFrame()
 
 void Entity::update(int state)
 {
-   if (this->state != state)
-      this->state = state;
+   if (this->state != state) this->state = state;
 }
 
 void Entity::move()
@@ -47,8 +46,20 @@ void Entity::move()
    }
 }
 
+void Entity::moveTowards(Location destination)
+{
+   //monster.direction = (playerWorld - monsterWorld);
+   //this->destination = destination;
+}
+
 void Entity::interpolate()
 {
+   /**
+    * Animate the entity on-screen. Entities move in straight 
+    * lines (not diagonals). Every nTh movement toward the
+    * destination, update the frame.
+    */
+
    if(!this->destination.empty())
    {
       if(this->destination == this->location)
@@ -81,7 +92,13 @@ Location Entity::randomDirection()
 
 int Entity::getState(Location direction)
 {
-   int state;
+   /**
+    * Using an ordered pair (x, y), determine which state
+    * an entity should be in after getting the direction
+    * of an entity
+    */
+
+   int state = IDLE;
 
    if(direction.x == 0 && direction.y == 1)
       state = WALK_DOWN;
@@ -91,8 +108,6 @@ int Entity::getState(Location direction)
       state = WALK_RIGHT;
    else if(direction.x == -1 && direction.y == 0)
       state = WALK_LEFT;
-   else
-      state = IDLE;
    
    return state;
 }

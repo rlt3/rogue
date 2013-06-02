@@ -10,6 +10,7 @@ class Entity
       void nextFrame();
       void update(int state);
       void move();
+      void moveTowards(Location destination);
       void interpolate();
 
       int state;
@@ -19,12 +20,11 @@ class Entity
       Location location;
       Location direction;
       Location destination;
-      Location grid;
 
       Queue<int> frame;
 
+      static Location randomDirection();
+      static int getState(Location Direction);
    protected:
-      Location randomDirection();
-      int getState(Location Direction);
 };
 #endif
