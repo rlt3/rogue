@@ -58,6 +58,13 @@ void Entity::interpolate()
     * Animate the entity on-screen. Entities move in straight 
     * lines (not diagonals). Every nTh movement toward the
     * destination, update the frame.
+    *
+    * For any given destination, move along the shortest axis
+    * first, and then along the longest second. So, if a distance
+    * between two points is (15, -16), an entity would move 
+    * along the X first (because moving 16 units is still 16)
+    * until that is 0. Then do it for y until that distance
+    * between is (0, 0).
     */
 
    if(!this->destination.empty())
@@ -66,6 +73,17 @@ void Entity::interpolate()
          this->destination = Location();
 
       Location difference = destination - location;
+      
+      /* Here is where we would determine direction 
+       * also probably update state as well
+       *
+       * Direction would be determined by looking at
+       * the absolute value of the distance between
+       * locationNow and destination. Which ever axis
+       * is smaller, we move along that axis (in
+       * whatever direction) and the other axix is
+       * zero'd out.
+       */
 
       if(location != destination)
          location.step( destination, direction, speed );
