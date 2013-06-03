@@ -21,8 +21,11 @@ class Entity
       Location direction;
       Location destination;
 
+      int axis; // x == 0, y == 1
+
       Queue<int> frame;
 
+      Location getDirection();
       static Location randomDirection();
       static int getState(Location Direction);
    protected:

@@ -40,9 +40,9 @@ void Entity::move()
    
    if(destination.empty())
    {
-      this->direction = randomDirection();
-      this->state = getState(this->direction);
-      this->destination = Location ( ( location + Location( direction.x*speed, direction.y*speed) ) );
+      Location dir = randomDirection();
+      this->destination = Location ( ( location + Location( dir.x*speed, dir.y*speed) ) );
+      //this->state = getState(this->direction);
    }
 }
 
@@ -72,6 +72,9 @@ void Entity::interpolate()
       if(this->destination == this->location)
          this->destination = Location();
 
+      this->direction = getDirection();
+      this->state = getState(this->direction);
+
       Location difference = destination - location;
       
       /* Here is where we would determine direction 
@@ -84,6 +87,10 @@ void Entity::interpolate()
        * whatever direction) and the other axix is
        * zero'd out.
        */
+
+      //printf("Location:    (%d, %d)\n", location.x, location.y);
+      //printf("Desintation: (%d, %d)\n", destination.x, destination.y);
+      //printf("Direction:   (%d, %d)\n\n", direction.x, direction.y);
 
       if(location != destination)
          location.step( destination, direction, speed );
@@ -103,7 +110,8 @@ void Entity::interpolate()
 Location Entity::randomDirection()
 {
    unsigned short int i = rand() % 5;
-   int coord[5][2] = { {0,1}, {-1,0}, {0,0}, {1,0}, {0,-1} };
+   //int coord[5][2] = { {0,1}, {-1,0}, {0,0}, {1,0}, {0,-1} };
+   int coord[5][2] = { {1,1}, {-1,-1}, {0,0}, {1,-1}, {-1,1} };
 
    return Location(coord[i][0], coord[i][1]);
 }
@@ -128,4 +136,36 @@ int Entity::getState(Location direction)
       state = WALK_LEFT;
    
    return state;
+}
+
+Location Entity::getDirection()
+{
+   Location distance = this->destination - this->location;
+   if( distance == Location(0, 0))
+      return Location(0, 0);
+
+   if(this->axis == -1)
+   {
+      if(this->axis == 0)
+         if(distance.x == 0) this->axis = -1;
+      else if(this->axis == 1)
+         if(distance.y == 0) this->axis = -1;
+   }
+   else
+   {
+      if(abs(distance.x) < abs(distance.y) || distance.y == 0)
+         this->axis = 0;
+      else if(abs(distance.y) < abs(distance.x) || distance.x == 0)
+         this->axis = 1;
+   }
+
+   if(this->axis == 0)
+      printf(" (%d, %d) \n", sgn(distance.x), 0);
+   if(this->axis == 1)
+      printf(" (%d, %d) \n", 0, sgn(distance.x));
+
+   if(this->axis == 0)
+      return Location(sgn(distance.x), 0);
+   if(this->axis == 1)
+      return Location(0, sgn(distance.y));
 }

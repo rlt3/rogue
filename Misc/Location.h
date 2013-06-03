@@ -40,16 +40,11 @@ class Location {
       }
 
       void step( const Location& destination, const Location& direction, int speed ) {
-         Location diff = destination - *this;
-         diff.x = abs(diff.x);
-         diff.y = abs(diff.y);
-
-         //printf("(%d, %d) - (%d, %d) = (%d, %d)\n", destination.x, destination.y, x, y, diff.x, diff.y);
+         //x += (x != destination.x) ? direction.x*(speed/(speed/2)) : 0;
+         //y += (y != destination.y) ? direction.y*(speed/(speed/2)) : 0;
          
-         if(diff.x != 0 && diff.x >= diff.y)
-            x += direction.x*(speed/(speed/2));
-         else if(diff.y != 0 && diff.y >= diff.x)
-            y += direction.y*(speed/(speed/2));
+         x += (x != destination.x) ? direction.x*1 : 0;
+         y += (y != destination.y) ? direction.y*1 : 0;
       }
 
       bool operator ==(const Location &other ) {
