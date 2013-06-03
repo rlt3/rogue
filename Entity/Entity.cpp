@@ -140,10 +140,35 @@ int Entity::getState(Location direction)
 
 Location Entity::getDirection()
 {
+   /**
+    *  Get the distance between the destination and the 
+    *  current location. If the distance between those
+    *  two points is 0, then return 0.
+    *
+    *  If the entity isn't currently walking along an 
+    *  axis, determine which axis it should be walking
+    *  along (shortest wins).
+    *
+    *  If it is walking along an axis, determine if it
+    *  has reached the end. If it has, take away the
+    *  axis it is walking along.
+    *
+    *  Once we have done that, return the direction
+    *  by getting the sign value at one (-1, 1) for
+    *  that particular axis. So, an Entity walking
+    *  right along the X-axis would have a direction
+    *  of (1, 0). Left along the X-axis: (-1, 0) and
+    *  so on.
+    */
+
    Location distance = this->destination - this->location;
    if( distance == Location(0, 0))
       return Location(0, 0);
 
+   /** 
+    * This condition should really be != instead of ==
+    * but that breaks the movement of the entity.
+    */
    if(this->axis == -1)
    {
       if(this->axis == 0)
