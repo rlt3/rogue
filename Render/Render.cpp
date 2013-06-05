@@ -45,12 +45,14 @@ void Render::drawEntity(int type, int state, Location location, int frameModifie
    drawToSurface(sprite,&frame,&spriteLocation); 
 }
 
-void Render::quit()
+int Render::quit()
 {
 	SDL_Quit();
 
    deleteSprite(sprites["sheet"]);
    deleteSprite(sprites["floor"]);
+
+   return 0;
 }
 
 void Render::drawToSurface(SDL_Surface *sprite, SDL_Rect *keyframe, SDL_Rect *location)

@@ -20,7 +20,7 @@ class Render
       void drawTile(const char *type, Location location);
       void drawEntity(int type, int state, Location location, int frame);
       //void display();
-      void quit();
+      int quit();
 
    protected:
       void drawToSurface(SDL_Surface *sprite, SDL_Rect *keyframe, SDL_Rect *location);

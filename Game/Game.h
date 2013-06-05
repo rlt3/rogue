@@ -19,19 +19,20 @@ class Game
       Game();
       ~Game();
       void run();
-      void quit();
+      int quit();
       bool running; // states of the game (on or off)
 
    protected:
       void update();
       void updatePlayer(int state, Location direction);
+      void move();
       void interpolation();
       void display();
-      static Location worldLoc(Location screenLoc);
 
       Render render;
       Player player;
       Monster monster;
+
       std::map<int, Monster> monsters;
 
       //Dungeon dungeon;

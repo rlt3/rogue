@@ -37,7 +37,7 @@ class Location {
       //}
 
       Location world() {
-         return Location( ((x+(32/2))/32), ((y+(32/2))/32) );
+         return Location( ((x+(64/2))/64), ((y+(64/2))/64) );
       }
 
       bool difference(const Location &destination) {
@@ -74,5 +74,4 @@ class Location {
           return Location( (l1.x * l2.x), (l1.y * l2.y) );
       }
 };
-
 #endif

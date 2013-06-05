@@ -6,6 +6,5 @@ int main(int argc, char* argv[]) {
    while(game.running)
       game.run();
 
-   game.quit();
-   return 0;
+   return game.quit();
 }

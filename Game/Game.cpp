@@ -1,7 +1,6 @@
 #include "Game.h"
 
-Game::Game()
-{
+Game::Game() {
    t = time(NULL);
    running = true;
 
@@ -11,21 +10,12 @@ Game::Game()
    monster = Monster();
 }
 
-Game::~Game()
-{
+Game::~Game() {
    //
 }
 
-void Game::run()
-{
+void Game::run() {
    loops=0;
-
-   /**
-    * Update things every nth second in this loop, but still draw
-    * and render animations without limits to the framerate. Interpolation
-    * will handle the animations between point X to point Y and the
-    * game can still update at a regular interval.
-    */
 
    while(time(NULL) > t && loops < MAX_FRAMESKIP) {
       update();
@@ -41,46 +31,39 @@ void Game::run()
    display();
 }
 
-void Game::update()
-{
+void Game::update() {
    if(monster.nearby(player))
       monster.moveTo(player);
    else
       monster.idle();
 }
 
-void Game::move()
-{
+void Game::move() {
    monster.move();
 }
 
-void Game::interpolation()
-{
+void Game::interpolation() {
    monster.interpolate();
 }
 
-void Game::updatePlayer(int state, Location direction)
-{
+void Game::updatePlayer(int state, Location direction) {
    player.move(direction);
    player.update(state);
    player.frame.next();
 }
 
-void Game::display()
-{
+void Game::display() {
    drawDungeon();
    render.drawEntity(monster.type, monster.state, monster.location, monster.frame.value());
    render.drawEntity(player.type, player.state, player.location, player.frame.value());
    render.update();
 }
 
-void Game::quit()
-{
-   render.quit();
+int Game::quit() {
+   return render.quit();
 }
 
-void Game::handleInput(SDL_Event event)
-{
+void Game::handleInput(SDL_Event event) {
    switch (event.type) {
       case SDL_KEYDOWN:
          switch(event.key.keysym.sym) {
@@ -109,16 +92,10 @@ void Game::handleInput(SDL_Event event)
    }
 }
 
-void Game::drawDungeon()
-{
+void Game::drawDungeon() {
    for (int x = 0; x < MAP_WIDTH; x++) {
       for (int y = 0; y < MAP_HEIGHT; y++) {
          render.drawTile("floor", Location (x,y));
       }
    }
-}
-
-Location Game::worldLoc(Location screenLoc)
-{
-   return Location( ((screenLoc.x+(SPRITE_SIZE/2))/SPRITE_SIZE), ((screenLoc.y+(SPRITE_SIZE/2))/SPRITE_SIZE) );
 }
