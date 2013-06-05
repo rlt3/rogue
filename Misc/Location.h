@@ -12,31 +12,32 @@ class Location {
    public:
       int x;
       int y;
-      bool null;
 
       Location (int x, int y) {
          this->x = x;
          this->y = y;
-         this->null = false;
       }
 
       Location (std::pair<int, int> coordinate) {
          this->x = coordinate.first;
          this->y = coordinate.second;
-         this->null = false;
       }
 
       Location () {
-         this->null = true;
-      }
-
-      bool empty() {
-         return (this->null);
+         //
       }
 
       bool nearby(const Location& location, int radius) {
          Location diff = *this - location;
          return (abs(diff.x) <= radius && abs(diff.y) <= radius);
+      }
+
+      //bool reached(const Location& location) {
+      //   return (*this == location);
+      //}
+
+      Location world() {
+         return Location( ((x+(32/2))/32), ((y+(32/2))/32) );
       }
 
       void step( const Location& destination, const Location& direction, int speed ) {

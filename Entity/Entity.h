@@ -7,27 +7,28 @@ class Entity
 {
    public:
       Entity(int type);
-      void nextFrame();
+
       void update(int state);
+      void idle();
       void move();
-      void moveTowards(Location destination);
+      void moveTo(Entity &entity);
       void interpolate();
+
+      bool nearby(Entity &entity);
 
       int state;
       int speed;
       int type;
+
+      Queue<int> frame;
       
       Location location;
       Location direction;
       Location destination;
 
-      int axis; // x == 0, y == 1
-
-      Queue<int> frame;
-
-      Location getDirection();
-      static Location randomDirection();
-      static int getState(Location Direction);
    protected:
+      Location getDirection();
+      static Location randomDestinationFrom(Location now);
+      static int getState(Location Direction);
 };
 #endif

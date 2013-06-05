@@ -36,21 +36,21 @@ void Game::run()
    while(SDL_PollEvent(&event))
       handleInput(event);
 
+   move();
    interpolation();
    display();
 }
 
 void Game::update()
 {
-   /* 
-    * If a monster is nearby the player, the monster
-    * moves to the player
-    */
-   Location monsterWorld = worldLoc(monster.location);
-   Location playerWorld = worldLoc(player.location);
-   if(monsterWorld.nearby(playerWorld, 1))
-      monster.destination = player.location;
+   if(monster.nearby(player))
+      monster.moveTo(player);
+   else
+      monster.idle();
+}
 
+void Game::move()
+{
    monster.move();
 }
 
@@ -63,7 +63,7 @@ void Game::updatePlayer(int state, Location direction)
 {
    player.move(direction);
    player.update(state);
-   player.nextFrame();
+   player.frame.next();
 }
 
 void Game::display()
