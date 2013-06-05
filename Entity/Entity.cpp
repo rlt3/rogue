@@ -17,7 +17,7 @@ void Entity::update(int state) {
 }
 
 void Entity::idle() {
-   this->destination = randomDestinationFrom(location);
+   this->destination = randomDestinationFrom(this->location);
 }
 
 void Entity::moveTo(Entity &entity) {
@@ -27,14 +27,7 @@ void Entity::moveTo(Entity &entity) {
 void Entity::interpolate() {
    this->state = getState(this->direction);
 
-   int walking_direction = 0;
-
-   if (direction.x == 0)
-      walking_direction = (destination - location).y;
-   else if (direction.y == 0)
-      walking_direction = (destination - location).x;
-
-   if( !(walking_direction % 10) && walking_direction != 0 )
+   if(location.difference(destination))
       frame.next();
 }
 
