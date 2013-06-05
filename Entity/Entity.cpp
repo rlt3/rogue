@@ -145,52 +145,17 @@ Location Entity::getDirection()
     *  current location. If the distance between those
     *  two points is 0, then return 0.
     *
-    *  If the entity isn't currently walking along an 
-    *  axis, determine which axis it should be walking
-    *  along (shortest wins).
-    *
-    *  If it is walking along an axis, determine if it
-    *  has reached the end. If it has, take away the
-    *  axis it is walking along.
-    *
-    *  Once we have done that, return the direction
-    *  by getting the sign value at one (-1, 1) for
-    *  that particular axis. So, an Entity walking
-    *  right along the X-axis would have a direction
-    *  of (1, 0). Left along the X-axis: (-1, 0) and
-    *  so on.
+    *  Walk along the x axis first until at X destination.
+    *  Then walk along y axis.
     */
 
    Location distance = this->destination - this->location;
+
    if( distance == Location(0, 0))
       return Location(0, 0);
 
-   /** 
-    * This condition should really be != instead of ==
-    * but that breaks the movement of the entity.
-    */
-   if(this->axis == -1)
-   {
-      if(this->axis == 0)
-         if(distance.x == 0) this->axis = -1;
-      else if(this->axis == 1)
-         if(distance.y == 0) this->axis = -1;
-   }
-   else
-   {
-      if(abs(distance.x) < abs(distance.y) || distance.y == 0)
-         this->axis = 0;
-      else if(abs(distance.y) < abs(distance.x) || distance.x == 0)
-         this->axis = 1;
-   }
-
-   if(this->axis == 0)
-      printf(" (%d, %d) \n", sgn(distance.x), 0);
-   if(this->axis == 1)
-      printf(" (%d, %d) \n", 0, sgn(distance.x));
-
-   if(this->axis == 0)
+   if(distance.x != 0)
       return Location(sgn(distance.x), 0);
-   if(this->axis == 1)
+   else
       return Location(0, sgn(distance.y));
 }
