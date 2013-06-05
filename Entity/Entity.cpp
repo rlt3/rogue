@@ -76,30 +76,15 @@ void Entity::interpolate()
       this->state = getState(this->direction);
 
       Location difference = destination - location;
-      
-      /* Here is where we would determine direction 
-       * also probably update state as well
-       *
-       * Direction would be determined by looking at
-       * the absolute value of the distance between
-       * locationNow and destination. Which ever axis
-       * is smaller, we move along that axis (in
-       * whatever direction) and the other axix is
-       * zero'd out.
-       */
-
-      //printf("Location:    (%d, %d)\n", location.x, location.y);
-      //printf("Desintation: (%d, %d)\n", destination.x, destination.y);
-      //printf("Direction:   (%d, %d)\n\n", direction.x, direction.y);
 
       if(location != destination)
          location.step( destination, direction, speed );
 
       int walking_direction = 0;
 
-      if (difference.x == 0)
+      if (direction.x == 0)
          walking_direction = difference.y;
-      else if (difference.y == 0)
+      else if (direction.y == 0)
          walking_direction = difference.x;
 
       if( !(walking_direction % 10) && walking_direction != 0 )
