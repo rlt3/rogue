@@ -1,7 +1,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
-#include "../Misc/Typedef.h"
-#include "../Misc/Location.h"
+#include <Misc/Typedef.h>
+#include <Misc/Location.h>
 
 class Entity
 {
@@ -27,6 +27,7 @@ class Entity
       Location destination;
 
    protected:
+      //Location getDirectionTo(destination);
       Location getDirection();
       static Location randomDestinationFrom(Location now);
       static int getState(Location Direction);

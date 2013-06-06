@@ -3,7 +3,7 @@
 #include <SDL/SDL.h>
 #include <utility>
 #include <time.h>
-#include "Queue.h"
+#include <Misc/Queue.h>
 
 //typedef std::pair<int, int> Location;
 typedef Queue<SDL_Rect> animationQueue;

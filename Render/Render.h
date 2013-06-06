@@ -4,8 +4,8 @@
 #include <SDL_image/SDL_image.h>
 #include <map>
 
-#include "../Misc/Typedef.h"
-#include "../Misc/Location.h"
+#include <Misc/Typedef.h>
+#include <Misc/Location.h>
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 512

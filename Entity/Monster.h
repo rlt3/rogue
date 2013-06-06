@@ -1,6 +1,6 @@
 #ifndef MONSTER_H
 #define MONSTER_H
-#include "Entity.h"
+#include <Entity/Entity.h>
 
 class Monster : public Entity
 {
