@@ -1,4 +1,4 @@
-#include "Entity.h"
+#include <Entity/Entity.h>
 
 Entity::Entity(int type) { 
    this->type = type;
@@ -17,7 +17,7 @@ void Entity::update(int state) {
 }
 
 void Entity::idle() {
-   this->destination = randomDestinationFrom(this->location);
+   if(destination == location) this->destination = randomDestinationFrom(this->location);
 }
 
 void Entity::moveTo(Entity &entity) {
