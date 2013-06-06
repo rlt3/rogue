@@ -40,10 +40,13 @@ class Location {
          return Location( ((x+(64/2))/64), ((y+(64/2))/64) );
       }
 
-      bool difference(const Location &destination) {
+      bool difference(const Location &destination, const Location &direction) {
          int diffx = (destination-*this).x;
          int diffy = (destination-*this).y;
-         return ( (!(diffx % 10) && diffx != 0) || (!(diffy % 10) && diffy != 0) );
+         if(direction.x == 0)
+            return ( (!(diffy % 10) && diffy != 0) );
+         else
+            return ( (!(diffx % 10) && diffx != 0) );
       }
 
       void step( const Location &destination, const Location &direction, int speed ) {

@@ -27,7 +27,7 @@ void Entity::moveTo(Entity &entity) {
 void Entity::interpolate() {
    this->state = getState(this->direction);
 
-   if(location.difference(destination))
+   if(location.difference(destination, direction))
       frame.next();
 }
 
