@@ -9,6 +9,7 @@
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 512
+#define TILE_SIZE      32
 #define SPRITE_SIZE    64
 
 class Render

@@ -37,12 +37,24 @@ class Location {
       //}
 
       Location world() {
-         return Location( ((x+(64/2))/64), ((y+(64/2))/64) );
+         /* Measure from 64 pixels (entity height), divided
+          * by 32 pixels (tile size, or grid height and width).
+          * This measures where an entity is standing in the
+          * world.
+          */
+         return Location( ((x+(64/2))/32), ((y+(64))/32) );
       }
 
       bool difference(const Location &destination, const Location &direction) {
          int diffx = (destination-*this).x;
          int diffy = (destination-*this).y;
+
+         /**
+          * Check along an axis (x or y) to see if an entity has moved 10
+          * units. This is used to update animations frames as an entity
+          * moves itself.
+          */
+
          if(direction.x == 0)
             return ( (!(diffy % 10) && diffy != 0) );
          else
