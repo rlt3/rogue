@@ -1,5 +1,5 @@
 #include <Entity/Entity.h>
-
+#include <Game/Collision.h> 
 Entity::Entity(int type) { 
    this->type = type;
    this->state = IDLE;
@@ -33,11 +33,22 @@ void Entity::interpolate() {
 
 void Entity::move() {
    this->direction = getDirection();
+
+   Location nextstep = location.nextstep(destination, direction, speed);
    location.step(destination, direction, speed);
+   if(!Collision::at(nextstep))
+      printf("fun");
+   //   location.step(destination, direction, speed);
+   //else
+   //   this->destination = this->location;
+}
+
+Location Entity::nextstep() {
+   return location.nextstep(destination, direction, speed); 
 }
 
 bool Entity::nearby(Entity &entity) {
-   return location.world().nearby(entity.location.world(), 2);
+   return location.world().nearby(entity.location.world(), 4);
 }
 
 Location Entity::getDirection() {

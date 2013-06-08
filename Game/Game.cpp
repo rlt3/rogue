@@ -1,4 +1,8 @@
-#include "Game.h"
+#include <Game/Game.h>
+#include <Game/Collision.h>
+
+Player Game::player;
+Monster Game::monster;
 
 Game::Game() {
    t = time(NULL);
