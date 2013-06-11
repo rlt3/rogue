@@ -1,18 +1,19 @@
 #ifndef COLLISION_H
 #define COLLISION_H
-#include <Game/Game.h>
+#include <Misc/Location.h>
 
-// extends Game to access it's methods
-// singleton method for global access?
-//
-// override constructor/destructor as
-// not to call Game() constructor and 
-// basically reload SDL twice
+/**
+ * Runs during the main game loop.
+ *
+ * Entities that are overlaping one another are
+ * moved to the nearest possible location that
+ * isn't aren't on the same grid square.
+ */
 
-class Collision : public Game {
+class Collision {
    public:
       Collision() {};
-      static bool at(Location &location);
+      static bool at(Location &location, std::map<int, entity> &list);
 };
 
 #endif

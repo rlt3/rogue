@@ -12,6 +12,7 @@ class Entity
       void idle();
       void move();
       void moveTo(Entity &entity);
+      Location nextstep();
       void interpolate();
 
       bool nearby(Entity &entity);

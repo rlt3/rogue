@@ -61,10 +61,15 @@ class Location {
             return ( (!(diffx % 10) && diffx != 0) );
       }
 
+      Location nextstep( const Location &destination, const Location &direction, int speed ) {
+         Location next(x, y);
+         next.x += (x != destination.x) ? direction.x*1 : 0;
+         next.y += (y != destination.y) ? direction.y*1 : 0;
+      }
+
       void step( const Location &destination, const Location &direction, int speed ) {
          //x += (x != destination.x) ? direction.x*(speed/(speed/2)) : 0;
          //y += (y != destination.y) ? direction.y*(speed/(speed/2)) : 0;
-         
          x += (x != destination.x) ? direction.x*1 : 0;
          y += (y != destination.y) ? direction.y*1 : 0;
       }

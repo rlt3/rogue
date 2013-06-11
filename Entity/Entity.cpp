@@ -1,5 +1,5 @@
 #include <Entity/Entity.h>
-#include <Game/Collision.h> 
+
 Entity::Entity(int type) { 
    this->type = type;
    this->state = IDLE;

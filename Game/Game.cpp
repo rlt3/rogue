@@ -1,5 +1,4 @@
 #include <Game/Game.h>
-#include <Game/Collision.h>
 
 Player Game::player;
 Monster Game::monster;
