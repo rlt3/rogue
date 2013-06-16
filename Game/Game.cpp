@@ -1,13 +1,10 @@
 #include <Game/Game.h>
-
-Player Game::player;
-Monster Game::monster;
+//#define player entity[0]
 
 Game::Game() {
    t = time(NULL);
    running = true;
 
-   //dungeon = Dungeon(5);
    render  = Render();
    player  = Player();
    monster = Monster();
@@ -31,6 +28,7 @@ void Game::run() {
 
    move();
    interpolation();
+   Collision::handling(entity);
    display();
 }
 
@@ -42,6 +40,9 @@ void Game::update() {
 }
 
 void Game::move() {
+   // if monster nextStep is Bad
+   // don't do it
+   // monster.nextStep()
    monster.move();
 }
 

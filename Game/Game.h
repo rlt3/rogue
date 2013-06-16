@@ -9,12 +9,13 @@
 #include <Entity/Player.h>
 #include <Entity/Monster.h>
 
+#include <Game/Collision.h>
+
 const int TICKS_PER_SECOND = 60;
 const int SKIP_TICKS = 60 / TICKS_PER_SECOND;
 const int MAX_FRAMESKIP = 10;
 
-class Game
-{
+class Game {
    public:
       Game();
       ~Game();
@@ -23,24 +24,24 @@ class Game
       bool running; // states of the game (on or off)
 
    protected:
+      Render render;
+      Player player;
+      Monster monster;
+
+      Entity entity[];
+
+      //Dungeon dungeon;
+
+   private:
       void update();
       void updatePlayer(int state, Location direction);
       void move();
       void interpolation();
       void display();
 
-      Render render;
-      Player player;
-      Monster monster;
-
-      std::map<int, Monster> monsters;
-
-      //Dungeon dungeon;
-
       void handleInput(SDL_Event event);
       void drawDungeon();
    
-   private:
       SDL_Event event;
       int loops;
       long double t;

@@ -1,5 +1,7 @@
 #ifndef COLLISION_H
 #define COLLISION_H
+#include <map>
+#include <Entity/Entity.h>
 #include <Misc/Location.h>
 
 /**
@@ -12,8 +14,9 @@
 
 class Collision {
    public:
-      Collision() {};
-      static bool at(Location &location, std::map<int, entity> &list);
+      //static void handling(Location &location, std::map<int, Entity> &list);
+      //static void handling(std::map<int, Entity> &list);
+      static void handling(Entity list[]);
 };
 
 #endif
