@@ -19,6 +19,7 @@
 #define SCREENY         512
 
 #define FLOOR           0
+#define ENTITY          1
 
 #define WALK_UP         0
 #define WALK_RIGHT      1
@@ -39,6 +40,26 @@
 // for ease of use
 #define player          entity[0]
 
+typedef struct {
+  uint16_t x, y;
+} Loc;
+
+
+/**
+ * For frame, instead of creating a Queue which just
+ * loops from 0 to 1 and back to 0, simply do this:
+ *
+ * entity.frame = entity.frame ? 0 : 1;
+ */
+
+typedef struct {
+  uint8_t type;
+  uint8_t state;
+  uint8_t frame;
+  uint8_t hp;
+  Loc location;
+} Entity;
+
 
 // function definitions
 void initGame();
@@ -50,20 +71,7 @@ void drawTile(int type, int x, int y);
 void render();
 
 void move(uint16_t x, uint16_t y);
-
-
-typedef struct {
-  uint16_t x, y;
-} Loc;
-
-
-typedef struct {
-  uint8_t type;
-  uint8_t state;
-  uint8_t frame;
-  uint8_t hp;
-  Loc location;
-} Entity;
+Entity** get();
 
 
 // sdl variables
@@ -84,6 +92,17 @@ int main(int argc, char **argv) {
   createDungeon(currFloor);
   gameLoop();
 
+  printf("Entity at 0's hp: %d\n", entity[0].hp);
+  printf("Entity at 1's hp: %d\n", entity[1].hp);
+
+  Entity **list = get();
+  list[0]->hp -= 2;
+  list[1]->hp -= 2;
+
+  puts("After:");
+  printf("Entity at 0's hp: %d\n", entity[0].hp);
+  printf("Entity at 1's hp: %d\n", entity[1].hp);
+
   return EXIT_SUCCESS;
 }
 
@@ -91,16 +110,15 @@ void initGame() {
   SDL_Init(SDL_INIT_VIDEO);
   SDL_WM_SetCaption("Game", "Game");
   SDL_EnableKeyRepeat(70, 70);
-
   atexit(SDL_Quit);
 
   screen = SDL_SetVideoMode(SCREENX, SCREENY, 0, 0);
 
-  sprites[0] = loadSprite("graphics/floor.png");
-  sprites[1] = loadSprite("graphics/spritesheet.png"); 
+  sprites[FLOOR] = loadSprite("graphics/floor.png");
+  sprites[ENTITY] = loadSprite("graphics/spritesheet.png"); 
 }
 
-// load all the entities for each floor
+// create and then store all entities into global array
 void createDungeon(unsigned int floor) {
 
   // player is always 0
@@ -110,7 +128,7 @@ void createDungeon(unsigned int floor) {
 
   for(int i=1; i<=floor+1; i++) {
     Loc location = {10, 10}; 
-    Entity monster = {64, 0, 2, 1, location};
+    Entity monster = {64, 0, 2, 10, location};
     entity[i] = monster;
   }
 
@@ -221,6 +239,7 @@ void render() {
    SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
+// move entity unless something's in the way
 void move(uint16_t x, uint16_t y) {
    int nx = (( x+(64/2))/32 );
    int ny = (( y+(64))/32 );
@@ -243,4 +262,16 @@ void move(uint16_t x, uint16_t y) {
       player.location.x = x;
       player.location.y = y;
    }
+}
+
+// prototype to get all entities as a pointer to their
+// location in the global array
+Entity** get() {
+   Entity* list[total_entities] = {0};
+
+   for(int i=0; i<=currFloor+1; i++) {
+      list[i] = &entity[i];
+   }
+
+   return list;
 }
