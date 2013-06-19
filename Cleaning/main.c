@@ -27,8 +27,9 @@
 #define WALK_LEFT       3
 #define IDLE            2
 
-#define PLAYER     0
-#define MONSTER    64
+#define PLAYER          0
+#define MONSTER         64
+
 
 // macros
 #define CURTIME()  \
@@ -37,20 +38,13 @@
 #define IN_WORLD(x, y) \
   (x >= 0 && y >= 0 && x < WORLDX && y < WORLDY)
 
-// for ease of use
 #define player          entity[0]
 
+
+// game-object types
 typedef struct {
   uint16_t x, y;
 } Loc;
-
-
-/**
- * For frame, instead of creating a Queue which just
- * loops from 0 to 1 and back to 0, simply do this:
- *
- * entity.frame = entity.frame ? 0 : 1;
- */
 
 typedef struct {
   uint8_t type;
@@ -67,10 +61,10 @@ void createDungeon(unsigned int floor);
 void gameLoop();
 
 SDL_Surface *loadSprite(const char *filename);
-void drawTile(int type, int x, int y);
+void drawTile(uint8_t type, uint16_t x, uint16_t y);
 void render();
 
-void move(uint16_t x, uint16_t y);
+void move(Entity *actor, uint8_t state, uint16_t x, uint16_t y);
 Entity** get();
 
 
@@ -84,27 +78,21 @@ SDL_Event event;
 bool running = true;
 int currFloor = 0;
 float last = 0.0f;
-
 Entity entity[total_entities] = {0};
+
 
 int main(int argc, char **argv) {
   initGame();
   createDungeon(currFloor);
   gameLoop();
 
-  printf("Entity at 0's hp: %d\n", entity[0].hp);
-  printf("Entity at 1's hp: %d\n", entity[1].hp);
-
-  Entity **list = get();
-  list[0]->hp -= 2;
-  list[1]->hp -= 2;
-
-  puts("After:");
-  printf("Entity at 0's hp: %d\n", entity[0].hp);
-  printf("Entity at 1's hp: %d\n", entity[1].hp);
+  //Entity **list = get();
+  //list[0]->hp -= 2;
+  //list[1]->hp -= 2;
 
   return EXIT_SUCCESS;
 }
+
 
 void initGame() {
   SDL_Init(SDL_INIT_VIDEO);
@@ -117,6 +105,7 @@ void initGame() {
   sprites[FLOOR] = loadSprite("graphics/floor.png");
   sprites[ENTITY] = loadSprite("graphics/spritesheet.png"); 
 }
+
 
 // create and then store all entities into global array
 void createDungeon(unsigned int floor) {
@@ -141,6 +130,7 @@ void createDungeon(unsigned int floor) {
    render();
 }
 
+
 void gameLoop() {
   while (running) {
 
@@ -152,16 +142,16 @@ void gameLoop() {
                     running=false;
                     break;
                  case SDLK_w: case SDLK_UP: case SDLK_k:
-                    move(player.location.x, player.location.y-10);
+                    move(&player, WALK_UP, player.location.x, player.location.y-10);
                     break;
                  case SDLK_a: case SDLK_LEFT: case SDLK_h:
-                    move(player.location.x-10, player.location.y);
+                    move(&player, WALK_LEFT, player.location.x-10, player.location.y);
                     break;
                  case SDLK_s: case SDLK_DOWN: case SDLK_j:
-                    move(player.location.x, player.location.y+10);
+                    move(&player, WALK_DOWN, player.location.x, player.location.y+10);
                     break;
                  case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-                    move(player.location.x+10, player.location.y);
+                    move(&player, WALK_RIGHT, player.location.x+10, player.location.y);
                     break;
                  default:
                     break;
@@ -172,6 +162,7 @@ void gameLoop() {
    render();
   }
 }
+
 
 SDL_Surface *loadSprite(const char filename[]) {
   SDL_Surface *temp = IMG_Load(filename);
@@ -199,7 +190,8 @@ SDL_Surface *loadSprite(const char filename[]) {
   return sprite;
 }
 
-void drawTile(int type, int x, int y) {
+
+void drawTile(uint8_t type, uint16_t x, uint16_t y) {
    SDL_Rect location = { x * TILESIZE, y * TILESIZE };
    SDL_Surface *sprite = sprites[type];
 
@@ -207,6 +199,7 @@ void drawTile(int type, int x, int y) {
       printf("Error!\n");
    }
 }
+
 
 
 void drawEntity(int type, int state, Loc location, int frameModifier) {
@@ -222,13 +215,16 @@ void drawEntity(int type, int state, Loc location, int frameModifier) {
    }
 }
 
+
 void render() {
+   /** draw the floor **/
    for (int x = 0; x < SCREENX; x++) {
       for (int y = 0; y < SCREENY; y++) {
          drawTile(FLOOR, x, y);
       }
    }
 
+   /** draw each entity **/
    for(int i=0; i<=currFloor+1; i++) {
       drawEntity(entity[i].type,
                  entity[i].state,
@@ -239,8 +235,12 @@ void render() {
    SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
-// move entity unless something's in the way
-void move(uint16_t x, uint16_t y) {
+
+/** 
+ * Pass the entity to be moved by `reference', give the state it
+ * should be, and give the location it wants to move to.
+ */
+void move(Entity *actor, uint8_t state, uint16_t x, uint16_t y) {
    int nx = (( x+(64/2))/32 );
    int ny = (( y+(64))/32 );
 
@@ -259,10 +259,15 @@ void move(uint16_t x, uint16_t y) {
    if(collision) {
       return;
    } else {
-      player.location.x = x;
-      player.location.y = y;
+      actor->location.x = x;
+      actor->location.y = y;
+      actor->state = state;
+
+      // a clean way to switch back and forth from 1 and 0
+      actor->frame = actor->frame ? 0 : 1;
    }
 }
+
 
 // prototype to get all entities as a pointer to their
 // location in the global array
