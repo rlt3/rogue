@@ -11,24 +11,28 @@
 //gcc -o out main.c ../SDLlib/SDL_Main/SDLMain.m -framework SDL -framework SDL_image -framework Cocoa -std=c99
 
 // definitions
-#define total_entities  16
-#define TILESIZE        32
-#define SPRITESIZE      64
+#define total_entities    16
+#define TILESIZE          32
+#define SPRITESIZE        64
 
-#define SCREENX         640
-#define SCREENY         512
+#define SCREENX           640
+#define SCREENY           512
 
-#define FLOOR           0
-#define ENTITY          1
+#define FLOOR             0
+#define ENTITY            1
 
-#define WALK_UP         0
-#define WALK_RIGHT      1
-#define WALK_DOWN       2
-#define WALK_LEFT       3
-#define IDLE            2
+#define WALK_UP           0
+#define WALK_RIGHT        1
+#define WALK_DOWN         2
+#define WALK_LEFT         3
+#define IDLE              2
 
-#define PLAYER          0
-#define MONSTER         64
+#define PLAYER            0
+#define MONSTER           64
+
+#define TICKS_PER_SECOND  60
+#define SKIP_TICKS        60 / TICKS_PER_SECOND
+#define MAX_FRAMESKIP     10
 
 
 // macros
@@ -85,9 +89,13 @@ SDL_Event event;
 
 
 // global game variables
+long double next;
+
 bool running = true;
+
 int currFloor = 0;
-float last = 0.0f;
+int loops = 0;
+
 Entity entity[total_entities] = {0};
 
 
@@ -111,6 +119,8 @@ void initGame() {
   atexit(SDL_Quit);
 
   screen = SDL_SetVideoMode(SCREENX, SCREENY, 0, 0);
+
+  next = time(NULL);
 
   sprites[FLOOR] = loadSprite("graphics/floor.png");
   sprites[ENTITY] = loadSprite("graphics/spritesheet.png"); 
@@ -144,6 +154,13 @@ void createDungeon(unsigned int floor) {
 
 void gameLoop() {
   while (running) {
+     
+      loops=0;
+      while(time(NULL) > next && loops < MAX_FRAMESKIP) {
+         updateEntities();
+         next += SKIP_TICKS;
+         loops++;
+      }
 
      while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -170,7 +187,6 @@ void gameLoop() {
         }
      }
 
-   updateEntities();
    moveEntities();
    render();
   }
@@ -260,10 +276,9 @@ Loc randomDestinationFrom(Loc now) {
    unsigned short int i = rand() % 5;
 
    int direction[5][2] = { {0,1}, {-1,0}, {0,0}, {1,0}, {0,-1} };
-   //int magnitude[5][2] = { {35,30}, {30,-35}, {0,0}, {-30,35}, {35,30} };
-   int magnitude[5][2] = { {20,15}, {20,-15}, {0,0}, {-20,15}, {15,20} };
+   int magnitude[5][2] = { {35,30}, {30,-35}, {0,0}, {-30,35}, {35,30} };
 
-   Loc destination = { 0,0 };
+   Loc destination;
    destination.x = now.x + direction[i][0]*magnitude[i][0];
    destination.y = now.y + direction[i][1]*magnitude[i][1];
 
