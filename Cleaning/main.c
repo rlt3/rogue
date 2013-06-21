@@ -40,10 +40,14 @@
 
 #define player          entity[0]
 
+int sgn(int val) {
+    return (0 < val) - (val < 0);
+}
+
 
 // game-object types
 typedef struct {
-  uint16_t x, y;
+  uint32_t x, y;
 } Loc;
 
 typedef struct {
@@ -52,6 +56,7 @@ typedef struct {
   uint8_t frame;
   uint8_t hp;
   Loc location;
+  Loc destination;
 } Entity;
 
 
@@ -61,10 +66,15 @@ void createDungeon(unsigned int floor);
 void gameLoop();
 
 SDL_Surface *loadSprite(const char *filename);
-void drawTile(uint8_t type, uint16_t x, uint16_t y);
+void drawTile(uint8_t type, uint32_t x, uint32_t y);
 void render();
 
-void move(Entity *actor, uint8_t state, uint16_t x, uint16_t y);
+bool sameLoc(Loc h, Loc j);
+Loc randomDestinationFrom(Loc now);
+void updateEntities();
+void moveEntities();
+void walk(Entity *actor, uint8_t state, uint32_t x, uint32_t y);
+int getState(Loc direction);
 Entity** get();
 
 
@@ -108,16 +118,17 @@ void initGame() {
 
 
 // create and then store all entities into global array
+// current location is always its destination
 void createDungeon(unsigned int floor) {
 
   // player is always 0
   Loc location = {100, 100}; 
-  Entity Player = {0, 0, 2, 10, location};
+  Entity Player = {0, 0, 2, 10, location, location};
   entity[0] = Player;
 
-  for(int i=1; i<=floor+1; i++) {
-    Loc location = {10, 10}; 
-    Entity monster = {64, 0, 2, 10, location};
+  for(int i=1; i<=currFloor+1; i++) {
+    Loc location = {250, 250}; 
+    Entity monster = {64, 0, 2, 10, location, location};
     entity[i] = monster;
   }
 
@@ -142,16 +153,16 @@ void gameLoop() {
                     running=false;
                     break;
                  case SDLK_w: case SDLK_UP: case SDLK_k:
-                    move(&player, WALK_UP, player.location.x, player.location.y-10);
+                    walk(&player, WALK_UP, player.location.x, player.location.y-10);
                     break;
                  case SDLK_a: case SDLK_LEFT: case SDLK_h:
-                    move(&player, WALK_LEFT, player.location.x-10, player.location.y);
+                    walk(&player, WALK_LEFT, player.location.x-10, player.location.y);
                     break;
                  case SDLK_s: case SDLK_DOWN: case SDLK_j:
-                    move(&player, WALK_DOWN, player.location.x, player.location.y+10);
+                    walk(&player, WALK_DOWN, player.location.x, player.location.y+10);
                     break;
                  case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-                    move(&player, WALK_RIGHT, player.location.x+10, player.location.y);
+                    walk(&player, WALK_RIGHT, player.location.x+10, player.location.y);
                     break;
                  default:
                     break;
@@ -159,6 +170,8 @@ void gameLoop() {
         }
      }
 
+   updateEntities();
+   moveEntities();
    render();
   }
 }
@@ -191,7 +204,7 @@ SDL_Surface *loadSprite(const char filename[]) {
 }
 
 
-void drawTile(uint8_t type, uint16_t x, uint16_t y) {
+void drawTile(uint8_t type, uint32_t x, uint32_t y) {
    SDL_Rect location = { x * TILESIZE, y * TILESIZE };
    SDL_Surface *sprite = sprites[type];
 
@@ -235,26 +248,101 @@ void render() {
    SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
+bool sameLoc(Loc h, Loc j) {
+   bool equal = false;
+   if(h.x == j.x && h.y == j.y) {
+      equal = true;
+   }
+   return equal; 
+}
+
+Loc randomDestinationFrom(Loc now) {
+   unsigned short int i = rand() % 5;
+
+   int direction[5][2] = { {0,1}, {-1,0}, {0,0}, {1,0}, {0,-1} };
+   //int magnitude[5][2] = { {35,30}, {30,-35}, {0,0}, {-30,35}, {35,30} };
+   int magnitude[5][2] = { {20,15}, {20,-15}, {0,0}, {-20,15}, {15,20} };
+
+   Loc destination = { 0,0 };
+   destination.x = now.x + direction[i][0]*magnitude[i][0];
+   destination.y = now.y + direction[i][1]*magnitude[i][1];
+
+   return destination;
+}
+
+void updateEntities() {
+   for(int i=1; i<=currFloor+1; i++) {
+      if(sameLoc(entity[i].location,entity[i].destination)) {
+         entity[i].destination = randomDestinationFrom(entity[i].location);
+         
+         //printf("Location is (%d,%d) ", entity[i].location.x,
+         //                                    entity[i].location.y);
+         //printf("Destination is (%d,%d)\n", entity[i].destination.x,
+         //                                    entity[i].destination.y);
+      }
+   }
+}
+
+void moveEntities() {
+   for(int i=1; i<=currFloor+1; i++) {
+      if(!sameLoc(entity[i].location,entity[i].destination)) {
+         Loc distance;
+         distance.x = entity[i].destination.x - entity[i].location.x;
+         distance.y = entity[i].destination.y - entity[i].location.y;
+
+         Loc direction;
+         if(distance.x != 0) {
+            direction.x = sgn(distance.x);
+            direction.y = 0;
+         }  else {
+            direction.x = 0;
+            direction.y = sgn(distance.y);
+         }
+
+         //Location destination = entity[i].location;
+         //destination.x += (entity[i].location.x != entity[i].destination.x) ? direction.x*1 : 0;
+         //destination.y += (entity[i].location.y != entity[i].destination.y) ? direction.y*1 : 0;
+         entity[i].state = getState(direction);
+
+         int diffx = entity[i].destination.x - entity[i].location.x;
+         int diffy = entity[i].destination.y - entity[i].location.y;
+         if(direction.x == 0) {
+            if( (!(diffy % 10) && diffy != 0) ) {
+               entity[i].frame = entity[i].frame ? 0 : 1;
+            }
+         }  else {
+            if( (!(diffx % 10) && diffx != 0) ) {
+               entity[i].frame = entity[i].frame ? 0 : 1;
+            }
+         }
+
+         entity[i].location.x += (entity[i].location.x != entity[i].destination.x) ? direction.x*1 : 0;
+         entity[i].location.y += (entity[i].location.y != entity[i].destination.y) ? direction.y*1 : 0;
+
+         //walk(&entity[i], state, direction.x, direction.y);
+      }
+   }
+}
 
 /** 
- * Pass the entity to be moved by `reference', give the state it
- * should be, and give the location it wants to move to.
+ * Pass the entity to be walkd by `reference', give the state it
+ * should be, and give the location it wants to walk to.
  */
-void move(Entity *actor, uint8_t state, uint16_t x, uint16_t y) {
+void walk(Entity *actor, uint8_t state, uint32_t x, uint32_t y) {
    int nx = (( x+(64/2))/32 );
    int ny = (( y+(64))/32 );
 
    bool collision = false;
-   for(int i=1; i<=currFloor+1; i++) {
-      Loc location = entity[i].location;
-      int wx = (( location.x+(64/2))/32 );
-      int wy = (( location.y+(64))/32 );
+   //for(int i=1; i<=currFloor+1; i++) {
+   //   Loc location = entity[i].location;
+   //   int wx = (( location.x+(64/2))/32 );
+   //   int wy = (( location.y+(64))/32 );
 
-      if(wx == nx && wy == ny) {
-         collision = true;
-         break;
-      }
-   }
+   //   if(wx == nx && wy == ny) {
+   //      collision = true;
+   //      break;
+   //   }
+   //}
 
    if(collision) {
       return;
@@ -279,4 +367,19 @@ Entity** get() {
    }
 
    return list;
+}
+
+int getState(Loc direction) {
+   int state = IDLE;
+
+   if(direction.x == 0 && direction.y == 1)
+      state = WALK_DOWN;
+   else if(direction.x == 0 && direction.y == -1)
+      state = WALK_UP;
+   else if(direction.x == 1 && direction.y == 0)
+      state = WALK_RIGHT;
+   else if(direction.x == -1 && direction.y == 0)
+      state = WALK_LEFT;
+   
+   return state;
 }
