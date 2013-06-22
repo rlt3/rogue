@@ -257,6 +257,14 @@ void render() {
 
 void update_all_entities() {
    for(int i=1; i<=current_floor+1; i++) {
+
+      // if an entity is near the player, that entity goes to the player
+      if( locations_are_nearby( entity[1].location, player.location )) {
+         entity[i].destination = player.location;
+         continue;
+      }
+
+      // if it's not, assign an entity a random destination if it has none
       if( are_same_location( entity[i].location, entity[i].destination )) {
          entity[i].destination = random_destination_from(entity[i].location);
       }

@@ -56,4 +56,9 @@ Location subtract_locations(Location l1, Location l2) {
     return location;
 }
 
+bool locations_are_nearby(Location l1, Location l2) {
+   Location diff = subtract_locations(l1, l2);
+   return (abs(diff.x) <= 100 && abs(diff.y) <= 100);
+}
+
 #endif
