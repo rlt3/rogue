@@ -75,7 +75,7 @@ Entity** get();
 
 // sdl variables
 SDL_Surface *screen;
-SDL_Surface *sprites[total_entities] = {0};
+static SDL_Surface *sprites[total_entities];
 SDL_Event event;
 
 
@@ -87,7 +87,7 @@ bool running = true;
 int current_floor = 0;
 int loops = 0;
 
-Entity entity[total_entities] = {0};
+static Entity entity[total_entities];
 
 
 int main(int argc, char **argv) {
@@ -177,7 +177,7 @@ void main_game_loop() {
         }
      }
 
-   move_all_entities();
+   //move_all_entities();
    render();
   }
 }
@@ -247,9 +247,9 @@ void render() {
    // then draw each entity on top of the floor
    for(int i=0; i<=current_floor+1; i++) {
       draw_entity(entity[i].type,
-                 entity[i].state,
-                 entity[i].location,
-                 entity[i].frame);
+                  entity[i].state,
+                  entity[i].location,
+                  entity[i].frame);
    }
 
    SDL_UpdateRect(screen, 0, 0, 0, 0);
@@ -313,20 +313,24 @@ void move_all_entities() {
  * should be, and give the location it wants to move_entity to.
  */
 void move_entity(Entity *actor, uint8_t state, uint32_t x, uint32_t y) {
-   int nx = (( x+(64/2))/32 );
-   int ny = (( y+(64))/32 );
+   /**
+    * For everything but the player right now, check for collision.
+    *
+    * Collisions is determined by a grid overlay that exists, which
+    * can be determined by dividing the SPRITESIZE by our new grid
+    * size we want. No two entities can exist in these small grid
+    * squares at the same time.
+    */
+   Location now = {x, y};
 
    bool collision = false;
-   //for(int i=1; i<=current_floor+1; i++) {
-   //   Location location = entity[i].location;
-   //   int wx = (( location.x+(64/2))/32 );
-   //   int wy = (( location.y+(64))/32 );
+   for(int i=1; i<=current_floor+1; i++) {
 
-   //   if(wx == nx && wy == ny) {
-   //      collision = true;
-   //      break;
-   //   }
-   //}
+      if( do_collide(now, location) ) {
+         collision = true;
+         break;
+      }
+   }
 
    if(collision) {
       return;

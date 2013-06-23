@@ -56,9 +56,18 @@ Location subtract_locations(Location l1, Location l2) {
     return location;
 }
 
+/**
+ * Within a 100-step radius, determine if locations
+ * are nearby.
+ */
 bool locations_are_nearby(Location l1, Location l2) {
    Location diff = subtract_locations(l1, l2);
    return (abs(diff.x) <= 100 && abs(diff.y) <= 100);
+}
+
+bool do_collide(Location l1, Location l2) {
+   Location diff = subtract_locations(l1, l2);
+   return (abs(diff.x) <= 30 && abs(diff.y) <= 15);
 }
 
 #endif
