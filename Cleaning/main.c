@@ -67,7 +67,7 @@ void render();
 
 void update_all_entities();
 void move_all_entities();
-void move_entity(Entity *actor, uint8_t state, uint32_t x, uint32_t y);
+void move_entity(Entity *actor);
 
 int get_state(Location direction);
 Entity** get();
@@ -160,16 +160,16 @@ void main_game_loop() {
                     running=false;
                     break;
                  case SDLK_w: case SDLK_UP: case SDLK_k:
-                    move_entity(&player, WALK_UP, player.location.x, player.location.y-10);
+                    player.destination = (Location){player.location.x, player.location.y-10};
                     break;
                  case SDLK_a: case SDLK_LEFT: case SDLK_h:
-                    move_entity(&player, WALK_LEFT, player.location.x-10, player.location.y);
+                    player.destination = (Location){player.location.x-10, player.location.y};
                     break;
                  case SDLK_s: case SDLK_DOWN: case SDLK_j:
-                    move_entity(&player, WALK_DOWN, player.location.x, player.location.y+10);
+                    player.destination = (Location){player.location.x, player.location.y+10};
                     break;
                  case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-                    move_entity(&player, WALK_RIGHT, player.location.x+10, player.location.y);
+                    player.destination = (Location){player.location.x+10, player.location.y};
                     break;
                  default:
                     break;
@@ -177,7 +177,7 @@ void main_game_loop() {
         }
      }
 
-   //move_all_entities();
+   move_all_entities();
    render();
   }
 }
@@ -272,38 +272,9 @@ void update_all_entities() {
 }
 
 void move_all_entities() {
-   for(int i=1; i<=current_floor+1; i++) {
-      if(!are_same_location(entity[i].location,entity[i].destination)) {
-
-         Location distance = subtract_locations(entity[i].destination,
-                                                entity[i].location);
-                           
-         Location direction = get_direction_to(distance);
-         entity[i].state = get_state(direction);
-
-         /**
-          * To make animations look fluid, we only update them every
-          * 10 steps. Since an Entity can only be walking in one
-          * cardinal direction at a time (no diagonal), we only need
-          * to mesaure two axes (x and y). If the distance between
-          * their destination and current location is divisible by
-          * 10 (and they haven't arrived at their destination), then
-          * update the frame.
-          *
-          * There's a better way to do this, I just need to think.
-          */
-         if(direction.x == 0) {
-            if( (!(distance.y % 10) && distance.y != 0) ) {
-               entity[i].frame = entity[i].frame ? 0 : 1;
-            }
-         }  else {
-            if( (!(distance.x % 10) && distance.x != 0) ) {
-               entity[i].frame = entity[i].frame ? 0 : 1;
-            }
-         }
-
-         entity[i].location.x += (entity[i].location.x != entity[i].destination.x) ? direction.x*1 : 0;
-         entity[i].location.y += (entity[i].location.y != entity[i].destination.y) ? direction.y*1 : 0;
+   for(int i=0; i<=current_floor+1; i++) {
+      if( !are_same_location(entity[i].location, entity[i].destination)) {
+         move_entity(&entity[i]);
       }
    }
 }
@@ -312,35 +283,36 @@ void move_all_entities() {
  * Pass the entity to be move_entityd by `reference', give the state it
  * should be, and give the location it wants to move_entity to.
  */
-void move_entity(Entity *actor, uint8_t state, uint32_t x, uint32_t y) {
-   /**
-    * For everything but the player right now, check for collision.
-    *
-    * Collisions is determined by a grid overlay that exists, which
-    * can be determined by dividing the SPRITESIZE by our new grid
-    * size we want. No two entities can exist in these small grid
-    * squares at the same time.
-    */
-   Location now = {x, y};
+//void move_entity(Entity *actor, uint8_t state, uint32_t x, uint32_t y) {
+void move_entity(Entity *actor) {
 
-   bool collision = false;
-   for(int i=1; i<=current_floor+1; i++) {
+   for(int i=0; i<=current_floor+1; i++) {
+      Entity *currentEntity = &entity[i];
 
-      if( do_collide(now, location) ) {
-         collision = true;
-         break;
+      if( do_collide(actor->destination, currentEntity->location) 
+          && actor != currentEntity) {
+         return;
       }
    }
 
-   if(collision) {
-      return;
-   } else {
-      actor->location.x = x;
-      actor->location.y = y;
-      actor->state = state;
+   Location distance = subtract_locations(actor->destination,
+                                          actor->location);
+                           
+   Location direction = get_direction_to(distance);
+   actor->location.x += (actor->location.x != actor->destination.x) ? direction.x*1 : 0;
+   actor->location.y += (actor->location.y != actor->destination.y) ? direction.y*1 : 0;
+   actor->state = get_state(direction);
 
-      // a clean way to switch back and forth from 1 and 0
-      actor->frame = actor->frame ? 0 : 1;
+   // a clean way to switch back and forth from 1 and 0
+
+   if(direction.x == 0) {
+      if( (!(distance.y % 10) && distance.y != 0) ) {
+         actor->frame = actor->frame ? 0 : 1;
+      }
+   }  else {
+      if( (!(distance.x % 10) && distance.x != 0) ) {
+         actor->frame = actor->frame ? 0 : 1;
+      }
    }
 }
 
