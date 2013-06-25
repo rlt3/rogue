@@ -10,10 +10,8 @@
 
 #include "location.h"
 
-//gcc -o out main.c ../SDLlib/SDL_Main/SDLMain.m -framework SDL -framework SDL_image -framework Cocoa -std=c99
-
 // definitions
-#define total_entities    16
+#define TOTAL_ENTITIES    16
 #define TILESIZE          32
 #define SPRITESIZE        64
 
@@ -68,6 +66,7 @@ void render();
 void update_all_entities();
 void move_all_entities();
 void move_entity(Entity *actor);
+void attack(Entity *actor);
 
 int get_state(Location direction);
 Entity** get();
@@ -75,7 +74,7 @@ Entity** get();
 
 // sdl variables
 SDL_Surface *screen;
-static SDL_Surface *sprites[total_entities];
+static SDL_Surface *sprites[TOTAL_ENTITIES];
 SDL_Event event;
 
 
@@ -84,15 +83,15 @@ long double next;
 
 bool running = true;
 
-int current_floor = 0;
+int currentFloor = 0;
 int loops = 0;
 
-static Entity entity[total_entities];
+static Entity entity[TOTAL_ENTITIES];
 
 
 int main(int argc, char **argv) {
   init_game();
-  create_dungeon(current_floor);
+  create_dungeon(currentFloor);
   main_game_loop();
 
   //Entity **list = get();
@@ -129,7 +128,7 @@ void create_dungeon(unsigned int floor) {
   entity[0] = Player;
 
    // keep it simple: the floor number is how many entities we get
-  for(int i=1; i<=current_floor+1; i++) {
+  for(int i=1; i<=currentFloor+1; i++) {
     Location location = {250, 250}; 
     Entity monster = {64, 0, 2, 10, location, location};
     entity[i] = monster;
@@ -170,6 +169,9 @@ void main_game_loop() {
                     break;
                  case SDLK_d: case SDLK_RIGHT: case SDLK_l:
                     player.destination = (Location){player.location.x+10, player.location.y};
+                    break;
+                 case SDLK_SPACE:
+                    attack(&player);
                     break;
                  default:
                     break;
@@ -245,7 +247,7 @@ void render() {
    }
 
    // then draw each entity on top of the floor
-   for(int i=0; i<=current_floor+1; i++) {
+   for(int i=0; i<=currentFloor+1; i++) {
       draw_entity(entity[i].type,
                   entity[i].state,
                   entity[i].location,
@@ -256,7 +258,7 @@ void render() {
 }
 
 void update_all_entities() {
-   for(int i=1; i<=current_floor+1; i++) {
+   for(int i=1; i<=currentFloor+1; i++) {
 
       // if an entity is near the player, that entity goes to the player
       if( locations_are_nearby( entity[1].location, player.location )) {
@@ -272,7 +274,7 @@ void update_all_entities() {
 }
 
 void move_all_entities() {
-   for(int i=0; i<=current_floor+1; i++) {
+   for(int i=0; i<=currentFloor+1; i++) {
       if( !are_same_location(entity[i].location, entity[i].destination)) {
          move_entity(&entity[i]);
       }
@@ -286,7 +288,7 @@ void move_all_entities() {
 //void move_entity(Entity *actor, uint8_t state, uint32_t x, uint32_t y) {
 void move_entity(Entity *actor) {
 
-   for(int i=0; i<=current_floor+1; i++) {
+   for(int i=0; i<=currentFloor+1; i++) {
       Entity *currentEntity = &entity[i];
 
       if( do_collide(actor->destination, currentEntity->location) 
@@ -316,12 +318,33 @@ void move_entity(Entity *actor) {
    }
 }
 
+void attack(Entity *actor) {
+   /**
+    * using direction, we can determine which
+    * squares to look into for an attack.
+    *
+    * For (0,1) -- DOWN -- the square attacked would be
+    * (location + (64*0), location + (64*1)) or from its
+    * location, down 64 steps.
+    */
+}
+
 // prototype to get all entities as a pointer to their
 // location in the global array
 Entity** get() {
-   Entity* list[total_entities] = {0};
+   /**
+    * We can infer that the list returned will be of no
+    * size greater than the currentFloor + 1 - 1 or just
+    * currentFloor.
+    *
+    * We add 1 because it better represents the array
+    * length, but subtract 1 because an attacking entity
+    * cannot attack itself.
+    */
 
-   for(int i=0; i<=current_floor+1; i++) {
+   Entity* list[TOTAL_ENTITIES] = {0};
+
+   for(int i=0; i<=currentFloor+1; i++) {
       list[i] = &entity[i];
    }
 
