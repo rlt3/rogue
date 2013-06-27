@@ -67,7 +67,7 @@ bool locations_are_nearby(Location l1, Location l2) {
 
 bool do_collide(Location l1, Location l2) {
    Location diff = subtract_locations(l1, l2);
-   return (abs(diff.x) <= 30 && abs(diff.y) <= 15);
+   return (abs(diff.x) <= 15 && abs(diff.y) <= 15);
 }
 
 #endif
