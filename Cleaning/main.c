@@ -69,7 +69,7 @@ void move_entity(Entity *actor);
 void attack(Entity *actor);
 
 int get_state(Location direction);
-Entity** get();
+Entity** entities_in_area(Location area);
 
 
 // sdl variables
@@ -327,11 +327,26 @@ void attack(Entity *actor) {
     * (location + (64*0), location + (64*1)) or from its
     * location, down 64 steps.
     */
+   Location direction = {0,0};
+   if(actor->state == WALK_DOWN)
+      direction = (Location){0,1};
+   else if(actor->state == WALK_UP)
+      direction = (Location){0,-1};
+   else if(actor->state == WALK_RIGHT)
+      direction = (Location){1,0};
+   else if(actor->state == WALK_LEFT)
+      direction = (Location){-1,0};
+
+   Location areaAttacked;
+   areaAttacked.x = (actor->location.x + (64 * direction.x));
+   areaAttacked.y = (actor->location.y + (64 * direction.y));
+
+   Entity* attackedEntities[] = entities_in_area(areaAttacked);
 }
 
 // prototype to get all entities as a pointer to their
 // location in the global array
-Entity** get() {
+Entity** entities_in_area(Location a) {
    /**
     * We can infer that the list returned will be of no
     * size greater than the currentFloor + 1 - 1 or just
@@ -340,7 +355,17 @@ Entity** get() {
     * We add 1 because it better represents the array
     * length, but subtract 1 because an attacking entity
     * cannot attack itself.
+    *
+    * Because we need to look in a square (not at a specific
+    * point), we need to create bounds. The lower bound will
+    * be the location given, the upper bound will be the
+    * given location plus the sprite size.
+    *
+    * Anything in between those bounds will be considered in
+    * that area.
     */
+
+   Location b = {a.x + 64, a.y + 64};
 
    Entity* list[TOTAL_ENTITIES] = {0};
 
