@@ -112,8 +112,8 @@ void init_game() {
 }
 
 /**
- * Create and then store all entities into global array
- * current location is always its destination
+ * Create and then store all entities into global array.
+ * The starting location is always its first destination.
  */
 void create_dungeon(unsigned int floor) {
 
@@ -122,7 +122,7 @@ void create_dungeon(unsigned int floor) {
   Entity Player = {0, 0, 2, 10, location, location};
   entity[0] = Player;
 
-  /* keep it simple: the floor number is how many entities we get */
+  /* keep it simple: the floor number is how many monsters we get */
   for(int i=1; i<=currentFloor+1; i++) {
     Location location = {250, 250}; 
     Entity monster = {64, 0, 2, 10, location, location};
@@ -142,6 +142,7 @@ void main_game_loop() {
     loops=0;
     while(time(NULL) > next && loops < MAX_FRAMESKIP) {
       update_all_entities();
+      printf("Monster hp: %d\n", entity[1].hp);
       next += SKIP_TICKS;
       loops++;
     }
@@ -155,19 +156,19 @@ void main_game_loop() {
               break;
             case SDLK_w: case SDLK_UP: case SDLK_k:
               player.destination = (Location){player.location.x, 
-                player.location.y-10};
+                                              player.location.y-10};
               break;
             case SDLK_a: case SDLK_LEFT: case SDLK_h:
               player.destination = (Location){player.location.x-10, 
-                player.location.y};
+                                              player.location.y};
               break;
             case SDLK_s: case SDLK_DOWN: case SDLK_j:
               player.destination = (Location){player.location.x, 
-                player.location.y+10};
+                                              player.location.y+10};
               break;
             case SDLK_d: case SDLK_RIGHT: case SDLK_l:
               player.destination = (Location){player.location.x+10, 
-                player.location.y};
+                                              player.location.y};
               break;
             case SDLK_SPACE:
               attack(&player);
@@ -296,7 +297,7 @@ void move_entity(Entity *actor) {
   }
 
   Location distance = subtract_locations(actor->destination,
-      actor->location);
+                                         actor->location);
 
   Location direction = get_direction_to(distance);
   actor->location.x += direction.x*1;
@@ -338,10 +339,11 @@ void attack(Entity *actor) {
   areaAttacked.x = (actor->location.x + (64 * direction.x));
   areaAttacked.y = (actor->location.y + (64 * direction.y));
 
-  Entity  **attackedEntities = entities_in_area(areaAttacked);
+  //Entity **attackedEntities = entities_in_area(areaAttacked);
+  //attackedEntities[0]->hp -= 10;
 }
 
-Entity** entities_in_area(Location a) {
+Entity** entities_in_area(Location lower) {
   /**
    * We can infer that the list returned will be of no
    * size greater than the currentFloor + 1 - 1 or just
@@ -360,12 +362,15 @@ Entity** entities_in_area(Location a) {
    * that area.
    */
 
-  Location b = {a.x + 64, a.y + 64};
+  Location upper = {lower.x + 64, lower.y + 64};
 
   Entity* list[TOTAL_ENTITIES] = {0};
 
   for(int i=0; i<=currentFloor+1; i++) {
-    list[i] = &entity[i];
+    if(entity[i].location.x <= upper.x && entity[i].location.y <= upper.y &&
+       entity[i].location.x >= lower.x && entity[i].location.y >= lower.y) {
+      list[i] = &entity[i];
+    }
   }
 
   return list;
