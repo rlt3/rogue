@@ -327,19 +327,19 @@ void attack(Entity *actor) {
    */
   Location direction = {0,0};
   if(actor->state == WALK_DOWN)
-    direction = (Location){0,1};
-  else if(actor->state == WALK_UP)
     direction = (Location){0,-1};
+  else if(actor->state == WALK_UP)
+    direction = (Location){0,1};
   else if(actor->state == WALK_RIGHT)
-    direction = (Location){1,0};
-  else if(actor->state == WALK_LEFT)
     direction = (Location){-1,0};
+  else if(actor->state == WALK_LEFT)
+    direction = (Location){1,0};
 
   Location areaAttacked;
   areaAttacked.x = (actor->location.x + (64 * direction.x));
   areaAttacked.y = (actor->location.y + (64 * direction.y));
 
-  //Entity **attackedEntities = entities_in_area(areaAttacked);
+  Entity **attackedEntities = entities_in_area(areaAttacked);
   //attackedEntities[0]->hp -= 10;
 }
 
@@ -369,6 +369,7 @@ Entity** entities_in_area(Location lower) {
   for(int i=0; i<=currentFloor+1; i++) {
     if(entity[i].location.x <= upper.x && entity[i].location.y <= upper.y &&
        entity[i].location.x >= lower.x && entity[i].location.y >= lower.y) {
+      puts("Something was hit!");
       list[i] = &entity[i];
     }
   }
