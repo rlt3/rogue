@@ -367,6 +367,11 @@ Entity** entities_in_area(Location lower) {
   Entity* list[TOTAL_ENTITIES] = {0};
 
   for(int i=0; i<=currentFloor+1; i++) {
+    /*
+     * The location checked here is from the top left of the entity's
+     * sprite. The area that is used at the hitbox should reflect
+     * this fact.
+     */
     if(entity[i].location.x <= upper.x && entity[i].location.y <= upper.y &&
        entity[i].location.x >= lower.x && entity[i].location.y >= lower.y) {
       puts("Something was hit!");
