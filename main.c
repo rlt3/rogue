@@ -25,6 +25,7 @@
 #define WALK_RIGHT        1
 #define WALK_DOWN         2
 #define WALK_LEFT         3
+#define ATTACK            4
 #define IDLE              2
 
 #define PLAYER            0
@@ -51,6 +52,7 @@ typedef struct {
   uint8_t hp;
   Location location;
   Location destination;
+  Location direction;
 } Entity;
 
 
@@ -142,7 +144,7 @@ void main_game_loop() {
     loops=0;
     while(time(NULL) > next && loops < MAX_FRAMESKIP) {
       update_all_entities();
-      printf("Monster hp: %d\n", entity[1].hp);
+      /* printf("Monster hp: %d\n", entity[1].hp);*/
       next += SKIP_TICKS;
       loops++;
     }
@@ -233,6 +235,9 @@ void draw_entity(int type, int state, Location location, int frameModifier) {
 
   SDL_Surface *sprite = sprites[ENTITY];
 
+  SDL_Rect hitbox = { location.x + 8, location.y + 16, 48, 48 };
+  SDL_FillRect(screen, &hitbox, 0);
+
   if(SDL_BlitSurface(sprite, &frame, screen, &spriteLocationation) < 0) {
     printf("Error!\n");
   }
@@ -248,6 +253,14 @@ void render() {
 
   /* then draw each entity on top of the floor */
   for(int i=0; i<=currentFloor+1; i++) {
+    if(entity[i].state == ATTACK) {
+      SDL_Rect attackbox = { entity[i].location.x + (entity[i].direction.x > 0 ? entity[i].direction.x * 32 : 32),
+                             entity[i].location.y + (entity[i].direction.y > 0 ? entity[i].direction.y * 32 : 32),
+                             (entity[i].direction.x > 0 ? 64 : 16),
+                             (entity[i].direction.y > 0 ? 64 : 16) };
+      SDL_FillRect(screen, &attackbox, 0xFFFFFF);
+    }
+
     draw_entity(entity[i].type,
         entity[i].state,
         entity[i].location,
@@ -258,7 +271,12 @@ void render() {
 }
 
 void update_all_entities() {
-  for(int i=1; i<=currentFloor+1; i++) {
+  for(int i=0; i<=currentFloor+1; i++) {
+    /* reset player state so it doesn't spend forever in the attack state */
+    if(i == 0) {
+      entity[i].state = get_state(entity[i].direction);
+      continue;
+    }
 
     /* if an entity is near the player, that entity goes to the player */
     if(locations_are_nearby(entity[1].location, player.location)) {
@@ -325,15 +343,19 @@ void attack(Entity *actor) {
    * (location + (64*0), location + (64*1)) or from its
    * location, down 64 steps.
    */
+
   Location direction = {0,0};
   if(actor->state == WALK_DOWN)
-    direction = (Location){0,-1};
-  else if(actor->state == WALK_UP)
     direction = (Location){0,1};
+  else if(actor->state == WALK_UP)
+    direction = (Location){0,-1};
   else if(actor->state == WALK_RIGHT)
-    direction = (Location){-1,0};
-  else if(actor->state == WALK_LEFT)
     direction = (Location){1,0};
+  else if(actor->state == WALK_LEFT)
+    direction = (Location){-1,0};
+
+  actor->state = ATTACK;
+  actor->direction = direction;
 
   Location areaAttacked;
   areaAttacked.x = (actor->location.x + (64 * direction.x));
@@ -374,7 +396,7 @@ Entity** entities_in_area(Location lower) {
      */
     if(entity[i].location.x <= upper.x && entity[i].location.y <= upper.y &&
        entity[i].location.x >= lower.x && entity[i].location.y >= lower.y) {
-      puts("Something was hit!");
+      /* puts("Something was hit!");*/
       list[i] = &entity[i];
     }
   }
