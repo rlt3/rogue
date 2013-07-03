@@ -71,7 +71,8 @@ void move_entity(Entity *actor);
 void attack(Entity *actor);
 
 int get_state(Location direction);
-Entity** entities_in_area(Location area);
+//Entity** attack_entities_in_area(Location area);
+void attack_entities_in_area(int x, int y, int h, int j);
 
 
 // sdl variables
@@ -144,6 +145,9 @@ void main_game_loop() {
     loops=0;
     while(time(NULL) > next && loops < MAX_FRAMESKIP) {
       update_all_entities();
+      if(entity[1].hp <= 0) {
+        create_dungeon(currentFloor);
+      }
       /* printf("Monster hp: %d\n", entity[1].hp);*/
       next += SKIP_TICKS;
       loops++;
@@ -318,6 +322,7 @@ void move_entity(Entity *actor) {
                                          actor->location);
 
   Location direction = get_direction_to(distance);
+  actor->direction = direction;
   actor->location.x += direction.x*1;
   actor->location.y += direction.y*1;
   actor->state = get_state(direction);
@@ -357,15 +362,16 @@ void attack(Entity *actor) {
   actor->state = ATTACK;
   actor->direction = direction;
 
-  Location areaAttacked;
-  areaAttacked.x = (actor->location.x + (64 * direction.x));
-  areaAttacked.y = (actor->location.y + (64 * direction.y));
+  int x = (actor->location.x + (direction.x != 0 ? direction.x * 64 : 0));
+  int y = (actor->location.y + (direction.y != 0 ? direction.y * 64 : 0));
 
-  Entity **attackedEntities = entities_in_area(areaAttacked);
-  //attackedEntities[0]->hp -= 10;
+  int h = x + 64;
+  int j = y + 64;
+
+  attack_entities_in_area(x, y, h, j);
 }
 
-Entity** entities_in_area(Location lower) {
+void attack_entities_in_area(int x, int y, int h, int j) {
   /**
    * We can infer that the list returned will be of no
    * size greater than the currentFloor + 1 - 1 or just
@@ -384,9 +390,11 @@ Entity** entities_in_area(Location lower) {
    * that area.
    */
 
-  Location upper = {lower.x + 64, lower.y + 64};
+  Location lower = {x, y};
+  Location upper = {h, j};
 
-  Entity* list[TOTAL_ENTITIES] = {0};
+  //SDL_Rect attackbox = { x, y, 64, 64 };
+  //SDL_FillRect(screen, &attackbox, 0xFFFFFF);
 
   for(int i=0; i<=currentFloor+1; i++) {
     /*
@@ -394,14 +402,13 @@ Entity** entities_in_area(Location lower) {
      * sprite. The area that is used at the hitbox should reflect
      * this fact.
      */
-    if(entity[i].location.x <= upper.x && entity[i].location.y <= upper.y &&
-       entity[i].location.x >= lower.x && entity[i].location.y >= lower.y) {
-      /* puts("Something was hit!");*/
-      list[i] = &entity[i];
+    Location location = { entity[i].location.x + 32, entity[i].location.y + 32 };
+    if(location.x <= upper.x && location.y <= upper.y &&
+       location.x >= lower.x && location.y >= lower.y
+       && i != 0) {
+      entity[i].hp -= 5;
     }
   }
-
-  return list;
 }
 
 /**

@@ -1,17 +1,15 @@
 CC=gcc
-CFLAGS=-c
-FRAMEWORKS=-framework SDL -framework SDL_image -framework Cocoa -std=c99
-SOURCES=main.c
-OBJECTS=$(SOURCES:.cpp=.o)
+CFLAGS=-Wall -std=c99
+#SDLLIBS=-Wl,-Bstatic `-framework SDL -framework SDL_image` -Wl,-Bdynamic
+SDLLIBS=-framework SDL -framework SDL_image
+FRAMEWORKS=-framework Cocoa
+SOURCES=main.c SDL_Main/SDLMain.m 
 EXECUTABLE=rogue
 
 game: $(SOURCES) $(EXECUTABLE)
-		
-$(EXECUTABLE): $(OBJECTS) 
-	$(CC) -Wall -o $@ $(OBJECTS) SDL_Main/SDLMain.m $(LDFLAGS) $(FRAMEWORKS) 
 
-.c.o:
-	$(CC) $(CFLAGS) $< -o $@
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(SDLLIBS) $(FRAMEWORKS)
 
 clean:
 	rm -rf *.o && rm -rf rogue
