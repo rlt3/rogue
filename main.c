@@ -10,7 +10,7 @@
 
 #include "location.h"
 
-// definitions
+/* definitions */
 #define TOTAL_ENTITIES    16
 #define TILESIZE          32
 #define SPRITESIZE        64
@@ -25,7 +25,14 @@
 #define WALK_RIGHT        1
 #define WALK_DOWN         2
 #define WALK_LEFT         3
+
+#define ATTACK_UP         4
+#define ATTACK_RIGHT      5
+#define ATTACK_DOWN       6
+#define ATTACK_LEFT       7
+
 #define ATTACK            4
+
 #define IDLE              2
 
 #define PLAYER            0
@@ -35,8 +42,7 @@
 #define SKIP_TICKS        60 / TICKS_PER_SECOND
 #define MAX_FRAMESKIP     10
 
-
-// macros
+/* macros */
 #define CURTIME()  \
   (clock() / (float) CLOCKS_PER_SEC )
 
@@ -55,8 +61,7 @@ typedef struct {
   Location direction;
 } Entity;
 
-
-// function definitions
+/* function definitions */
 void init_game();
 void create_dungeon(unsigned int floor);
 void main_game_loop();
@@ -71,26 +76,21 @@ void move_entity(Entity *actor);
 void attack(Entity *actor);
 
 int get_state(Location direction);
-//Entity** attack_entities_in_area(Location area);
-void attack_entities_in_area(int x, int y, int h, int j);
 
-
-// sdl variables
+/* sdl variables */
 SDL_Surface *screen;
 static SDL_Surface *sprites[TOTAL_ENTITIES];
 SDL_Event event;
 
 
-// global game variables
+/* global game variables */
 long double next;
-
 bool running = true;
 
 int currentFloor = 0;
 int loops = 0;
 
 static Entity entity[TOTAL_ENTITIES];
-
 
 int main(int argc, char **argv) {
   init_game();
@@ -148,7 +148,7 @@ void main_game_loop() {
       if(entity[1].hp <= 0) {
         create_dungeon(currentFloor);
       }
-      /* printf("Monster hp: %d\n", entity[1].hp);*/
+      //printf("\xdMonster hp: %d", entity[1].hp);
       next += SKIP_TICKS;
       loops++;
     }
@@ -239,8 +239,8 @@ void draw_entity(int type, int state, Location location, int frameModifier) {
 
   SDL_Surface *sprite = sprites[ENTITY];
 
-  SDL_Rect hitbox = { location.x + 8, location.y + 16, 48, 48 };
-  SDL_FillRect(screen, &hitbox, 0);
+  /*SDL_Rect hitbox = { location.x + 8, location.y + 16, 48, 48 };
+  SDL_FillRect(screen, &hitbox, 0);*/
 
   if(SDL_BlitSurface(sprite, &frame, screen, &spriteLocationation) < 0) {
     printf("Error!\n");
@@ -258,10 +258,13 @@ void render() {
   /* then draw each entity on top of the floor */
   for(int i=0; i<=currentFloor+1; i++) {
     if(entity[i].state == ATTACK) {
-      SDL_Rect attackbox = { entity[i].location.x + (entity[i].direction.x > 0 ? entity[i].direction.x * 32 : 32),
-                             entity[i].location.y + (entity[i].direction.y > 0 ? entity[i].direction.y * 32 : 32),
-                             (entity[i].direction.x > 0 ? 64 : 16),
-                             (entity[i].direction.y > 0 ? 64 : 16) };
+      SDL_Rect attackbox = { 
+        entity[i].location.x + (entity[i].direction.x > 0 ? entity[i].direction.x * 32 : 32),
+        entity[i].location.y + (entity[i].direction.y > 0 ? entity[i].direction.y * 32 : 32),
+        (entity[i].direction.x > 0 ? 64 : 16),
+        (entity[i].direction.y > 0 ? 64 : 16) 
+      };
+
       SDL_FillRect(screen, &attackbox, 0xFFFFFF);
     }
 
@@ -341,11 +344,11 @@ void move_entity(Entity *actor) {
 
 void attack(Entity *actor) {
   /**
-   * using direction, we can determine which
+   * Using direction, we can determine which
    * squares to look into for an attack.
    *
    * For (0,1) -- DOWN -- the square attacked would be
-   * (location + (64*0), location + (64*1)) or from its
+   * {location + (64*0), location + (64*1)} or from its
    * location, down 64 steps.
    */
 
@@ -362,50 +365,19 @@ void attack(Entity *actor) {
   actor->state = ATTACK;
   actor->direction = direction;
 
-  int x = (actor->location.x + (direction.x != 0 ? direction.x * 64 : 0));
-  int y = (actor->location.y + (direction.y != 0 ? direction.y * 64 : 0));
+  Location lower = {(actor->location.x + (direction.x != 0 ? direction.x * 64 : 0)),
+                    (actor->location.y + (direction.y != 0 ? direction.y * 64 : 0))};
 
-  int h = x + 64;
-  int j = y + 64;
-
-  attack_entities_in_area(x, y, h, j);
-}
-
-void attack_entities_in_area(int x, int y, int h, int j) {
-  /**
-   * We can infer that the list returned will be of no
-   * size greater than the currentFloor + 1 - 1 or just
-   * currentFloor.
-   *
-   * We add 1 because it better represents the array
-   * length, but subtract 1 because an attacking entity
-   * cannot attack itself.
-   *
-   * Because we need to look in a square (not at a specific
-   * point), we need to create bounds. The lower bound will
-   * be the location given, the upper bound will be the
-   * given location plus the sprite size.
-   *
-   * Anything in between those bounds will be considered in
-   * that area.
-   */
-
-  Location lower = {x, y};
-  Location upper = {h, j};
-
-  //SDL_Rect attackbox = { x, y, 64, 64 };
-  //SDL_FillRect(screen, &attackbox, 0xFFFFFF);
+  Location upper = {lower.x + 64, lower.y + 64};
 
   for(int i=0; i<=currentFloor+1; i++) {
-    /*
-     * The location checked here is from the top left of the entity's
-     * sprite. The area that is used at the hitbox should reflect
-     * this fact.
-     */
-    Location location = { entity[i].location.x + 32, entity[i].location.y + 32 };
-    if(location.x <= upper.x && location.y <= upper.y &&
-       location.x >= lower.x && location.y >= lower.y
-       && i != 0) {
+    /* Create a `area' to test intersection of the attack box */
+    Location eLower = {entity[i].location.x, entity[i].location.y};
+    Location eUpper = {entity[i].location.x + 64, entity[i].location.y + 64};
+
+    if(eLower.x < upper.x && eUpper.x > lower.x &&
+       eLower.y < upper.y && eUpper.y > lower.y
+       && &entity[i] != actor) {
       entity[i].hp -= 5;
     }
   }
