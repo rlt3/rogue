@@ -51,7 +51,7 @@
 
 #define player          entity[0]
 
-typedef struct {
+typedef struct Entity {
   uint8_t type;
   uint8_t state;
   uint8_t frame;
@@ -85,6 +85,8 @@ SDL_Event event;
 
 /* global game variables */
 long double next;
+long double dt;
+long double t;
 bool running = true;
 
 int currentFloor = 0;
@@ -93,6 +95,7 @@ int loops = 0;
 static Entity entity[TOTAL_ENTITIES];
 
 int main(int argc, char **argv) {
+  t = CURTIME();
   init_game();
   create_dungeon(currentFloor);
   main_game_loop();
@@ -141,14 +144,15 @@ void create_dungeon(unsigned int floor) {
 
 void main_game_loop() {
   while (running) {
+    dt = CURTIME() - t;
 
     loops=0;
     while(time(NULL) > next && loops < MAX_FRAMESKIP) {
       update_all_entities();
+
       if(entity[1].hp <= 0) {
         create_dungeon(currentFloor);
       }
-      //printf("\xdMonster hp: %d", entity[1].hp);
       next += SKIP_TICKS;
       loops++;
     }
@@ -239,9 +243,6 @@ void draw_entity(int type, int state, Location location, int frameModifier) {
 
   SDL_Surface *sprite = sprites[ENTITY];
 
-  /*SDL_Rect hitbox = { location.x + 8, location.y + 16, 48, 48 };
-  SDL_FillRect(screen, &hitbox, 0);*/
-
   if(SDL_BlitSurface(sprite, &frame, screen, &spriteLocationation) < 0) {
     printf("Error!\n");
   }
@@ -272,7 +273,36 @@ void render() {
         entity[i].state,
         entity[i].location,
         entity[i].frame);
+
   }
+
+  if(dt >= 1.0f) {
+    t = CURTIME();
+    printf("%Lf\n", dt);
+  }
+
+  Location location = {200,150};
+  SDL_Rect hitbox;
+
+  hitbox = (SDL_Rect){ 
+    location.x + (int)(10/dt),
+    location.y + (int)(10/dt),
+    48, 48 
+  };
+  
+  //SDL_Rect hitbox = { 
+  //  location.x,
+  //  location.y,
+  //  16 + (int)(2/dt), 
+  //  16 + (int)(2/dt)
+  //};
+
+  printf(" dt: %Lf [%d, %d]\n", dt,
+                                16 + (int)(2/dt), 
+                                16 + (int)(2/dt));
+
+  SDL_FillRect(screen, &hitbox, 0);
+
 
   SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
@@ -315,8 +345,8 @@ void move_entity(Entity *actor) {
   for(int i=0; i<=currentFloor+1; i++) {
     Entity *currentEntity = &entity[i];
 
-    if( do_collide(actor->destination, currentEntity->location) 
-        && actor != currentEntity) {
+    if(do_collide(actor->destination, currentEntity->location) 
+       && actor != currentEntity) {
       return;
     }
   }
@@ -326,8 +356,12 @@ void move_entity(Entity *actor) {
 
   Location direction = get_direction_to(distance);
   actor->direction = direction;
+
   actor->location.x += direction.x*1;
   actor->location.y += direction.y*1;
+  //actor->location.x += direction.x*((int)(dt));
+  //actor->location.y += direction.y*((int)(dt));
+
   actor->state = get_state(direction);
 
   if(direction.x == 0) {
