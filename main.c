@@ -153,6 +153,7 @@ void main_game_loop() {
       if(entity[1].hp <= 0) {
         create_dungeon(currentFloor);
       }
+
       next += SKIP_TICKS;
       loops++;
     }
@@ -181,7 +182,9 @@ void main_game_loop() {
                                               player.location.y};
               break;
             case SDLK_SPACE:
-              attack(&player);
+              if(player.state != ATTACK) {
+                attack(&player);
+              }
               break;
             default:
               break;
@@ -256,15 +259,32 @@ void render() {
     }
   }
 
+  if(dt >= 0.30f) {
+    t = CURTIME();
+    printf("%Lf\n", dt);
+    player.state = get_state(player.direction);
+  }
+
   /* then draw each entity on top of the floor */
   for(int i=0; i<=currentFloor+1; i++) {
     if(entity[i].state == ATTACK) {
-      SDL_Rect attackbox = { 
+      SDL_Rect attackbox;
+
+      attackbox = (SDL_Rect){ 
         entity[i].location.x + (entity[i].direction.x > 0 ? entity[i].direction.x * 32 : 32),
         entity[i].location.y + (entity[i].direction.y > 0 ? entity[i].direction.y * 32 : 32),
         (entity[i].direction.x > 0 ? 64 : 16),
         (entity[i].direction.y > 0 ? 64 : 16) 
       };
+
+      if(dt >= 0.15f) {
+        attackbox = (SDL_Rect){ 
+          entity[i].location.x + (entity[i].direction.x > 0 ? entity[i].direction.x * 32 : 32),
+          entity[i].location.y + (entity[i].direction.y > 0 ? entity[i].direction.y * 32 : 32),
+          (entity[i].direction.x > 0 ? 16 : 64),
+          (entity[i].direction.y > 0 ? 16 : 64) 
+        };
+      }
 
       SDL_FillRect(screen, &attackbox, 0xFFFFFF);
     }
@@ -276,45 +296,31 @@ void render() {
 
   }
 
-  if(dt >= 1.0f) {
-    t = CURTIME();
-    printf("%Lf\n", dt);
-  }
+  //if(dt >= 1.0f) {
+  //  t = CURTIME();
+  //  printf("%Lf\n", dt);
+  //}
 
-  Location location = {200,150};
-  SDL_Rect hitbox;
+  //Location location = {200,150};
+  //SDL_Rect hitbox;
 
-  hitbox = (SDL_Rect){ 
-    location.x + (int)(10/dt),
-    location.y + (int)(10/dt),
-    48, 48 
-  };
-  
-  //SDL_Rect hitbox = { 
-  //  location.x,
-  //  location.y,
-  //  16 + (int)(2/dt), 
-  //  16 + (int)(2/dt)
+  //hitbox = (SDL_Rect){ 
+  //  location.x + (int)(10/dt),
+  //  location.y + (int)(10/dt),
+  //  48, 48 
   //};
 
-  printf(" dt: %Lf [%d, %d]\n", dt,
-                                16 + (int)(2/dt), 
-                                16 + (int)(2/dt));
+  //printf(" dt: %Lf [%d, %d]\n", dt,
+  //                              16 + (int)(2/dt), 
+  //                              16 + (int)(2/dt));
 
-  SDL_FillRect(screen, &hitbox, 0);
-
+  //SDL_FillRect(screen, &hitbox, 0);
 
   SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
 void update_all_entities() {
-  for(int i=0; i<=currentFloor+1; i++) {
-    /* reset player state so it doesn't spend forever in the attack state */
-    if(i == 0) {
-      entity[i].state = get_state(entity[i].direction);
-      continue;
-    }
-
+  for(int i=1; i<=currentFloor+1; i++) {
     /* if an entity is near the player, that entity goes to the player */
     if(locations_are_nearby(entity[1].location, player.location)) {
       entity[i].destination = player.location;
@@ -359,8 +365,6 @@ void move_entity(Entity *actor) {
 
   actor->location.x += direction.x*1;
   actor->location.y += direction.y*1;
-  //actor->location.x += direction.x*((int)(dt));
-  //actor->location.y += direction.y*((int)(dt));
 
   actor->state = get_state(direction);
 
