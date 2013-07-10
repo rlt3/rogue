@@ -36,6 +36,7 @@ typedef struct Entity {
   uint8_t frame;
   Location location;
   Location direction;
+  bool idle;
 } Entity;
 
 void init();
@@ -57,6 +58,9 @@ unsigned short int frameToDraw;
 unsigned int dt;
 unsigned int t;
 bool running;
+
+int four = 0;
+int fps = 0;
 
 /*
  * Using this same idea of having the delta time
@@ -90,7 +94,7 @@ void init() {
 
   Location location = {100, 100};
   Location direction = {1, 0};
-  player = (Entity){0, IDLE, 10, 0, location, direction};
+  player = (Entity){0, IDLE, 10, 0, location, direction, true};
 
   frames[0][0] = (SDL_Rect){  0, 0, 64, 64};
   frames[0][1] = (SDL_Rect){ 64, 0, 64, 64};
@@ -110,15 +114,26 @@ void init() {
 
 void game_loop() {
   while (running) {
+    fps++;
 
     if((SDL_GetTicks() - t) >= 250) {
       dt = SDL_GetTicks() - t;
       t = SDL_GetTicks();
 
-      printf("\nTicks: %u\n", SDL_GetTicks());
-      printf("Delta: %u\n", dt);
-
       frameToDraw = frameToDraw ? 0 : 1;
+      player.idle = true;
+
+      //four++; 
+      //if(four == 4) {
+      //  printf("fps: %d\n", fps);
+      //  four = 0;
+      //  fps = 0;
+      //}
+
+      /*
+       * Include `still' states so that no animation
+       * is occuring when an Entity is not moving?
+       */
     }
 
     while (SDL_PollEvent(&event)) {
@@ -126,23 +141,27 @@ void game_loop() {
         case SDL_KEYDOWN:
           switch(event.key.keysym.sym) {
             case SDLK_ESCAPE: case SDL_QUIT:
-              running=false;
+              running = false;
               break;
             case SDLK_w: case SDLK_UP: case SDLK_k:
               player.location.y -= 10;
               player.state = WALK_UP;
+              player.idle = false;
               break;
             case SDLK_a: case SDLK_LEFT: case SDLK_h:
               player.location.x -= 10;
               player.state = WALK_LEFT;
+              player.idle = false;
               break;
             case SDLK_s: case SDLK_DOWN: case SDLK_j:
               player.location.y += 10;
               player.state = WALK_DOWN;
+              player.idle = false;
               break;
             case SDLK_d: case SDLK_RIGHT: case SDLK_l:
               player.location.x += 10;
               player.state = WALK_RIGHT;
+              player.idle = false;
               break;
             case SDLK_SPACE:
               break;
@@ -177,20 +196,17 @@ void draw_tile(uint8_t type, uint32_t x, uint32_t y) {
 }
 
 void draw_entity() {
-  //int animationRate = 1;
-  int animationLength = 2;
+  //int animationLength = 2;
 
-  //int frameToDraw = dt % animationLength;
-  //int frameToDraw = ((SDL_GetTicks() - t) * animationRate) % animationLength;
-
-  //printf(" (%u * %d) modulus %d ~= %d \n", dt,
-  printf(" %u %% %d ~= %d \n", dt,
-                               animationLength,
-                               frameToDraw);
+  //printf(" %u %% %d ~= %d \n", dt,
+  //                             animationLength,
+  //                             frameToDraw);
+  
+  int frame_ = player.idle? 0 : frameToDraw;
 
   SDL_Rect spriteLocationation = { player.location.x, player.location.y };
   SDL_Surface *sprite = sprites[ENTITY];
-  SDL_Rect frame = frames[player.state][frameToDraw];
+  SDL_Rect frame = frames[player.state][frame_];
 
   if(SDL_BlitSurface(sprite, &frame, screen, &spriteLocationation) < 0) {
     printf("Error!\n");
