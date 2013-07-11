@@ -42,6 +42,7 @@ typedef struct Entity {
 void init();
 void game_loop();
 void render();
+void handle_input(SDLKey key);
 
 void draw_tile(uint8_t type, uint32_t x, uint32_t y);
 void draw_entity();
@@ -121,56 +122,61 @@ void game_loop() {
       t = SDL_GetTicks();
 
       frameToDraw = frameToDraw ? 0 : 1;
-      player.idle = true;
-
-      //four++; 
-      //if(four == 4) {
-      //  printf("fps: %d\n", fps);
-      //  four = 0;
-      //  fps = 0;
-      //}
 
       /*
-       * Include `still' states so that no animation
-       * is occuring when an Entity is not moving?
+       * Idle is a `still' state which tells us the
+       * player shouldn't be moving. We auto-update
+       * this every 1/4th second to be `idle', but
+       * the non-blocking method of our key input
+       * events by SDL ensure that when walking,
+       * everything displays as needed.
        */
+      player.idle = true;
     }
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_KEYDOWN:
-          switch(event.key.keysym.sym) {
-            case SDLK_ESCAPE: case SDL_QUIT:
-              running = false;
-              break;
-            case SDLK_w: case SDLK_UP: case SDLK_k:
-              player.location.y -= 10;
-              player.state = WALK_UP;
-              player.idle = false;
-              break;
-            case SDLK_a: case SDLK_LEFT: case SDLK_h:
-              player.location.x -= 10;
-              player.state = WALK_LEFT;
-              player.idle = false;
-              break;
-            case SDLK_s: case SDLK_DOWN: case SDLK_j:
-              player.location.y += 10;
-              player.state = WALK_DOWN;
-              player.idle = false;
-              break;
-            case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-              player.location.x += 10;
-              player.state = WALK_RIGHT;
-              player.idle = false;
-              break;
-            case SDLK_SPACE:
-              break;
-            default:
-              break;
-          }
+          /* 
+           * if the player is trying to walk, make sure
+           * the walking animation shows by declaring
+           * the player `not idle'.
+           */
+          player.idle = false;
+
+          handle_input(event.key.keysym.sym);
       }
     }
+
     render();
+  }
+}
+
+void handle_input(SDLKey key) {
+  switch(key) {
+    case SDLK_ESCAPE: case SDL_QUIT:
+      running = false;
+      break;
+    case SDLK_w: case SDLK_UP: case SDLK_k:
+      player.location.y -= 10;
+      player.state = WALK_UP;
+      break;
+    case SDLK_a: case SDLK_LEFT: case SDLK_h:
+      player.location.x -= 10;
+      player.state = WALK_LEFT;
+      break;
+    case SDLK_s: case SDLK_DOWN: case SDLK_j:
+      player.location.y += 10;
+      player.state = WALK_DOWN;
+      break;
+    case SDLK_d: case SDLK_RIGHT: case SDLK_l:
+      player.location.x += 10;
+      player.state = WALK_RIGHT;
+      break;
+    case SDLK_SPACE:
+      break;
+    default:
+      break;
   }
 }
 
@@ -182,7 +188,6 @@ void render() {
   }
 
   draw_entity();
-
   SDL_Flip(screen);
 }
 
@@ -196,22 +201,15 @@ void draw_tile(uint8_t type, uint32_t x, uint32_t y) {
 }
 
 void draw_entity() {
-  //int animationLength = 2;
-
-  //printf(" %u %% %d ~= %d \n", dt,
-  //                             animationLength,
-  //                             frameToDraw);
-  
-  int frame_ = player.idle? 0 : frameToDraw;
+  int animation_frame = player.idle? 0 : frameToDraw;
 
   SDL_Rect spriteLocationation = { player.location.x, player.location.y };
   SDL_Surface *sprite = sprites[ENTITY];
-  SDL_Rect frame = frames[player.state][frame_];
+  SDL_Rect frame = frames[player.state][animation_frame];
 
   if(SDL_BlitSurface(sprite, &frame, screen, &spriteLocationation) < 0) {
     printf("Error!\n");
   }
-
 }
 
 SDL_Surface *load_sprite(const char filename[]) {
