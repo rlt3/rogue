@@ -17,6 +17,11 @@
 #define WALK_DOWN         2
 #define WALK_LEFT         3
 
+#define ATTACK_UP         4
+#define ATTACK_RIGHT      5
+#define ATTACK_DOWN       6
+#define ATTACK_LEFT       7
+
 #define IDLE              2
 
 #define SCREENX           640
@@ -46,22 +51,21 @@ void handle_input(SDLKey key);
 
 void draw_tile(uint8_t type, uint32_t x, uint32_t y);
 void draw_entity();
-SDL_Surface *load_sprite(const char filename[]);
+SDL_Surface * load_sprite(const char filename[]);
+
+void entity_attacks(Entity* entity);
 
 SDL_Surface *screen;
 SDL_Event event;
 
 static SDL_Surface *sprites[TOTAL_ENTITIES];
-static SDL_Rect frames[4][2];
+static SDL_Rect frames[8][2];
 static Entity player;
 
 unsigned short int frameToDraw;
 unsigned int dt;
 unsigned int t;
 bool running;
-
-int four = 0;
-int fps = 0;
 
 /*
  * Using this same idea of having the delta time
@@ -97,17 +101,29 @@ void init() {
   Location direction = {1, 0};
   player = (Entity){0, IDLE, 10, 0, location, direction, true};
 
-  frames[0][0] = (SDL_Rect){  0, 0, 64, 64};
-  frames[0][1] = (SDL_Rect){ 64, 0, 64, 64};
+  frames[0][0] = (SDL_Rect){  0,  0, 64, 64};
+  frames[0][1] = (SDL_Rect){ 64,  0, 64, 64};
 
-  frames[1][0] = (SDL_Rect){128, 0, 64, 64};
-  frames[1][1] = (SDL_Rect){192, 0, 64, 64};
+  frames[1][0] = (SDL_Rect){128,  0, 64, 64};
+  frames[1][1] = (SDL_Rect){192,  0, 64, 64};
 
-  frames[2][0] = (SDL_Rect){256, 0, 64, 64};
-  frames[2][1] = (SDL_Rect){320, 0, 64, 64};
+  frames[2][0] = (SDL_Rect){256,  0, 64, 64};
+  frames[2][1] = (SDL_Rect){320,  0, 64, 64};
 
-  frames[3][0] = (SDL_Rect){384, 0, 64, 64};
-  frames[3][1] = (SDL_Rect){448, 0, 64, 64};
+  frames[3][0] = (SDL_Rect){384,  0, 64, 64};
+  frames[3][1] = (SDL_Rect){448,  0, 64, 64};
+
+  frames[4][0] = (SDL_Rect){  0, 64, 64, 64};
+  frames[4][1] = (SDL_Rect){ 64, 64, 64, 64};
+
+  frames[5][0] = (SDL_Rect){128, 64, 64, 64};
+  frames[5][1] = (SDL_Rect){192, 64, 64, 64};
+
+  frames[6][0] = (SDL_Rect){256, 64, 64, 64};
+  frames[6][1] = (SDL_Rect){320, 64, 64, 64};
+
+  frames[7][0] = (SDL_Rect){384, 64, 64, 64};
+  frames[7][1] = (SDL_Rect){448, 64, 64, 64};
 
   t = SDL_GetTicks();
   frameToDraw = 0;
@@ -115,7 +131,6 @@ void init() {
 
 void game_loop() {
   while (running) {
-    fps++;
 
     if((SDL_GetTicks() - t) >= 250) {
       dt = SDL_GetTicks() - t;
@@ -131,19 +146,13 @@ void game_loop() {
        * events by SDL ensure that when walking,
        * everything displays as needed.
        */
+
       player.idle = true;
     }
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_KEYDOWN:
-          /* 
-           * if the player is trying to walk, make sure
-           * the walking animation shows by declaring
-           * the player `not idle'.
-           */
-          player.idle = false;
-
           handle_input(event.key.keysym.sym);
       }
     }
@@ -154,29 +163,46 @@ void game_loop() {
 
 void handle_input(SDLKey key) {
   switch(key) {
-    case SDLK_ESCAPE: case SDL_QUIT:
-      running = false;
-      break;
-    case SDLK_w: case SDLK_UP: case SDLK_k:
-      player.location.y -= 10;
-      player.state = WALK_UP;
-      break;
-    case SDLK_a: case SDLK_LEFT: case SDLK_h:
-      player.location.x -= 10;
-      player.state = WALK_LEFT;
-      break;
-    case SDLK_s: case SDLK_DOWN: case SDLK_j:
-      player.location.y += 10;
-      player.state = WALK_DOWN;
-      break;
-    case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-      player.location.x += 10;
-      player.state = WALK_RIGHT;
-      break;
-    case SDLK_SPACE:
-      break;
-    default:
-      break;
+  case SDLK_ESCAPE: case SDL_QUIT:
+    running = false;
+    break;
+
+  case SDLK_w: case SDLK_UP: case SDLK_k:
+    player.location.y -= 10;
+    player.direction = (Location){0, -1};
+    player.state = WALK_UP;
+    player.idle = false;
+    break;
+
+  case SDLK_a: case SDLK_LEFT: case SDLK_h:
+    player.location.x -= 10;
+    player.direction = (Location){-1, 0};
+    player.state = WALK_LEFT;
+    player.idle = false;
+    break;
+
+  case SDLK_s: case SDLK_DOWN: case SDLK_j:
+    player.location.y += 10;
+    player.direction = (Location){0, 1};
+    player.state = WALK_DOWN;
+    player.idle = false;
+    break;
+
+  case SDLK_d: case SDLK_RIGHT: case SDLK_l:
+    player.location.x += 10;
+    player.direction = (Location){1, 0};
+    player.state = WALK_RIGHT;
+    player.idle = false;
+    break;
+
+  case SDLK_SPACE:
+    player.idle = false;
+    player.state += 4;
+    //entity_attacks(&player);
+    break;
+
+  default:
+    break;
   }
 }
 
@@ -234,4 +260,15 @@ SDL_Surface *load_sprite(const char filename[]) {
   }
 
   return sprite;
+}
+
+void entity_attacks(Entity* entity) {
+  puts("Attacked!");
+  entity->state += 4;
+  //switch(entity.state) {
+  //  case WALK_RIGHT:
+  //  case WALK_LEFT:
+  //  case WALK_UP:
+  //  case WALK_DOWN:
+  //}
 }
