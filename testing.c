@@ -65,6 +65,7 @@ static Entity player;
 unsigned short int frameToDraw;
 unsigned int dt;
 unsigned int t;
+unsigned int future;
 bool running;
 
 /*
@@ -101,6 +102,7 @@ void init() {
   Location direction = {1, 0};
   player = (Entity){0, IDLE, 10, 0, location, direction, true};
 
+  /* Regular movement frames */
   frames[0][0] = (SDL_Rect){  0,  0, 64, 64};
   frames[0][1] = (SDL_Rect){ 64,  0, 64, 64};
 
@@ -113,6 +115,7 @@ void init() {
   frames[3][0] = (SDL_Rect){384,  0, 64, 64};
   frames[3][1] = (SDL_Rect){448,  0, 64, 64};
 
+  /* Attacking frames */
   frames[4][0] = (SDL_Rect){  0, 64, 64, 64};
   frames[4][1] = (SDL_Rect){ 64, 64, 64, 64};
 
@@ -130,24 +133,37 @@ void init() {
 }
 
 void game_loop() {
+  int count = 0;
+
   while (running) {
 
+    /*
+     * Every .25 seconds, change the frame to be drawn.
+     * This is the master frame that makes it so we
+     * can decouple game logic and rendering logic as
+     * much as I can.
+     */
     if((SDL_GetTicks() - t) >= 250) {
       dt = SDL_GetTicks() - t;
       t = SDL_GetTicks();
 
       frameToDraw = frameToDraw ? 0 : 1;
-
-      /*
-       * Idle is a `still' state which tells us the
-       * player shouldn't be moving. We auto-update
-       * this every 1/4th second to be `idle', but
-       * the non-blocking method of our key input
-       * events by SDL ensure that when walking,
-       * everything displays as needed.
-       */
-
       player.idle = true;
+
+    }
+
+    if(SDL_GetTicks() <= future) {
+      unsigned int diff = future - SDL_GetTicks();
+      printf("%u :: %u => %u\n", SDL_GetTicks(), future, diff);
+
+      if(diff <= 250) {
+        count++;
+
+        if(count == 3) {
+          player.state -= player.state > 3 ? 4 : 0;
+          count = 0;
+        }
+      }
     }
 
     while (SDL_PollEvent(&event)) {
@@ -198,7 +214,7 @@ void handle_input(SDLKey key) {
   case SDLK_SPACE:
     player.idle = false;
     player.state += 4;
-    //entity_attacks(&player);
+    future = SDL_GetTicks() + 500;
     break;
 
   default:
