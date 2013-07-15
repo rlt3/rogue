@@ -152,6 +152,13 @@ void game_loop() {
 
     }
 
+    /*
+     * When the player hits `space' to attack, the game
+     * takes that current time and adds 500 milliseconds.
+     * Then, at the end of that 500 milliseconds (with
+     * some slack), the animation ends and the player is
+     * returned to their state before attacking.
+     */
     if(SDL_GetTicks() <= future) {
       unsigned int diff = future - SDL_GetTicks();
       printf("%u :: %u => %u\n", SDL_GetTicks(), future, diff);
