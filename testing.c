@@ -148,29 +148,27 @@ void game_loop() {
       t = SDL_GetTicks();
 
       frameToDraw = frameToDraw ? 0 : 1;
-      player.idle = true;
 
-    }
+      if(future > 0) {
+      /*
+       * If there are future frames for an animation,
+       * draw them. When we're done and there aren't
+       * any, make sure to return the player to its
+       * previous state
+       */
+        future -= 1;
 
-    /*
-     * When the player hits `space' to attack, the game
-     * takes that current time and adds 500 milliseconds.
-     * Then, at the end of that 500 milliseconds (with
-     * some slack), the animation ends and the player is
-     * returned to their state before attacking.
-     */
-    if(SDL_GetTicks() <= future) {
-      unsigned int diff = future - SDL_GetTicks();
-      printf("%u :: %u => %u\n", SDL_GetTicks(), future, diff);
-
-      if(diff <= 250) {
-        count++;
-
-        if(count == 3) {
+        if(future == 0) {
           player.state -= player.state > 3 ? 4 : 0;
-          count = 0;
         }
+      } else {
+        /*
+         * If there weren't extra frames to draw, put
+         * the player back to an idle state.
+         */
+        player.idle = true;
       }
+
     }
 
     while (SDL_PollEvent(&event)) {
@@ -221,7 +219,8 @@ void handle_input(SDLKey key) {
   case SDLK_SPACE:
     player.idle = false;
     player.state += 4;
-    future = SDL_GetTicks() + 500;
+    //future = SDL_GetTicks() + 500;
+    future = 2;
     break;
 
   default:
@@ -288,10 +287,4 @@ SDL_Surface *load_sprite(const char filename[]) {
 void entity_attacks(Entity* entity) {
   puts("Attacked!");
   entity->state += 4;
-  //switch(entity.state) {
-  //  case WALK_RIGHT:
-  //  case WALK_LEFT:
-  //  case WALK_UP:
-  //  case WALK_DOWN:
-  //}
 }
