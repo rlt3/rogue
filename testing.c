@@ -8,6 +8,8 @@
 #include <SDL/SDL.h>
 #include <SDL_image/SDL_image.h>
 
+#include "frames.h"
+
 #define TOTAL_ENTITIES    16
 #define TILESIZE          32
 #define SPRITESIZE        64
@@ -22,6 +24,7 @@
 #define ATTACK_DOWN       6
 #define ATTACK_LEFT       7
 
+#define ATTACKING         8
 #define IDLE              2
 
 #define SCREENX           640
@@ -31,18 +34,21 @@
 #define ENTITY            1
 
 typedef struct Location {
-  uint32_t x, y;
+  uint32_t  x;
+  uint32_t  y;
 } Location;
 
 typedef struct Entity {
-  uint8_t type;
-  uint8_t state;
-  uint8_t hp;
-  uint8_t frame;
-  Location location;
-  Location direction;
-  bool idle;
+  uint8_t   type;
+  uint8_t   state;
+  uint8_t   hp;
+  uint8_t   frames;
+  Location  location;
+  Location  destination;
+  bool      idle;
 } Entity;
+
+/* Functions */
 
 void init();
 void game_loop();
@@ -51,22 +57,28 @@ void handle_input(SDLKey key);
 
 void draw_tile(uint8_t type, uint32_t x, uint32_t y);
 void draw_entity();
-SDL_Surface * load_sprite(const char filename[]);
+SDL_Surface *load_sprite(const char filename[]);
 
+void update_entity(Entity *entity, uint8_t state);
 void entity_attacks(Entity* entity);
+
+/* Variables */
 
 SDL_Surface *screen;
 SDL_Event event;
 
 static SDL_Surface *sprites[TOTAL_ENTITIES];
-static SDL_Rect frames[8][2];
+static Entity monsters[TOTAL_ENTITIES];
 static Entity player;
+
+extern SDL_Rect frames[8][2];
 
 unsigned short int frameToDraw;
 unsigned int dt;
 unsigned int t;
-unsigned int future;
 bool running;
+
+int currentFloor = 0;
 
 /*
  * Using this same idea of having the delta time
@@ -82,6 +94,7 @@ int main(int argc, char **argv) {
   running = true;
 
   init();
+  load_frames();
   game_loop();
 
   return EXIT_SUCCESS;
@@ -95,77 +108,33 @@ void init() {
 
   screen = SDL_SetVideoMode(SCREENX, SCREENY, 0, 0);
 
-  sprites[FLOOR] = load_sprite("graphics/floor.png");
+  sprites[FLOOR]  = load_sprite("graphics/floor.png");
   sprites[ENTITY] = load_sprite("graphics/spritesheet.png"); 
 
   Location location = {100, 100};
-  Location direction = {1, 0};
-  player = (Entity){0, IDLE, 10, 0, location, direction, true};
-
-  /* Regular movement frames */
-  frames[0][0] = (SDL_Rect){  0,  0, 64, 64};
-  frames[0][1] = (SDL_Rect){ 64,  0, 64, 64};
-
-  frames[1][0] = (SDL_Rect){128,  0, 64, 64};
-  frames[1][1] = (SDL_Rect){192,  0, 64, 64};
-
-  frames[2][0] = (SDL_Rect){256,  0, 64, 64};
-  frames[2][1] = (SDL_Rect){320,  0, 64, 64};
-
-  frames[3][0] = (SDL_Rect){384,  0, 64, 64};
-  frames[3][1] = (SDL_Rect){448,  0, 64, 64};
-
-  /* Attacking frames */
-  frames[4][0] = (SDL_Rect){  0, 64, 64, 64};
-  frames[4][1] = (SDL_Rect){ 64, 64, 64, 64};
-
-  frames[5][0] = (SDL_Rect){128, 64, 64, 64};
-  frames[5][1] = (SDL_Rect){192, 64, 64, 64};
-
-  frames[6][0] = (SDL_Rect){256, 64, 64, 64};
-  frames[6][1] = (SDL_Rect){320, 64, 64, 64};
-
-  frames[7][0] = (SDL_Rect){384, 64, 64, 64};
-  frames[7][1] = (SDL_Rect){448, 64, 64, 64};
+  player = (Entity){0, IDLE, 10, 0, location, location, true};
 
   t = SDL_GetTicks();
   frameToDraw = 0;
 }
 
 void game_loop() {
-  int count = 0;
 
   while (running) {
-
-    /*
-     * Every .25 seconds, change the frame to be drawn.
-     * This is the master frame that makes it so we
-     * can decouple game logic and rendering logic as
-     * much as I can.
-     */
+    
     if((SDL_GetTicks() - t) >= 250) {
       dt = SDL_GetTicks() - t;
       t = SDL_GetTicks();
 
       frameToDraw = frameToDraw ? 0 : 1;
 
-      if(future > 0) {
-      /*
-       * If there are future frames for an animation,
-       * draw them. When we're done and there aren't
-       * any, make sure to return the player to its
-       * previous state
-       */
-        future -= 1;
+      if(player.frames > 0) {
+        player.frames -= 1;
 
-        if(future == 0) {
+        if(player.frames == 0) {
           player.state -= player.state > 3 ? 4 : 0;
         }
       } else {
-        /*
-         * If there weren't extra frames to draw, put
-         * the player back to an idle state.
-         */
         player.idle = true;
       }
 
@@ -189,38 +158,23 @@ void handle_input(SDLKey key) {
     break;
 
   case SDLK_w: case SDLK_UP: case SDLK_k:
-    player.location.y -= 10;
-    player.direction = (Location){0, -1};
-    player.state = WALK_UP;
-    player.idle = false;
+    update_entity(&player, WALK_UP);
     break;
 
   case SDLK_a: case SDLK_LEFT: case SDLK_h:
-    player.location.x -= 10;
-    player.direction = (Location){-1, 0};
-    player.state = WALK_LEFT;
-    player.idle = false;
+    update_entity(&player, WALK_LEFT);
     break;
 
   case SDLK_s: case SDLK_DOWN: case SDLK_j:
-    player.location.y += 10;
-    player.direction = (Location){0, 1};
-    player.state = WALK_DOWN;
-    player.idle = false;
+    update_entity(&player, WALK_DOWN);
     break;
 
   case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-    player.location.x += 10;
-    player.direction = (Location){1, 0};
-    player.state = WALK_RIGHT;
-    player.idle = false;
+    update_entity(&player, WALK_RIGHT);
     break;
 
   case SDLK_SPACE:
-    player.idle = false;
-    player.state += 4;
-    //future = SDL_GetTicks() + 500;
-    future = 2;
+    update_entity(&player, ATTACKING);
     break;
 
   default:
@@ -248,6 +202,7 @@ void draw_tile(uint8_t type, uint32_t x, uint32_t y) {
   }
 }
 
+//void draw_entity(Entity& entity);
 void draw_entity() {
   int animation_frame = player.idle? 0 : frameToDraw;
 
@@ -287,4 +242,34 @@ SDL_Surface *load_sprite(const char filename[]) {
 void entity_attacks(Entity* entity) {
   puts("Attacked!");
   entity->state += 4;
+}
+
+void update_entity(Entity *entity, uint8_t state) {
+  entity->idle = false;
+
+  if (state == ATTACKING) {
+    entity->state += 4;
+    entity->frames = 2;
+    return;
+  }
+
+  entity->state = state;
+
+  switch(state) {
+  case WALK_UP:
+    entity->location.y -= 10;
+    break;
+  case WALK_DOWN:
+    entity->location.y += 10;
+    break;
+  case WALK_LEFT:
+    entity->location.x -= 10;
+    break;
+  case WALK_RIGHT:
+    entity->location.x += 10;
+    break;
+  default:
+    break;
+  }
+
 }
