@@ -33,6 +33,8 @@
 #define FLOOR             0
 #define ENTITY            1
 
+#define player            entities[0]
+
 typedef struct Location {
   uint32_t  x;
   uint32_t  y;
@@ -56,7 +58,7 @@ void render();
 void handle_input(SDLKey key);
 
 void draw_tile(uint8_t type, uint32_t x, uint32_t y);
-void draw_entity();
+void draw_entity(Entity *entity);
 SDL_Surface *load_sprite(const char filename[]);
 
 void update_entity(Entity *entity, uint8_t state);
@@ -68,13 +70,11 @@ SDL_Surface *screen;
 SDL_Event event;
 
 static SDL_Surface *sprites[TOTAL_ENTITIES];
-static Entity monsters[TOTAL_ENTITIES];
-static Entity player;
+static Entity entities[TOTAL_ENTITIES];
 
 extern SDL_Rect frames[8][2];
 
 unsigned short int frameToDraw;
-unsigned int dt;
 unsigned int t;
 bool running;
 
@@ -112,7 +112,14 @@ void init() {
   sprites[ENTITY] = load_sprite("graphics/spritesheet.png"); 
 
   Location location = {100, 100};
-  player = (Entity){0, IDLE, 10, 0, location, location, true};
+  Entity Player = (Entity){0, IDLE, 10, 0, location, location, true};
+  entities[0] = Player;
+
+  int i;
+  for (i = 1; i <= currentFloor; i++) {
+    Location location = {150, 150};
+    entities[i] = (Entity){0, IDLE, 10, 0, location, location, true};
+  }
 
   t = SDL_GetTicks();
   frameToDraw = 0;
@@ -123,7 +130,6 @@ void game_loop() {
   while (running) {
     
     if((SDL_GetTicks() - t) >= 250) {
-      dt = SDL_GetTicks() - t;
       t = SDL_GetTicks();
 
       frameToDraw = frameToDraw ? 0 : 1;
@@ -189,7 +195,10 @@ void render() {
     }
   }
 
-  draw_entity();
+  for (int i = 0; i <= currentFloor; i++) {
+    draw_entity(&entities[i]);
+  }
+
   SDL_Flip(screen);
 }
 
@@ -202,13 +211,12 @@ void draw_tile(uint8_t type, uint32_t x, uint32_t y) {
   }
 }
 
-//void draw_entity(Entity& entity);
-void draw_entity() {
-  int animation_frame = player.idle? 0 : frameToDraw;
+void draw_entity(Entity *entity) {
+  int animation_frame = entity->idle? 0 : frameToDraw;
 
-  SDL_Rect spriteLocationation = { player.location.x, player.location.y };
+  SDL_Rect spriteLocationation = { entity->location.x, entity->location.y };
   SDL_Surface *sprite = sprites[ENTITY];
-  SDL_Rect frame = frames[player.state][animation_frame];
+  SDL_Rect frame = frames[entity->state][animation_frame];
 
   if(SDL_BlitSurface(sprite, &frame, screen, &spriteLocationation) < 0) {
     printf("Error!\n");
