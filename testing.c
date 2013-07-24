@@ -17,11 +17,13 @@ void game_loop(SDL_Surface *screen, SDL_Surface *sprites[],
                SDL_Rect frames[8][2], Entity entities[],
                int dungeonFloor);
 
+void update_game(unsigned dt, unsigned *time, 
+                 unsigned short *frameToDraw, Entity entities[]);
+
 void handle_input(SDLKey key, Entity *player, bool *running);
 
 
 int main(int argc, char **argv) {
-
   static SDL_Surface    *screen;
   static SDL_Surface    *sprites[TOTAL_ENTITIES];
   static SDL_Rect       frames[8][2];
@@ -53,23 +55,7 @@ void game_loop(SDL_Surface *screen, SDL_Surface *sprites[],
   bool running                        = true;
 
   while (running) {
-    
-    if((SDL_GetTicks() - time) >= 250) {
-      time = SDL_GetTicks();
-
-      frameToDraw = frameToDraw ? 0 : 1;
-
-      if(PLAYER.frames > 0) {
-        PLAYER.frames -= 1;
-
-        if(PLAYER.frames == 0) {
-          PLAYER.state -= PLAYER.state > 3 ? 4 : 0;
-        }
-      } else {
-        PLAYER.idle = true;
-      }
-
-    }
+    update_game((SDL_GetTicks() - time), &time, &frameToDraw, entities);
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
@@ -79,6 +65,26 @@ void game_loop(SDL_Surface *screen, SDL_Surface *sprites[],
     }
 
     render(screen, entities, sprites, frames, frameToDraw);
+  }
+}
+
+void update_game(unsigned dt, unsigned *time, 
+                 unsigned short *frameToDraw, Entity entities[]) {
+  if(dt >= 250) {
+    *time = SDL_GetTicks();
+
+    *frameToDraw = *frameToDraw ? 0 : 1;
+
+    if(PLAYER.frames > 0) {
+      PLAYER.frames -= 1;
+
+      if(PLAYER.frames == 0) {
+        PLAYER.state -= PLAYER.state > 3 ? 4 : 0;
+      }
+    } else {
+      PLAYER.idle = true;
+    }
+
   }
 }
 
