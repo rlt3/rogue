@@ -9,8 +9,7 @@
 #include "Location.h"
 
 #define TOTAL_ENTITIES    16
-
-#define player            entities[0]
+#define PLAYER            entities[0]
 
 void create_dungeon(Entity entities[], int dungeonFloor);
 
@@ -18,7 +17,8 @@ void game_loop(SDL_Surface *screen, SDL_Surface *sprites[],
                SDL_Rect frames[8][2], Entity entities[],
                int dungeonFloor);
 
-void handle_input(SDLKey key, Entity *Player, bool *running);
+void handle_input(SDLKey key, Entity *player, bool *running);
+
 
 int main(int argc, char **argv) {
 
@@ -39,8 +39,8 @@ int main(int argc, char **argv) {
 
 void create_dungeon(Entity entities[], int dungeonFloor) {
   Location location = {100, 100};
-  Entity Player = (Entity){0, IDLE, 10, 0, location, location, true};
-  entities[0] = Player;
+  Entity player = (Entity){0, IDLE, 10, 0, location, location, true};
+  entities[0] = player;
 }
 
 void game_loop(SDL_Surface *screen, SDL_Surface *sprites[], 
@@ -59,14 +59,14 @@ void game_loop(SDL_Surface *screen, SDL_Surface *sprites[],
 
       frameToDraw = frameToDraw ? 0 : 1;
 
-      if(player.frames > 0) {
-        player.frames -= 1;
+      if(PLAYER.frames > 0) {
+        PLAYER.frames -= 1;
 
-        if(player.frames == 0) {
-          player.state -= player.state > 3 ? 4 : 0;
+        if(PLAYER.frames == 0) {
+          PLAYER.state -= PLAYER.state > 3 ? 4 : 0;
         }
       } else {
-        player.idle = true;
+        PLAYER.idle = true;
       }
 
     }
@@ -74,7 +74,7 @@ void game_loop(SDL_Surface *screen, SDL_Surface *sprites[],
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_KEYDOWN:
-          handle_input(event.key.keysym.sym, &player, &running);
+          handle_input(event.key.keysym.sym, &PLAYER, &running);
       }
     }
 
@@ -82,30 +82,30 @@ void game_loop(SDL_Surface *screen, SDL_Surface *sprites[],
   }
 }
 
-void handle_input(SDLKey key, Entity *Player, bool *running) {
+void handle_input(SDLKey key, Entity *player, bool *running) {
   switch(key) {
   case SDLK_ESCAPE: case SDL_QUIT:
     *running = false;
     break;
 
   case SDLK_w: case SDLK_UP: case SDLK_k:
-    update_entity(Player, WALK_UP);
+    update_entity(player, WALK_UP);
     break;
 
   case SDLK_a: case SDLK_LEFT: case SDLK_h:
-    update_entity(Player, WALK_LEFT);
+    update_entity(player, WALK_LEFT);
     break;
 
   case SDLK_s: case SDLK_DOWN: case SDLK_j:
-    update_entity(Player, WALK_DOWN);
+    update_entity(player, WALK_DOWN);
     break;
 
   case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-    update_entity(Player, WALK_RIGHT);
+    update_entity(player, WALK_RIGHT);
     break;
 
   case SDLK_SPACE:
-    update_entity(Player, ATTACKING);
+    update_entity(player, ATTACKING);
     break;
 
   default:

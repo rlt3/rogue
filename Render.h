@@ -16,7 +16,9 @@
 #include "Entity.h"
 
 SDL_Surface *load_window();
+
 void load_animations(SDL_Surface *sprites[], SDL_Rect frames[8][2]);
+
 SDL_Surface *load_sprite(const char filename[]);
 
 void render(SDL_Surface *screen, Entity *entities, 
@@ -33,6 +35,7 @@ void draw_entity(SDL_Surface *screen, Entity *entity,
 void draw(SDL_Surface *sprite, SDL_Rect *frame, 
           SDL_Surface *screen, SDL_Rect *location);
 
+
 SDL_Surface * load_window() {
   SDL_Init(SDL_INIT_VIDEO);
   SDL_WM_SetCaption("Game", "Game");
@@ -48,6 +51,7 @@ void load_animations(SDL_Surface *sprites[], SDL_Rect frames[8][2]) {
   sprites[FLOOR]  = load_sprite("graphics/floor.png");
   sprites[ENTITY] = load_sprite("graphics/spritesheet.png"); 
 
+  /* Walking Frames */
   frames[0][0] = (SDL_Rect){  0,  0, 64, 64};
   frames[0][1] = (SDL_Rect){ 64,  0, 64, 64};
   
@@ -60,7 +64,7 @@ void load_animations(SDL_Surface *sprites[], SDL_Rect frames[8][2]) {
   frames[3][0] = (SDL_Rect){384,  0, 64, 64};
   frames[3][1] = (SDL_Rect){448,  0, 64, 64};
   
-  /* Attacking frames */
+  /* Attacking Frames */
   frames[4][0] = (SDL_Rect){  0, 64, 64, 64};
   frames[4][1] = (SDL_Rect){ 64, 64, 64, 64};
   
@@ -80,7 +84,6 @@ SDL_Surface *load_sprite(const char filename[]) {
   SDL_SetColorKey(temp, 
       (SDL_SRCCOLORKEY|SDL_RLEACCEL), 
       SDL_MapRGB(temp->format, 0, 0, 0));
-
 
   if (temp == NULL) {
     printf("Error: %s\n", IMG_GetError());
@@ -113,7 +116,7 @@ void render(SDL_Surface *screen, Entity *entities,
 
 void draw_tile(SDL_Surface *screen, SDL_Surface *sprites[], 
              uint8_t type, uint32_t x, uint32_t y) {
-  SDL_Rect location     = { x * TILESIZE, y * TILESIZE };
+  SDL_Rect location     = {x * TILESIZE, y * TILESIZE};
   SDL_Surface *sprite   = sprites[type];
 
   draw(sprite, NULL, screen, &location);
@@ -123,7 +126,7 @@ void draw_entity(SDL_Surface *screen, Entity *entity,
                  SDL_Surface *sprites[], SDL_Rect frames[8][2], 
                  int frameToDraw) {
   int animation_frame   = entity->idle? 0 : frameToDraw;
-  SDL_Rect location     = { entity->location.x, entity->location.y };
+  SDL_Rect location     = {entity->location.x, entity->location.y};
   SDL_Surface *sprite   = sprites[ENTITY];
   SDL_Rect frame        = frames[entity->state][animation_frame];
 

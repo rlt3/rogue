@@ -14,7 +14,6 @@
 #define ATTACKING         8
 #define IDLE              2
 
-
 #include "Location.h"
 
 typedef struct Entity {
@@ -28,8 +27,10 @@ typedef struct Entity {
 } Entity;
 
 void update_entity(Entity *entity, uint8_t state);
+
 void entity_attacks(Entity* entity, Entity entities[],
                     Location upper, Location lower);
+
 
 void update_entity(Entity *entity, uint8_t state) {
   entity->idle = false;
