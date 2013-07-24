@@ -239,7 +239,8 @@ void draw_tile(uint8_t type, uint32_t x, uint32_t y) {
  * (64,0) to (128,64) ... (128,0) to (192,64)
  */
 void draw_entity(int type, int state, Location location, int frameModifier) {
-  int frame_math = ( (SPRITESIZE * (2*state)) + SPRITESIZE * frameModifier);
+  int frame_math = ((SPRITESIZE * (2*state)) + SPRITESIZE * frameModifier);
+  printf("%d : %d = %d\n", state, frameModifier, frame_math);
 
   SDL_Rect spriteLocationation = { location.x, location.y };
   SDL_Rect frame = { frame_math, type, SPRITESIZE, SPRITESIZE };
@@ -290,9 +291,9 @@ void render() {
     }
 
     draw_entity(entity[i].type,
-        entity[i].state,
-        entity[i].location,
-        entity[i].frame);
+                entity[i].state,
+                entity[i].location,
+                entity[i].frame);
 
   }
 

@@ -31,6 +31,8 @@ void update_entity(Entity *entity, uint8_t state);
 void entity_attacks(Entity* entity, Entity entities[],
                     Location upper, Location lower);
 
+void move_entity(Entity *actor, Entity entities[], int currentFloor);
+
 
 void update_entity(Entity *entity, uint8_t state) {
   entity->idle = false;
@@ -61,6 +63,43 @@ void update_entity(Entity *entity, uint8_t state) {
   }
 
 }
+
+void move_entity(Entity *actor, Entity entities[], int currentFloor) {
+}
+
+//void move_entity(Entity *actor, Entity entities[], int currentFloor) {
+//
+//  for(int i=0; i<=currentFloor+1; i++) {
+//    Entity *currentEntity = &entities[i];
+//
+//    if(do_collide(actor->destination, currentEntity->location) 
+//       && actor != currentEntity) {
+//      return;
+//    }
+//  }
+//
+//  Location distance = subtract_locations(actor->destination,
+//                                         actor->location);
+//
+//  Location direction = get_direction_to(distance);
+//  actor->direction = direction;
+//
+//  actor->location.x += direction.x*1;
+//  actor->location.y += direction.y*1;
+//
+//  actor->state = get_state(direction);
+//
+//  if(direction.x == 0) {
+//    if( (!(distance.y % 10) && distance.y != 0) ) {
+//      /* a clean way to switch back and forth from 1 and 0 */
+//      actor->frame = actor->frame ? 0 : 1;
+//    }
+//  }  else {
+//    if( (!(distance.x % 10) && distance.x != 0) ) {
+//      actor->frame = actor->frame ? 0 : 1;
+//    }
+//  }
+//}
 
 void entity_attacks(Entity* entity, Entity entities[],
                     Location upper, Location lower) {

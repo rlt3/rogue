@@ -22,6 +22,7 @@ void update_game(unsigned dt, unsigned *time,
 
 void handle_input(SDLKey key, Entity *player, bool *running);
 
+void move_all_entities(Entity entities[], int currentFloor);
 
 int main(int argc, char **argv) {
   static SDL_Surface    *screen;
@@ -116,5 +117,13 @@ void handle_input(SDLKey key, Entity *player, bool *running) {
 
   default:
     break;
+  }
+}
+
+void move_all_entities(Entity entities[], int currentFloor) {
+  for(int i=0; i<=currentFloor+1; i++) {
+    if (!are_same_location(entities[i].location, entities[i].destination)) {
+      move_entity(&entities[i], entities, currentFloor);
+    }
   }
 }
