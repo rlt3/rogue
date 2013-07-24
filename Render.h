@@ -13,20 +13,6 @@
 #include "Entity.h"
 #include "Game.h"
 
-void load_sprites(SDL_Surface *sprites[]);
-SDL_Surface *load_sprite(const char filename[]);
-void render(Game *game);
-void draw_tile(Game *game, uint8_t type, uint32_t x, uint32_t y);
-void draw_entity(Entity *entity, Game *game);
-void draw(SDL_Surface *sprite, SDL_Rect *frame, 
-          SDL_Surface *screen, SDL_Rect *location);
-
-
-void load_sprites(SDL_Surface *sprites[]) {
-  sprites[FLOOR]  = load_sprite("graphics/floor.png");
-  sprites[ENTITY] = load_sprite("graphics/spritesheet.png"); 
-}
-
 SDL_Surface *load_sprite(const char filename[]) {
   SDL_Surface *temp = IMG_Load(filename);
 
@@ -50,18 +36,16 @@ SDL_Surface *load_sprite(const char filename[]) {
   return sprite;
 }
 
-void render(Game *game) {
-  for (int x = 0; x < SCREENX; x++) {
-    for (int y = 0; y < SCREENY; y++) {
-      draw_tile(game, FLOOR, x, y);
-    }
-  }
+void load_sprites(SDL_Surface *sprites[]) {
+  sprites[FLOOR]  = load_sprite("graphics/floor.png");
+  sprites[ENTITY] = load_sprite("graphics/spritesheet.png"); 
+}
 
-  for (int i = 0; i <= game->level; i++) {
-    draw_entity(&game->entities[i], game);
+void draw(SDL_Surface *sprite, SDL_Rect *frame, 
+          SDL_Surface *screen, SDL_Rect *location) {
+  if(SDL_BlitSurface(sprite, frame, screen, location) < 0) {
+    printf("Error! Drawing Entity: %s\n", SDL_GetError());
   }
-
-  SDL_Flip(game->screen);
 }
 
 void draw_tile(Game *game, uint8_t type, uint32_t x, uint32_t y) {
@@ -80,11 +64,19 @@ void draw_entity(Entity *entity, Game *game) {
   draw(sprite, &frame, game->screen, &location); 
 }
 
-void draw(SDL_Surface *sprite, SDL_Rect *frame, 
-          SDL_Surface *screen, SDL_Rect *location) {
-  if(SDL_BlitSurface(sprite, frame, screen, location) < 0) {
-    printf("Error! Drawing Entity: %s\n", SDL_GetError());
+void render(Game *game) {
+  for (int x = 0; x < SCREENX; x++) {
+    for (int y = 0; y < SCREENY; y++) {
+      draw_tile(game, FLOOR, x, y);
+    }
   }
+
+  for (int i = game->level; i >= 0; i--) {
+    draw_entity(&game->entities[i], game);
+  }
+
+  SDL_Flip(game->screen);
 }
+
 
 #endif

@@ -23,13 +23,6 @@ typedef struct Game {
   bool           on;
 } Game;
 
-void load_window(SDL_Surface **screen);
-void load_frames(SDL_Rect frames[8][2]);
-void create_dungeon(Entity entities[], int dungeonFloor);
-
-void update_game(unsigned dt, Game *game);
-void update_all_entities(Entity entities[], int currentFloor);
-
 void load_window(SDL_Surface **screen) {
   SDL_Init(SDL_INIT_VIDEO);
   SDL_WM_SetCaption("Game", "Game");
@@ -79,6 +72,21 @@ void create_dungeon(Entity entities[], int dungeonFloor) {
   entities[1] = player;
 }
 
+void update_all_entities(Entity entities[], int currentFloor) {
+  for(int i=1; i<=currentFloor; i++) {
+    /* if an entity is near the player, that entity goes to the player */
+    if(locations_are_nearby(entities[i].location, entities[0].location)) {
+      entities[i].destination = entities[0].location;
+      continue;
+    }
+
+    /* if it's not, assign an entity a random destination if it has none */
+    if (are_same_location(entities[i].location, entities[i].destination)) {
+      entities[i].destination = random_destination_from(entities[i].location);
+    }
+  }
+}
+
 void update_game(unsigned dt, Game *game) {
   if(dt >= 250) {
     update_all_entities(game->entities, game->level);
@@ -96,25 +104,10 @@ void update_game(unsigned dt, Game *game) {
       PLAYER.idle = true;
     }
   
-    for (int i = 0; i <= game->level; i++) {
+    for (int i = 1; i <= game->level; i++) {
       game->entities[i].idle = true;
     }
 
-  }
-}
-
-void update_all_entities(Entity entities[], int currentFloor) {
-  for(int i=1; i<=currentFloor; i++) {
-    /* if an entity is near the player, that entity goes to the player */
-    if(locations_are_nearby(entities[i].location, entities[0].location)) {
-      entities[i].destination = entities[0].location;
-      continue;
-    }
-
-    /* if it's not, assign an entity a random destination if it has none */
-    if (are_same_location(entities[i].location, entities[i].destination)) {
-      entities[i].destination = random_destination_from(entities[i].location);
-    }
   }
 }
 

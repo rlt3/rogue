@@ -26,13 +26,10 @@ typedef struct Entity {
   bool      idle;
 } Entity;
 
-void update_entity(Entity *entity, uint8_t state);
-
-void entity_attacks(Entity* entity, Entity entities[],
-                    Location upper, Location lower);
-
-void move_entity(Entity *actor, Entity entities[], int currentFloor);
-
+void set_destination(Entity *entity, uint32_t x, uint32_t y) {
+  entity->destination.x = entity->location.x + x;
+  entity->destination.y = entity->location.y + y;
+}
 
 void update_entity(Entity *entity, uint8_t state) {
   entity->idle = false;
@@ -47,24 +44,16 @@ void update_entity(Entity *entity, uint8_t state) {
 
   switch(state) {
   case WALK_UP:
-    //entity->location.y -= 10;
-    entity->destination = (Location){entity->location.x, 
-                                    entity->location.y-10};
+    set_destination(entity, 0, -10);
     break;
   case WALK_DOWN:
-    //entity->location.y += 10;
-    entity->destination = (Location){entity->location.x, 
-                                    entity->location.y+10};
+    set_destination(entity, 0, 10);
     break;
   case WALK_LEFT:
-    //entity->location.x -= 10;
-    entity->destination = (Location){entity->location.x-10, 
-                                    entity->location.y};
+    set_destination(entity, -10, 0);
     break;
   case WALK_RIGHT:
-    //entity->location.x += 10;
-    entity->destination = (Location){entity->location.x+10, 
-                                     entity->location.y};
+    set_destination(entity, 10, 0);
     break;
   default:
     break;
@@ -94,9 +83,9 @@ void move_entity(Entity *entity, Entity entities[], int currentFloor) {
       return;
     }
   }
-  Location distance = subtract_locations(entity->destination,
-                                         entity->location);
-  Location direction = get_direction_to(distance);
+  Location destination = subtract_locations(entity->destination,
+                                            entity->location);
+  Location direction = get_direction_to(destination);
 
   entity->location.x += direction.x*1;
   entity->location.y += direction.y*1;
