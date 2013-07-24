@@ -26,18 +26,6 @@ int main(int argc, char **argv) {
   create_dungeon(game.entities, game.level);
 
   game_loop(&game);
-  
-  //static SDL_Surface    *screen;
-  //static SDL_Surface    *sprites[TOTAL_ENTITIES];
-  //static SDL_Rect       frames[8][2];
-  //static Entity         entities[TOTAL_ENTITIES];
-
-  //int dungeonFloor      = 0;
-  //screen                = load_window();
-
-  //load_animations(sprites, frames);
-  //create_dungeon(entities, dungeonFloor);
-  //game_loop(screen, sprites, frames, entities, dungeonFloor);
 
   return EXIT_SUCCESS;
 }
@@ -48,9 +36,6 @@ void create_dungeon(Entity entities[], int dungeonFloor) {
   entities[0] = player;
 }
 
-//void game_loop(SDL_Surface *screen, SDL_Surface *sprites[], 
-//               SDL_Rect frames[8][2], Entity entities[],
-//               int dungeonFloor) {
 void game_loop(Game *game) {
   SDL_Event event;
 
@@ -58,11 +43,6 @@ void game_loop(Game *game) {
   game->time  = SDL_GetTicks();
   game->on    = true;
 
-  //unsigned short int frameToDraw      = 0;
-  //unsigned time                       = SDL_GetTicks();
-  //bool running                        = true;
-
-  //while (running) {
   while (game->on) {
     update_game((SDL_GetTicks() - game->time), game);
 
