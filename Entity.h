@@ -47,16 +47,24 @@ void update_entity(Entity *entity, uint8_t state) {
 
   switch(state) {
   case WALK_UP:
-    entity->location.y -= 10;
+    //entity->location.y -= 10;
+    entity->destination = (Location){entity->location.x, 
+                                    entity->location.y-10};
     break;
   case WALK_DOWN:
-    entity->location.y += 10;
+    //entity->location.y += 10;
+    entity->destination = (Location){entity->location.x, 
+                                    entity->location.y+10};
     break;
   case WALK_LEFT:
-    entity->location.x -= 10;
+    //entity->location.x -= 10;
+    entity->destination = (Location){entity->location.x-10, 
+                                    entity->location.y};
     break;
   case WALK_RIGHT:
-    entity->location.x += 10;
+    //entity->location.x += 10;
+    entity->destination = (Location){entity->location.x+10, 
+                                     entity->location.y};
     break;
   default:
     break;
@@ -64,42 +72,38 @@ void update_entity(Entity *entity, uint8_t state) {
 
 }
 
-void move_entity(Entity *actor, Entity entities[], int currentFloor) {
+int get_state(Location direction) {
+  int state = IDLE;
+
+  if(direction.x == 0 && direction.y == 1)
+    state = WALK_DOWN;
+  else if(direction.x == 0 && direction.y == -1)
+    state = WALK_UP;
+  else if(direction.x == 1 && direction.y == 0)
+    state = WALK_RIGHT;
+  else if(direction.x == -1 && direction.y == 0)
+    state = WALK_LEFT;
+
+  return state;
 }
 
-//void move_entity(Entity *actor, Entity entities[], int currentFloor) {
-//
-//  for(int i=0; i<=currentFloor+1; i++) {
-//    Entity *currentEntity = &entities[i];
-//
-//    if(do_collide(actor->destination, currentEntity->location) 
-//       && actor != currentEntity) {
-//      return;
-//    }
-//  }
-//
-//  Location distance = subtract_locations(actor->destination,
-//                                         actor->location);
-//
-//  Location direction = get_direction_to(distance);
-//  actor->direction = direction;
-//
-//  actor->location.x += direction.x*1;
-//  actor->location.y += direction.y*1;
-//
-//  actor->state = get_state(direction);
-//
-//  if(direction.x == 0) {
-//    if( (!(distance.y % 10) && distance.y != 0) ) {
-//      /* a clean way to switch back and forth from 1 and 0 */
-//      actor->frame = actor->frame ? 0 : 1;
-//    }
-//  }  else {
-//    if( (!(distance.x % 10) && distance.x != 0) ) {
-//      actor->frame = actor->frame ? 0 : 1;
-//    }
-//  }
-//}
+void move_entity(Entity *entity, Entity entities[], int currentFloor) {
+  for(int i=0; i<=currentFloor; i++) {
+    if(do_collide(entity->destination, entities[i].location) 
+       && entity != &entities[i]) {
+      return;
+    }
+  }
+  Location distance = subtract_locations(entity->destination,
+                                         entity->location);
+  Location direction = get_direction_to(distance);
+
+  entity->location.x += direction.x*1;
+  entity->location.y += direction.y*1;
+
+  entity->state = get_state(direction);
+  entity->idle = false;
+}
 
 void entity_attacks(Entity* entity, Entity entities[],
                     Location upper, Location lower) {

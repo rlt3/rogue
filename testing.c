@@ -9,39 +9,31 @@
 #include "Entity.h"
 #include "Location.h"
 
-void create_dungeon(Entity entities[], int dungeonFloor);
-void game_loop(Game *game);
-void update_game(unsigned dt, Game *game);
-void handle_input(SDLKey key, Entity *player, bool *running);
+void main_loop(Game *game);
+void handle_input(SDLKey key, Entity *player, bool *gameOn);
 void move_all_entities(Entity entities[], int currentFloor);
 
 int main(int argc, char **argv) {
   static Game game;
 
-  game.screen = load_window();
-  game.level  = 0;
-
+  load_window(&game.screen);
   load_frames(game.frames);
   load_sprites(game.sprites);
+
+  game.level = 1;
+  game.frame = 0;
+  game.time  = SDL_GetTicks();
+  game.on    = true;
+
   create_dungeon(game.entities, game.level);
 
-  game_loop(&game);
+  main_loop(&game);
 
   return EXIT_SUCCESS;
 }
 
-void create_dungeon(Entity entities[], int dungeonFloor) {
-  Location location = {100, 100};
-  Entity player = (Entity){0, IDLE, 10, 0, location, location, true};
-  entities[0] = player;
-}
-
-void game_loop(Game *game) {
+void main_loop(Game *game) {
   SDL_Event event;
-
-  game->frame = 0;
-  game->time  = SDL_GetTicks();
-  game->on    = true;
 
   while (game->on) {
     update_game((SDL_GetTicks() - game->time), game);
@@ -53,32 +45,15 @@ void game_loop(Game *game) {
       }
     }
 
+    move_all_entities(game->entities, game->level);
     render(game);
   }
 }
 
-void update_game(unsigned dt, Game *game) {
-  if(dt >= 250) {
-    game->time = SDL_GetTicks();
-    game->frame = game->frame ? 0 : 1;
-
-    if(PLAYER.frames > 0) {
-      PLAYER.frames -= 1;
-
-      if(PLAYER.frames == 0) {
-        PLAYER.state -= PLAYER.state > 3 ? 4 : 0;
-      }
-    } else {
-      PLAYER.idle = true;
-    }
-
-  }
-}
-
-void handle_input(SDLKey key, Entity *player, bool *running) {
+void handle_input(SDLKey key, Entity *player, bool *gameOn) {
   switch(key) {
   case SDLK_ESCAPE: case SDL_QUIT:
-    *running = false;
+    *gameOn = false;
     break;
 
   case SDLK_w: case SDLK_UP: case SDLK_k:
@@ -107,7 +82,7 @@ void handle_input(SDLKey key, Entity *player, bool *running) {
 }
 
 void move_all_entities(Entity entities[], int currentFloor) {
-  for(int i=0; i<=currentFloor+1; i++) {
+  for(int i=0; i<=currentFloor; i++) {
     if (!are_same_location(entities[i].location, entities[i].destination)) {
       move_entity(&entities[i], entities, currentFloor);
     }
