@@ -4,38 +4,40 @@
 #include <time.h>
 #include <math.h>
 
+#include "Game.h"
 #include "Render.h"
 #include "Entity.h"
 #include "Location.h"
 
-#define TOTAL_ENTITIES    16
-#define PLAYER            entities[0]
-
 void create_dungeon(Entity entities[], int dungeonFloor);
-
-void game_loop(SDL_Surface *screen, SDL_Surface *sprites[], 
-               SDL_Rect frames[8][2], Entity entities[],
-               int dungeonFloor);
-
-void update_game(unsigned dt, unsigned *time, 
-                 unsigned short *frameToDraw, Entity entities[]);
-
+void game_loop(Game *game);
+void update_game(unsigned dt, Game *game);
 void handle_input(SDLKey key, Entity *player, bool *running);
-
 void move_all_entities(Entity entities[], int currentFloor);
 
 int main(int argc, char **argv) {
-  static SDL_Surface    *screen;
-  static SDL_Surface    *sprites[TOTAL_ENTITIES];
-  static SDL_Rect       frames[8][2];
-  static Entity         entities[TOTAL_ENTITIES];
+  static Game game;
 
-  int dungeonFloor      = 0;
-  screen                = load_window();
+  game.screen = load_window();
+  game.level  = 0;
 
-  load_animations(sprites, frames);
-  create_dungeon(entities, dungeonFloor);
-  game_loop(screen, sprites, frames, entities, dungeonFloor);
+  load_frames(game.frames);
+  load_sprites(game.sprites);
+  create_dungeon(game.entities, game.level);
+
+  game_loop(&game);
+  
+  //static SDL_Surface    *screen;
+  //static SDL_Surface    *sprites[TOTAL_ENTITIES];
+  //static SDL_Rect       frames[8][2];
+  //static Entity         entities[TOTAL_ENTITIES];
+
+  //int dungeonFloor      = 0;
+  //screen                = load_window();
+
+  //load_animations(sprites, frames);
+  //create_dungeon(entities, dungeonFloor);
+  //game_loop(screen, sprites, frames, entities, dungeonFloor);
 
   return EXIT_SUCCESS;
 }
@@ -46,35 +48,39 @@ void create_dungeon(Entity entities[], int dungeonFloor) {
   entities[0] = player;
 }
 
-void game_loop(SDL_Surface *screen, SDL_Surface *sprites[], 
-               SDL_Rect frames[8][2], Entity entities[],
-               int dungeonFloor) {
+//void game_loop(SDL_Surface *screen, SDL_Surface *sprites[], 
+//               SDL_Rect frames[8][2], Entity entities[],
+//               int dungeonFloor) {
+void game_loop(Game *game) {
   SDL_Event event;
 
-  unsigned short int frameToDraw      = 0;
-  unsigned time                       = SDL_GetTicks();
-  bool running                        = true;
+  game->frame = 0;
+  game->time  = SDL_GetTicks();
+  game->on    = true;
 
-  while (running) {
-    update_game((SDL_GetTicks() - time), &time, &frameToDraw, entities);
+  //unsigned short int frameToDraw      = 0;
+  //unsigned time                       = SDL_GetTicks();
+  //bool running                        = true;
+
+  //while (running) {
+  while (game->on) {
+    update_game((SDL_GetTicks() - game->time), game);
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_KEYDOWN:
-          handle_input(event.key.keysym.sym, &PLAYER, &running);
+          handle_input(event.key.keysym.sym, &PLAYER, &game->on);
       }
     }
 
-    render(screen, entities, sprites, frames, frameToDraw);
+    render(game);
   }
 }
 
-void update_game(unsigned dt, unsigned *time, 
-                 unsigned short *frameToDraw, Entity entities[]) {
+void update_game(unsigned dt, Game *game) {
   if(dt >= 250) {
-    *time = SDL_GetTicks();
-
-    *frameToDraw = *frameToDraw ? 0 : 1;
+    game->time = SDL_GetTicks();
+    game->frame = game->frame ? 0 : 1;
 
     if(PLAYER.frames > 0) {
       PLAYER.frames -= 1;
