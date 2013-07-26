@@ -1,442 +1,98 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
 
-#include <SDL/SDL.h>
-#include <SDL_image/SDL_image.h>
+#include "Game.h"
+#include "Render.h"
+#include "Entity.h"
+#include "Location.h"
 
-#include "location.h"
-
-/* definitions */
-#define TOTAL_ENTITIES    16
-#define TILESIZE          32
-#define SPRITESIZE        64
-
-#define SCREENX           640
-#define SCREENY           512
-
-#define FLOOR             0
-#define ENTITY            1
-
-#define WALK_UP           0
-#define WALK_RIGHT        1
-#define WALK_DOWN         2
-#define WALK_LEFT         3
-
-#define ATTACK_UP         4
-#define ATTACK_RIGHT      5
-#define ATTACK_DOWN       6
-#define ATTACK_LEFT       7
-
-#define ATTACK            4
-
-#define IDLE              2
-
-#define PLAYER            0
-#define MONSTER           64
-
-#define TICKS_PER_SECOND  60
-#define SKIP_TICKS        60 / TICKS_PER_SECOND
-#define MAX_FRAMESKIP     10
-
-/* macros */
-#define CURTIME()  \
-  (clock() / (float) CLOCKS_PER_SEC )
-
-#define IN_WORLD(x, y) \
-  (x >= 0 && y >= 0 && x < WORLDX && y < WORLDY)
-
-#define player          entity[0]
-
-typedef struct Entity {
-  uint8_t type;
-  uint8_t state;
-  uint8_t frame;
-  uint8_t hp;
-  Location location;
-  Location destination;
-  Location direction;
-} Entity;
-
-/* function definitions */
-void init_game();
-void create_dungeon(unsigned int floor);
-void main_game_loop();
-
-SDL_Surface *load_sprite(const char *filename);
-void draw_tile(uint8_t type, uint32_t x, uint32_t y);
-void render();
-
-void update_all_entities();
-void move_all_entities();
-void move_entity(Entity *actor);
-void attack(Entity *actor);
-
-int get_state(Location direction);
-
-/* sdl variables */
-SDL_Surface *screen;
-static SDL_Surface *sprites[TOTAL_ENTITIES];
-SDL_Event event;
-
-
-/* global game variables */
-long double next;
-long double dt;
-long double t;
-bool running = true;
-
-int currentFloor = 0;
-int loops = 0;
-
-static Entity entity[TOTAL_ENTITIES];
+void main_loop(Game *game);
+void handle_input(SDLKey key, Game *game);
+void move_all_entities(Entity entities[], int currentFloor);
 
 int main(int argc, char **argv) {
-  t = CURTIME();
-  init_game();
-  create_dungeon(currentFloor);
-  main_game_loop();
+  static Game game;
+
+  load_window(&game.screen);
+  load_frames(game.frames);
+  load_sprites(game.sprites);
+
+  game.level = 1;
+  game.frame = 0;
+  game.time  = SDL_GetTicks();
+  game.on    = true;
+
+  create_dungeon(game.entities, game.level);
+
+  main_loop(&game);
 
   return EXIT_SUCCESS;
 }
 
-void init_game() {
-  SDL_Init(SDL_INIT_VIDEO);
-  SDL_WM_SetCaption("Game", "Game");
-  SDL_EnableKeyRepeat(70, 70);
-  atexit(SDL_Quit);
+void main_loop(Game *game) {
+  SDL_Event event;
 
-  screen = SDL_SetVideoMode(SCREENX, SCREENY, 0, 0);
+  while (game->on) {
+    update_game((SDL_GetTicks() - game->time), game);
 
-  next = time(NULL);
-
-  sprites[FLOOR] = load_sprite("graphics/floor.png");
-  sprites[ENTITY] = load_sprite("graphics/spritesheet.png"); 
-}
-
-/**
- * Create and then store all entities into global array.
- * The starting location is always its first destination.
- */
-void create_dungeon(unsigned int floor) {
-
-  /* the player entity is always at position [0] */
-  Location location = {100, 100}; 
-  Entity Player = {0, 0, 2, 10, location, location};
-  entity[0] = Player;
-
-  /* keep it simple: the floor number is how many monsters we get */
-  for(int i=1; i<=currentFloor+1; i++) {
-    Location location = {250, 250}; 
-    Entity monster = {64, 0, 2, 10, location, location};
-    entity[i] = monster;
-  }
-
-  for (int x = 0; x < SCREENX; x++) {
-    for (int y = 0; y < SCREENY; y++) {
-      draw_tile(FLOOR, x, y);
-    }
-  }
-}
-
-void main_game_loop() {
-  while (running) {
-    dt = CURTIME() - t;
-
-    loops=0;
-    while(time(NULL) > next && loops < MAX_FRAMESKIP) {
-      update_all_entities();
-
-      if(entity[1].hp <= 0) {
-        create_dungeon(currentFloor);
+    for (int i = 0; i <= game->level; i++) {
+      if(game->entities[i].hp <= 0) {
+        create_dungeon(game->entities, ++game->level);
       }
-
-      next += SKIP_TICKS;
-      loops++;
     }
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_KEYDOWN:
-          switch(event.key.keysym.sym) {
-            case SDLK_ESCAPE: case SDL_QUIT:
-              running=false;
-              break;
-            case SDLK_w: case SDLK_UP: case SDLK_k:
-              player.destination = (Location){player.location.x, 
-                                              player.location.y-10};
-              break;
-            case SDLK_a: case SDLK_LEFT: case SDLK_h:
-              player.destination = (Location){player.location.x-10, 
-                                              player.location.y};
-              break;
-            case SDLK_s: case SDLK_DOWN: case SDLK_j:
-              player.destination = (Location){player.location.x, 
-                                              player.location.y+10};
-              break;
-            case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-              player.destination = (Location){player.location.x+10, 
-                                              player.location.y};
-              break;
-            case SDLK_SPACE:
-              if(player.state != ATTACK) {
-                attack(&player);
-              }
-              break;
-            default:
-              break;
-          }
+          handle_input(event.key.keysym.sym, game);
       }
     }
 
-    move_all_entities();
-    render();
+    move_all_entities(game->entities, game->level);
+    render(game);
   }
 }
 
-SDL_Surface *load_sprite(const char filename[]) {
-  SDL_Surface *temp = IMG_Load(filename);
+void handle_input(SDLKey key, Game *game) {
+  switch(key) {
+  case SDLK_ESCAPE: case SDL_QUIT:
+    game->on = false;
+    break;
 
-  SDL_SetColorKey(temp, 
-      (SDL_SRCCOLORKEY|SDL_RLEACCEL), 
-      SDL_MapRGB(temp->format, 0, 0, 0));
+  case SDLK_w: case SDLK_UP: case SDLK_k:
+    update_entity(&PLAYER, WALK_UP);
+    break;
 
+  case SDLK_a: case SDLK_LEFT: case SDLK_h:
+    update_entity(&PLAYER, WALK_LEFT);
+    break;
 
-  if (temp == NULL) {
-    printf("Error: %s\n", IMG_GetError());
-    exit(1);
-  }
+  case SDLK_s: case SDLK_DOWN: case SDLK_j:
+    update_entity(&PLAYER, WALK_DOWN);
+    break;
 
-  SDL_Surface *sprite = SDL_DisplayFormat(temp);
-  SDL_FreeSurface(temp);
+  case SDLK_d: case SDLK_RIGHT: case SDLK_l:
+    update_entity(&PLAYER, WALK_RIGHT);
+    break;
 
-  if (sprite == NULL) {
-    printf("Failed to convert image to native format %s\n", filename);
-    exit(1);
-  }
+  case SDLK_SPACE:
+    update_entity(&PLAYER, ATTACKING);
+    entity_attacks(&PLAYER, game->entities, game->level);
+    break;
 
-  return sprite;
-}
-
-void draw_tile(uint8_t type, uint32_t x, uint32_t y) {
-  SDL_Rect location = { x * TILESIZE, y * TILESIZE };
-  SDL_Surface *sprite = sprites[type];
-
-  if(SDL_BlitSurface(sprite, NULL, screen, &location) < 0) {
-    printf("Error!\n");
-  }
-}
-
-/**
- * Entity's frame and state both serve as indicators for which exact
- * sprite the engine needs to draw.
- *
- * If the state is at 0, or WALK_UP, then we grab a big rectangle from
- * (0,0), or the top left, till (64, 64). If it was 1, then it's from
- * (64,0) to (128,64) ... (128,0) to (192,64)
- */
-void draw_entity(int type, int state, Location location, int frameModifier) {
-  int frame_math = ((SPRITESIZE * (2*state)) + SPRITESIZE * frameModifier);
-  printf("%d : %d = %d\n", state, frameModifier, frame_math);
-
-  SDL_Rect spriteLocationation = { location.x, location.y };
-  SDL_Rect frame = { frame_math, type, SPRITESIZE, SPRITESIZE };
-
-  SDL_Surface *sprite = sprites[ENTITY];
-
-  if(SDL_BlitSurface(sprite, &frame, screen, &spriteLocationation) < 0) {
-    printf("Error!\n");
+  default:
+    break;
   }
 }
 
-void render() {
-  /* draw the floor first */
-  for (int x = 0; x < SCREENX; x++) {
-    for (int y = 0; y < SCREENY; y++) {
-      draw_tile(FLOOR, x, y);
+void move_all_entities(Entity entities[], int currentFloor) {
+  for(int i=0; i<=currentFloor; i++) {
+    if (!are_same_location(entities[i].location, entities[i].destination)
+        && entities[i].hp > 0) {
+      move_entity(&entities[i], entities, currentFloor);
     }
   }
-
-  if(dt >= 0.30f) {
-    t = CURTIME();
-    printf("%Lf\n", dt);
-    player.state = get_state(player.direction);
-  }
-
-  /* then draw each entity on top of the floor */
-  for(int i=0; i<=currentFloor+1; i++) {
-    if(entity[i].state == ATTACK) {
-      SDL_Rect attackbox;
-
-      attackbox = (SDL_Rect){ 
-        entity[i].location.x + (entity[i].direction.x > 0 ? entity[i].direction.x * 32 : 32),
-        entity[i].location.y + (entity[i].direction.y > 0 ? entity[i].direction.y * 32 : 32),
-        (entity[i].direction.x > 0 ? 64 : 16),
-        (entity[i].direction.y > 0 ? 64 : 16) 
-      };
-
-      if(dt >= 0.15f) {
-        attackbox = (SDL_Rect){ 
-          entity[i].location.x + (entity[i].direction.x > 0 ? entity[i].direction.x * 32 : 32),
-          entity[i].location.y + (entity[i].direction.y > 0 ? entity[i].direction.y * 32 : 32),
-          (entity[i].direction.x > 0 ? 16 : 64),
-          (entity[i].direction.y > 0 ? 16 : 64) 
-        };
-      }
-
-      SDL_FillRect(screen, &attackbox, 0xFFFFFF);
-    }
-
-    draw_entity(entity[i].type,
-                entity[i].state,
-                entity[i].location,
-                entity[i].frame);
-
-  }
-
-  //if(dt >= 1.0f) {
-  //  t = CURTIME();
-  //  printf("%Lf\n", dt);
-  //}
-
-  //Location location = {200,150};
-  //SDL_Rect hitbox;
-
-  //hitbox = (SDL_Rect){ 
-  //  location.x + (int)(10/dt),
-  //  location.y + (int)(10/dt),
-  //  48, 48 
-  //};
-
-  //printf(" dt: %Lf [%d, %d]\n", dt,
-  //                              16 + (int)(2/dt), 
-  //                              16 + (int)(2/dt));
-
-  //SDL_FillRect(screen, &hitbox, 0);
-
-  SDL_UpdateRect(screen, 0, 0, 0, 0);
-}
-
-void update_all_entities() {
-  for(int i=1; i<=currentFloor+1; i++) {
-    /* if an entity is near the player, that entity goes to the player */
-    if(locations_are_nearby(entity[1].location, player.location)) {
-      entity[i].destination = player.location;
-      continue;
-    }
-
-    /* if it's not, assign an entity a random destination if it has none */
-    if( are_same_location( entity[i].location, entity[i].destination )) {
-      entity[i].destination = random_destination_from(entity[i].location);
-    }
-  }
-}
-
-void move_all_entities() {
-  for(int i=0; i<=currentFloor+1; i++) {
-    if( !are_same_location(entity[i].location, entity[i].destination)) {
-      move_entity(&entity[i]);
-    }
-  }
-}
-
-/** 
- * Pass the entity to be move_entityd by `reference', give the state it
- * should be, and give the location it wants to move_entity to.
- */
-void move_entity(Entity *actor) {
-
-  for(int i=0; i<=currentFloor+1; i++) {
-    Entity *currentEntity = &entity[i];
-
-    if(do_collide(actor->destination, currentEntity->location) 
-       && actor != currentEntity) {
-      return;
-    }
-  }
-
-  Location distance = subtract_locations(actor->destination,
-                                         actor->location);
-
-  Location direction = get_direction_to(distance);
-  actor->direction = direction;
-
-  actor->location.x += direction.x*1;
-  actor->location.y += direction.y*1;
-
-  actor->state = get_state(direction);
-
-  if(direction.x == 0) {
-    if( (!(distance.y % 10) && distance.y != 0) ) {
-      /* a clean way to switch back and forth from 1 and 0 */
-      actor->frame = actor->frame ? 0 : 1;
-    }
-  }  else {
-    if( (!(distance.x % 10) && distance.x != 0) ) {
-      actor->frame = actor->frame ? 0 : 1;
-    }
-  }
-}
-
-void attack(Entity *actor) {
-  /**
-   * Using direction, we can determine which
-   * squares to look into for an attack.
-   *
-   * For (0,1) -- DOWN -- the square attacked would be
-   * {location + (64*0), location + (64*1)} or from its
-   * location, down 64 steps.
-   */
-
-  Location direction = {0,0};
-  if(actor->state == WALK_DOWN)
-    direction = (Location){0,1};
-  else if(actor->state == WALK_UP)
-    direction = (Location){0,-1};
-  else if(actor->state == WALK_RIGHT)
-    direction = (Location){1,0};
-  else if(actor->state == WALK_LEFT)
-    direction = (Location){-1,0};
-
-  actor->state = ATTACK;
-  actor->direction = direction;
-
-  Location lower = {(actor->location.x + (direction.x != 0 ? direction.x * 64 : 0)),
-                    (actor->location.y + (direction.y != 0 ? direction.y * 64 : 0))};
-
-  Location upper = {lower.x + 64, lower.y + 64};
-
-  for(int i=0; i<=currentFloor+1; i++) {
-    /* Create a `area' to test intersection of the attack box */
-    Location eLower = {entity[i].location.x, entity[i].location.y};
-    Location eUpper = {entity[i].location.x + 64, entity[i].location.y + 64};
-
-    if(eLower.x < upper.x && eUpper.x > lower.x &&
-       eLower.y < upper.y && eUpper.y > lower.y
-       && &entity[i] != actor) {
-      entity[i].hp -= 5;
-    }
-  }
-}
-
-/**
- * Return direction an entity should be facing as
- * the state based on it's current direction
- */
-int get_state(Location direction) {
-  int state = IDLE;
-
-  if(direction.x == 0 && direction.y == 1)
-    state = WALK_DOWN;
-  else if(direction.x == 0 && direction.y == -1)
-    state = WALK_UP;
-  else if(direction.x == 1 && direction.y == 0)
-    state = WALK_RIGHT;
-  else if(direction.x == -1 && direction.y == 0)
-    state = WALK_LEFT;
-
-  return state;
 }
