@@ -67,14 +67,27 @@ void load_frames(SDL_Rect frames[8][2]) {
 }
 
 void create_dungeon(Entity entities[], int dungeonFloor) {
-  Location location = {64, 64};
-  Entity player = (Entity){0, IDLE, 10, 0, location, location, true};
-  entities[0] = player;
+  /* Player is always at position 0 */
+  entities[0] = (Entity){
+    .type        = 0, 
+    .state       = IDLE, 
+    .hp          = 10,
+    .frames      = 0, 
+    .location    = ((Location){64, 64}),
+    .destination = ((Location){64, 64}),
+    .idle        = true 
+  };
 
   for (int i = 1; i <= dungeonFloor; i++) {
-    location = (Location){i*128, i*128};
-    player = (Entity){0, IDLE, 10, 0, location, location, true};
-    entities[i] = player;
+    entities[i] = (Entity){
+      .type        = 0, 
+      .state       = IDLE, 
+      .hp          = 10,
+      .frames      = 0, 
+      .location    = ((Location){i*128, i*128}),
+      .destination = ((Location){i*128, i*128}),
+      .idle        = true 
+    };
   }
 }
 
