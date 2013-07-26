@@ -7,6 +7,10 @@
 #define TOTAL_ENTITIES    16
 #define PLAYER            game->entities[0]
 
+#define IN_WORLD(x, y) \
+  (x >= 0 && y >= 0 && x < SCREENX && y < SCREENY)
+
+
 #include <SDL/SDL.h>
 #include "Entity.h"
 
@@ -63,26 +67,35 @@ void load_frames(SDL_Rect frames[8][2]) {
 }
 
 void create_dungeon(Entity entities[], int dungeonFloor) {
-  Location location = {100, 100};
+  Location location = {64, 64};
   Entity player = (Entity){0, IDLE, 10, 0, location, location, true};
   entities[0] = player;
 
-  location = (Location){150, 150};
-  player = (Entity){0, IDLE, 10, 0, location, location, true};
-  entities[1] = player;
+  for (int i = 1; i <= dungeonFloor; i++) {
+    location = (Location){i*128, i*128};
+    player = (Entity){0, IDLE, 10, 0, location, location, true};
+    entities[i] = player;
+  }
 }
 
 void update_all_entities(Entity entities[], int currentFloor) {
-  for(int i=1; i<=currentFloor; i++) {
+  for (int i=1; i<=currentFloor; i++) {
     /* if an entity is near the player, that entity goes to the player */
-    if(locations_are_nearby(entities[i].location, entities[0].location)) {
-      entities[i].destination = entities[0].location;
-      continue;
-    }
+    //if (locations_are_nearby(entities[i].location, entities[0].location)) {
+    //  entities[i].destination = entities[0].location;
+    //  //printf("Dest: (%d, %d)\n", entities[i].destination.x,
+    //  //                           entities[i].destination.y);
+    //  continue;
+    //  // probably not enough time to actually walk
+    //  // between being updated
+    //}
 
     /* if it's not, assign an entity a random destination if it has none */
     if (are_same_location(entities[i].location, entities[i].destination)) {
-      entities[i].destination = random_destination_from(entities[i].location);
+      Location destination = random_destination_from(entities[i].location);
+      if (IN_WORLD(destination.x, destination.y)) {
+        entities[i].destination = destination;
+      }
     }
   }
 }

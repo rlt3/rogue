@@ -94,8 +94,36 @@ void move_entity(Entity *entity, Entity entities[], int currentFloor) {
   entity->idle = false;
 }
 
-void entity_attacks(Entity* entity, Entity entities[],
-                    Location upper, Location lower) {
+void entity_attacks(Entity* entity, Entity entities[], int level) {
+
+  Location direction = {0,0};
+  if(entity->state == WALK_DOWN)
+    direction = (Location){0,1};
+  else if(entity->state == WALK_UP)
+    direction = (Location){0,-1};
+  else if(entity->state == WALK_RIGHT)
+    direction = (Location){1,0};
+  else if(entity->state == WALK_LEFT)
+    direction = (Location){-1,0};
+
+  Location lower = {
+    (entity->location.x + (direction.x != 0 ? direction.x * 64 : 0)),
+    (entity->location.y + (direction.y != 0 ? direction.y * 64 : 0))
+  };
+
+  Location upper = {lower.x + 64, lower.y + 64};
+
+  for(int i=0; i<=level; i++) {
+    /* Create a `area' to test intersection of the attack box */
+    Location eLower = {entity[i].location.x, entity[i].location.y};
+    Location eUpper = {entity[i].location.x + 64, entity[i].location.y + 64};
+
+    if(eLower.x < upper.x && eUpper.x > lower.x &&
+       eLower.y < upper.y && eUpper.y > lower.y
+       && &entities[i] != entity) {
+      entity[i].hp -= 5;
+    }
+  }
 }
 
 #endif

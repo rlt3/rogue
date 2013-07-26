@@ -67,8 +67,28 @@ bool locations_are_nearby(Location l1, Location l2) {
 }
 
 bool do_collide(Location l1, Location l2) {
-  Location diff = subtract_locations(l1, l2);
-  return (abs(diff.x) <= 15 && abs(diff.y) <= 15);
+  //Location diff = subtract_locations(l1, l2);
+  //return (abs(diff.x) <= 15 && abs(diff.y) <= 15);
+
+  /* These points are measured from the top left
+   * of each sprite. This is also where the sprite
+   * is drawn from.
+   *
+   * Adding a fourth of the total sprite size
+   * makes the `collision' box a little more
+   * realistic and fluid.
+   */
+  l1.x += 16;
+  l1.y += 16;
+
+  l2.x += 16;
+  l2.y += 16;
+
+  Location l1Upper = {l1.x + 32, l1.y + 32};
+  Location l2Upper = {l2.x + 32, l2.y + 32};
+
+  return (l2.x < l1Upper.x && l2Upper.x > l1.x &&
+          l2.y < l1Upper.y && l2Upper.y > l1.y);
 }
 
 #endif
