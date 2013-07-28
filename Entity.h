@@ -26,6 +26,19 @@ typedef struct Entity {
   bool      idle;
 } Entity;
 
+/* Linked List Version:
+typedef struct Entity {
+  uint8_t   type;
+  uint8_t   state;
+  uint8_t   hp;
+  uint8_t   frames;
+  Location  location;
+  Location  destination;
+  bool      idle;
+  Entity*   next;
+} Entity;
+*/
+
 void set_destination(Entity *entity, uint32_t x, uint32_t y) {
   entity->destination.x = entity->location.x + x;
   entity->destination.y = entity->location.y + y;
@@ -83,6 +96,7 @@ void move_entity(Entity *entity, Entity entities[], int currentFloor) {
       return;
     }
   }
+
   Location destination = subtract_locations(entity->destination,
                                             entity->location);
   Location direction = get_direction_to(destination);
@@ -91,11 +105,18 @@ void move_entity(Entity *entity, Entity entities[], int currentFloor) {
   entity->location.y += direction.y*1;
 
   entity->state = get_state(direction);
-  entity->idle = false;
+
+  /*
+   * Because the user sets the player to not idle
+   * by input, only do this for non-player characters
+   */
+  if(entity != &entities[0]) {
+    entity->idle = false;
+  }
 }
 
 void entity_attacks(Entity* entity, Entity entities[], int level) {
-
+  /* Get direction from entity's state */
   Location direction = {0,0};
   if(entity->state == WALK_DOWN)
     direction = (Location){0,1};
@@ -105,6 +126,15 @@ void entity_attacks(Entity* entity, Entity entities[], int level) {
     direction = (Location){1,0};
   else if(entity->state == WALK_LEFT)
     direction = (Location){-1,0};
+
+  /* 
+   * Need four locations in specific: the attacking entity's
+   * attack box points at the top-left and then bottom-right.
+   * Then the opposing entity's hitbox, from the top-left
+   * and then bottom-right.
+   *
+   * Then we test if they collide at any point.
+   */
 
   Location lower = {
     (entity->location.x + (direction.x != 0 ? direction.x * 64 : 0)),

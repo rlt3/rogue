@@ -76,8 +76,10 @@ void create_dungeon(Entity entities[], int dungeonFloor) {
     .location    = ((Location){64, 64}),
     .destination = ((Location){64, 64}),
     .idle        = true 
+    /* .Entity      = NULL*/
   };
 
+  /* Add the other entities */
   for (int i = 1; i <= dungeonFloor; i++) {
     entities[i] = (Entity){
       .type        = 0, 
@@ -93,15 +95,12 @@ void create_dungeon(Entity entities[], int dungeonFloor) {
 
 void update_all_entities(Entity entities[], int currentFloor) {
   for (int i=1; i<=currentFloor; i++) {
+
     /* if an entity is near the player, that entity goes to the player */
-    //if (locations_are_nearby(entities[i].location, entities[0].location)) {
-    //  entities[i].destination = entities[0].location;
-    //  //printf("Dest: (%d, %d)\n", entities[i].destination.x,
-    //  //                           entities[i].destination.y);
-    //  continue;
-    //  // probably not enough time to actually walk
-    //  // between being updated
-    //}
+    if (locations_are_nearby(entities[i].location, entities[0].location)) {
+      entities[i].destination = entities[0].location;
+      continue;
+    }
 
     /* if it's not, assign an entity a random destination if it has none */
     if (are_same_location(entities[i].location, entities[i].destination)) {
@@ -113,6 +112,11 @@ void update_all_entities(Entity entities[], int currentFloor) {
   }
 }
 
+/* 
+ * For every .25 seconds (quarter second) update the 
+ * global frame and keep track of each entity's 
+ * special animation frames.
+ */
 void update_game(unsigned dt, Game *game) {
   if(dt >= 250) {
     update_all_entities(game->entities, game->level);

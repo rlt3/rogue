@@ -90,9 +90,6 @@ void handle_input(SDLKey key, Game *game) {
 
 void move_all_entities(Entity entities[], int currentFloor) {
   for(int i=0; i<=currentFloor; i++) {
-    if (!are_same_location(entities[i].location, entities[i].destination)
-        && entities[i].hp > 0) {
-      move_entity(&entities[i], entities, currentFloor);
-    }
+    move_entity(&entities[i], entities, currentFloor);
   }
 }
