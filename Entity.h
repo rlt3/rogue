@@ -24,20 +24,33 @@ typedef struct Entity {
   Location  location;
   Location  destination;
   bool      idle;
+  struct Entity*   next;
 } Entity;
 
-/* Linked List Version:
-typedef struct Entity {
-  uint8_t   type;
-  uint8_t   state;
-  uint8_t   hp;
-  uint8_t   frames;
-  Location  location;
-  Location  destination;
-  bool      idle;
-  Entity*   next;
-} Entity;
-*/
+void add_entity(Entity *start, Entity new) {
+  Entity *next = start->next;
+  new.next = next;
+  start->next = &new;
+}
+
+/*
+ * We will never delete the first Entity in the
+ * list because the first Entity is always the
+ * player.
+ */
+void remove_entity(Entity *start, Entity *old) {
+  Entity *prev = start;
+  Entity *node = start->next;
+  while (node != NULL) {
+    if (node == old) {
+      prev->next = node->next;
+      node = NULL;
+    } else {
+      prev = node;
+      node = node->next;
+    }
+  }
+}
 
 void set_destination(Entity *entity, uint32_t x, uint32_t y) {
   entity->destination.x = entity->location.x + x;
@@ -89,13 +102,23 @@ int get_state(Location direction) {
   return state;
 }
 
-void move_entity(Entity *entity, Entity entities[], int currentFloor) {
-  for(int i=0; i<=currentFloor; i++) {
-    if(do_collide(entity->destination, entities[i].location) 
-       && entity != &entities[i]) {
+//void move_entity(Entity *entity, Entity entities[], int currentFloor) {
+void move_entity(Entity *entity, Entity *start, int currentFloor) {
+  Entity *node = start;
+  while (node != NULL) {
+    if(do_collide(entity->destination, node->location) 
+       && entity != node) {
       return;
     }
+    node = node->next;
   }
+
+  //for(int i=0; i<=currentFloor; i++) {
+  //  if(do_collide(entity->destination, entities[i].location) 
+  //     && entity != &entities[i]) {
+  //    return;
+  //  }
+  //}
 
   Location destination = subtract_locations(entity->destination,
                                             entity->location);
@@ -106,16 +129,11 @@ void move_entity(Entity *entity, Entity entities[], int currentFloor) {
 
   entity->state = get_state(direction);
 
-  /*
-   * Because the user sets the player to not idle
-   * by input, only do this for non-player characters
-   */
-  if(entity != &entities[0]) {
-    entity->idle = false;
-  }
+  entity->idle = false;
 }
 
-void entity_attacks(Entity* entity, Entity entities[], int level) {
+//void entity_attacks(Entity* entity, Entity entities[], int level) {
+void entity_attacks(Entity* entity, Entity *start, int level) {
   /* Get direction from entity's state */
   Location direction = {0,0};
   if(entity->state == WALK_DOWN)
@@ -143,17 +161,30 @@ void entity_attacks(Entity* entity, Entity entities[], int level) {
 
   Location upper = {lower.x + 64, lower.y + 64};
 
-  for(int i=0; i<=level; i++) {
-    /* Create a `area' to test intersection of the attack box */
-    Location eLower = {entity[i].location.x, entity[i].location.y};
-    Location eUpper = {entity[i].location.x + 64, entity[i].location.y + 64};
+  Entity *node = start;
+  while (node != NULL) {
+    Location eLower = {node->location.x, node->location.y};
+    Location eUpper = {node->location.x + 64, node->location.y + 64};
 
     if(eLower.x < upper.x && eUpper.x > lower.x &&
        eLower.y < upper.y && eUpper.y > lower.y
-       && &entities[i] != entity) {
-      entity[i].hp -= 5;
+       && node != entity) {
+      node->hp -= 5;
     }
+    node = node->next;
   }
+
+  //for(int i=0; i<=level; i++) {
+  //  /* Create a `area' to test intersection of the attack box */
+  //  Location eLower = {entity[i].location.x, entity[i].location.y};
+  //  Location eUpper = {entity[i].location.x + 64, entity[i].location.y + 64};
+
+  //  if(eLower.x < upper.x && eUpper.x > lower.x &&
+  //     eLower.y < upper.y && eUpper.y > lower.y
+  //     && &entities[i] != entity) {
+  //    entity[i].hp -= 5;
+  //  }
+  //}
 }
 
 #endif

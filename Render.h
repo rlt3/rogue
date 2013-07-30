@@ -71,11 +71,19 @@ void render(Game *game) {
     }
   }
 
-  for (int i = game->level; i >= 0; i--) {
-    if(game->entities[i].hp > 0) {
-      draw_entity(&game->entities[i], game);
+  Entity *entity = &game->entities;
+  while (entity != NULL) {
+    if(entity->hp > 0) {
+      draw_entity(entity, game);
     }
+    entity = entity->next;
   }
+
+  //for (int i = game->level; i >= 0; i--) {
+  //  if(game->entities[i].hp > 0) {
+  //    draw_entity(&game->entities[i], game);
+  //  }
+  //}
 
   SDL_Flip(game->screen);
 }
