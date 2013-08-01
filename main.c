@@ -39,9 +39,15 @@ void main_loop(Game *game) {
     update_game((SDL_GetTicks() - game->time), game);
 
     Entity *entity = &game->entities;
+
+    /* If only the player exists */
+    if (entity->next == NULL) {
+      create_dungeon(game, ++game->level);
+    }
+
     while (entity != NULL) {
       if(entity->hp <= 0) {
-        create_dungeon(game, ++game->level);
+        remove_entity(&game->entities, entity);
       }
       entity = entity->next;
     }

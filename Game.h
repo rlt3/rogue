@@ -81,10 +81,10 @@ void create_dungeon(Game *game, int dungeonFloor) {
 
   Entity *previous = &game->entities;
   for (int i = 1; i <= dungeonFloor; i++ ) { 
-    //previous->next = malloc(sizeof(*previous->next));
-    previous->next = (Entity*)malloc(sizeof(Entity));
+    previous->next = malloc(sizeof(*previous->next));
 
     if (previous->next == NULL) {
+      puts("Out of Memory: can't create more monsters\n");
       exit(1);
     }   
 
