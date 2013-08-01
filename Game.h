@@ -6,7 +6,6 @@
 
 #define TOTAL_ENTITIES    16
 #define PLAYER            game->entities
-//#define PLAYER            game->entities[0]
 
 #define IN_WORLD(x, y) \
   (x >= 0 && y >= 0 && x < SCREENX && y < SCREENY)
@@ -67,10 +66,9 @@ void load_frames(SDL_Rect frames[8][2]) {
   frames[7][1] = (SDL_Rect){448, 64, 64, 64};
 }
 
-//void create_dungeon(Entity entities[], int dungeonFloor) {
-void create_dungeon(Entity *start, int dungeonFloor) {
-  /* Player is always at position 0 */
-  *start = (Entity){
+void create_dungeon(Game *game, int dungeonFloor) {
+  /* Player is always at the start of the list */
+  game->entities = (Entity){
     .type        = 0, 
     .state       = IDLE, 
     .hp          = 10,
@@ -81,24 +79,31 @@ void create_dungeon(Entity *start, int dungeonFloor) {
     .next        = NULL
   };
 
-  ///* Add the other entities */
+  //Entity *previous = start;
+  //Entity *node;
+
+  /* Add the other entities */
   //for (int i = 1; i <= dungeonFloor; i++) {
-  //  entities[i] = (Entity){
+  //  node = &(Entity){
   //    .type        = 0, 
   //    .state       = IDLE, 
   //    .hp          = 10,
   //    .frames      = 0, 
   //    .location    = ((Location){i*128, i*128}),
   //    .destination = ((Location){i*128, i*128}),
-  //    .idle        = true 
+  //    .idle        = true,
+  //    .next        = NULL
   //  };
+  //  previous->next = node;
+  //  previous = node;
   //}
 }
 
-//void update_all_entities(Entity entities[], int currentFloor) {
 void update_all_entities(Entity *start, int currentFloor) {
   Entity *entity = start->next;
   while (entity != NULL) {
+
+  /* if it's not, assign an entity a random destination if it has none */
     if (are_same_location(entity->location, entity->destination)) {
       Location destination = random_destination_from(entity->location);
       if (IN_WORLD(destination.x, destination.y)) {
@@ -115,15 +120,6 @@ void update_all_entities(Entity *start, int currentFloor) {
   //    entities[i].destination = entities[0].location;
   //    continue;
   //  }
-
-  //  /* if it's not, assign an entity a random destination if it has none */
-  //  if (are_same_location(entities[i].location, entities[i].destination)) {
-  //    Location destination = random_destination_from(entities[i].location);
-  //    if (IN_WORLD(destination.x, destination.y)) {
-  //      entities[i].destination = destination;
-  //    }
-  //  }
-  //}
 }
 
 /* 
@@ -148,16 +144,12 @@ void update_game(unsigned dt, Game *game) {
       PLAYER.idle = true;
     }
 
-    Entity *entity = &game->entities;
+    /* Don't update the player */
+    Entity *entity = game->entities.next;
     while (entity != NULL) {
       entity->idle = true;
       entity = entity->next;
     }
-  
-    //for (int i = 1; i <= game->level; i++) {
-    //  game->entities[i].idle = true;
-    //}
-
   }
 }
 

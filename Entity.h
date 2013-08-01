@@ -24,7 +24,7 @@ typedef struct Entity {
   Location  location;
   Location  destination;
   bool      idle;
-  struct Entity*   next;
+  struct Entity  *next;
 } Entity;
 
 void add_entity(Entity *start, Entity new) {
@@ -102,7 +102,6 @@ int get_state(Location direction) {
   return state;
 }
 
-//void move_entity(Entity *entity, Entity entities[], int currentFloor) {
 void move_entity(Entity *entity, Entity *start, int currentFloor) {
   Entity *node = start;
   while (node != NULL) {
@@ -112,13 +111,6 @@ void move_entity(Entity *entity, Entity *start, int currentFloor) {
     }
     node = node->next;
   }
-
-  //for(int i=0; i<=currentFloor; i++) {
-  //  if(do_collide(entity->destination, entities[i].location) 
-  //     && entity != &entities[i]) {
-  //    return;
-  //  }
-  //}
 
   Location destination = subtract_locations(entity->destination,
                                             entity->location);
@@ -132,7 +124,6 @@ void move_entity(Entity *entity, Entity *start, int currentFloor) {
   entity->idle = false;
 }
 
-//void entity_attacks(Entity* entity, Entity entities[], int level) {
 void entity_attacks(Entity* entity, Entity *start, int level) {
   /* Get direction from entity's state */
   Location direction = {0,0};
@@ -173,18 +164,6 @@ void entity_attacks(Entity* entity, Entity *start, int level) {
     }
     node = node->next;
   }
-
-  //for(int i=0; i<=level; i++) {
-  //  /* Create a `area' to test intersection of the attack box */
-  //  Location eLower = {entity[i].location.x, entity[i].location.y};
-  //  Location eUpper = {entity[i].location.x + 64, entity[i].location.y + 64};
-
-  //  if(eLower.x < upper.x && eUpper.x > lower.x &&
-  //     eLower.y < upper.y && eUpper.y > lower.y
-  //     && &entities[i] != entity) {
-  //    entity[i].hp -= 5;
-  //  }
-  //}
 }
 
 #endif

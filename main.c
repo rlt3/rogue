@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
   game.time  = SDL_GetTicks();
   game.on    = true;
 
-  create_dungeon(&game.entities, game.level);
+  create_dungeon(&game, game.level);
 
   main_loop(&game);
 
@@ -35,22 +35,27 @@ int main(int argc, char **argv) {
 void main_loop(Game *game) {
   SDL_Event event;
 
+  game->entities.next = &(Entity){
+    .type        = 0, 
+    .state       = IDLE, 
+    .hp          = 10,
+    .frames      = 0, 
+    .location    = ((Location){128, 128}),
+    .destination = ((Location){128, 128}),
+    .idle        = true,
+    .next        = NULL
+  };
+
   while (game->on) {
     update_game((SDL_GetTicks() - game->time), game);
 
     Entity *entity = &game->entities;
     while (entity != NULL) {
       if(entity->hp <= 0) {
-        create_dungeon(&game->entities, ++game->level);
+        create_dungeon(game, ++game->level);
       }
       entity = entity->next;
     }
-
-    //for (int i = 0; i <= game->level; i++) {
-    //  if(game->entities[i].hp <= 0) {
-    //    create_dungeon(game->entities, ++game->level);
-    //  }
-    //}
 
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
@@ -96,7 +101,6 @@ void handle_input(SDLKey key, Game *game) {
   }
 }
 
-//void move_all_entities(Entity entities[], int currentFloor) {
 void move_all_entities(Entity *start, int currentFloor) {
   Entity *entity = start;
   while (entity != NULL) {
@@ -106,11 +110,4 @@ void move_all_entities(Entity *start, int currentFloor) {
     }
     entity = entity->next;
   }
-
-  //for(int i=0; i<=currentFloor; i++) {
-  //  if (!are_same_location(entities[i].location, entities[i].destination)
-  //      && entities[i].hp > 0) {
-  //    move_entity(&entities[i], entities, currentFloor);
-  //  }
-  //}
 }
