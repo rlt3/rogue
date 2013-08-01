@@ -35,17 +35,6 @@ int main(int argc, char **argv) {
 void main_loop(Game *game) {
   SDL_Event event;
 
-  game->entities.next = &(Entity){
-    .type        = 0, 
-    .state       = IDLE, 
-    .hp          = 10,
-    .frames      = 0, 
-    .location    = ((Location){128, 128}),
-    .destination = ((Location){128, 128}),
-    .idle        = true,
-    .next        = NULL
-  };
-
   while (game->on) {
     update_game((SDL_GetTicks() - game->time), game);
 

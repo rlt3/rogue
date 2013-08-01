@@ -79,24 +79,28 @@ void create_dungeon(Game *game, int dungeonFloor) {
     .next        = NULL
   };
 
-  //Entity *previous = start;
-  //Entity *node;
+  Entity *previous = &game->entities;
+  for (int i = 1; i <= dungeonFloor; i++ ) { 
+    //previous->next = malloc(sizeof(*previous->next));
+    previous->next = (Entity*)malloc(sizeof(Entity));
 
-  /* Add the other entities */
-  //for (int i = 1; i <= dungeonFloor; i++) {
-  //  node = &(Entity){
-  //    .type        = 0, 
-  //    .state       = IDLE, 
-  //    .hp          = 10,
-  //    .frames      = 0, 
-  //    .location    = ((Location){i*128, i*128}),
-  //    .destination = ((Location){i*128, i*128}),
-  //    .idle        = true,
-  //    .next        = NULL
-  //  };
-  //  previous->next = node;
-  //  previous = node;
-  //}
+    if (previous->next == NULL) {
+      exit(1);
+    }   
+
+    *previous->next = (Entity){
+      .type        = 0, 
+      .state       = IDLE, 
+      .hp          = 10,
+      .frames      = 0, 
+      .location    = ((Location){i*128, i*128}),
+      .destination = ((Location){i*128, i*128}),
+      .idle        = true,
+      .next        = NULL
+    };
+
+    previous = previous->next;
+  }   
 }
 
 void update_all_entities(Entity *start, int currentFloor) {
