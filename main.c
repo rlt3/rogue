@@ -38,12 +38,17 @@ void main_loop(Game *game) {
   while (game->on) {
     update_game((SDL_GetTicks() - game->time), game);
 
-    Entity *entity = &game->entities;
+    if (PLAYER.hp <= 0) {
+      puts("You lose!");
+      game->on = false;
+    }
 
-    /* If only the player exists */
-    if (entity->next == NULL) {
+    /* If only the player exists, create next level */
+    if (PLAYER.next == NULL) {
       create_dungeon(game, ++game->level);
     }
+
+    Entity *entity = &game->entities;
 
     while (entity != NULL) {
       if(entity->hp <= 0) {

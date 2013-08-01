@@ -104,26 +104,33 @@ void create_dungeon(Game *game, int dungeonFloor) {
 }
 
 void update_all_entities(Entity *start, int currentFloor) {
-  Entity *entity = start->next;
+  Entity *player = start;
+
+  /* The player updates itself based on input, no need to update */
+  Entity *entity = player->next;
   while (entity != NULL) {
 
-  /* if it's not, assign an entity a random destination if it has none */
+    if (locations_are_nearby(entity->location, player->location)) {
+      entity_attacks(entity, start, currentFloor);
+      entity = entity->next;
+      continue;
+    }
+
+    //if (locations_are_nearby(entity->location, player->location)) {
+    //  entity->destination = player->location;
+    //  entity = entity->next;
+    //  continue;
+    //}
+
     if (are_same_location(entity->location, entity->destination)) {
       Location destination = random_destination_from(entity->location);
       if (IN_WORLD(destination.x, destination.y)) {
         entity->destination = destination;
       }
     }
+
     entity = entity->next;
   }
-
-  //for (int i=1; i<=currentFloor; i++) {
-
-  //  /* if an entity is near the player, that entity goes to the player */
-  //  if (locations_are_nearby(entities[i].location, entities[0].location)) {
-  //    entities[i].destination = entities[0].location;
-  //    continue;
-  //  }
 }
 
 /* 
@@ -148,8 +155,8 @@ void update_game(unsigned dt, Game *game) {
       PLAYER.idle = true;
     }
 
-    /* Don't update the player */
-    Entity *entity = game->entities.next;
+    /* Don't set player to idle */
+    Entity *entity = PLAYER.next;
     while (entity != NULL) {
       entity->idle = true;
       entity = entity->next;
