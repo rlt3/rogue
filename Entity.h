@@ -19,12 +19,18 @@
 typedef struct Entity {
   uint8_t   type;
   uint8_t   state;
-  uint8_t   hp;
   uint8_t   frames;
+
+  uint8_t   hp;
+  uint8_t   strength;
+  uint8_t   speed;
+  bool      idle;
+
   Location  location;
   Location  destination;
-  bool      idle;
+
   struct Entity  *next;
+  
 } Entity;
 
 void add_entity(Entity *start, Entity new) {
@@ -70,16 +76,16 @@ void update_entity(Entity *entity, uint8_t state) {
 
   switch(state) {
   case WALK_UP:
-    set_destination(entity, 0, -10);
+    set_destination(entity, 0, (-10 * entity->speed));
     break;
   case WALK_DOWN:
-    set_destination(entity, 0, 10);
+    set_destination(entity, 0, (10 * entity->speed));
     break;
   case WALK_LEFT:
-    set_destination(entity, -10, 0);
+    set_destination(entity, (-10 * entity->speed), 0);
     break;
   case WALK_RIGHT:
-    set_destination(entity, 10, 0);
+    set_destination(entity, (10 * entity->speed), 0);
     break;
   default:
     break;
@@ -104,6 +110,7 @@ int get_state(Location direction) {
 
 void move_entity(Entity *entity, Entity *start, int currentFloor) {
   Entity *node = start;
+
   while (node != NULL) {
     if(do_collide(entity->destination, node->location) 
        && entity != node) {
@@ -116,8 +123,8 @@ void move_entity(Entity *entity, Entity *start, int currentFloor) {
                                             entity->location);
   Location direction = get_direction_to(destination);
 
-  entity->location.x += direction.x*1;
-  entity->location.y += direction.y*1;
+  entity->location.x += direction.x * entity->speed;
+  entity->location.y += direction.y * entity->speed;
 
   entity->state = get_state(direction);
 
@@ -160,7 +167,7 @@ void entity_attacks(Entity* entity, Entity *start, int level) {
     if(eLower.x < upper.x && eUpper.x > lower.x &&
        eLower.y < upper.y && eUpper.y > lower.y
        && node != entity) {
-      node->hp -= 5;
+      node->hp -= entity->strength;
     }
     node = node->next;
   }

@@ -61,6 +61,15 @@ void main_loop(Game *game) {
       switch (event.type) {
         case SDL_KEYDOWN:
           handle_input(event.key.keysym.sym, game);
+          break;
+        case SDL_KEYUP:
+          switch (event.key.keysym.sym) {
+          case SDLK_LSHIFT:
+            PLAYER.speed = 1;
+            break;
+          default:
+            break;
+          }
       }
     }
 
@@ -71,6 +80,10 @@ void main_loop(Game *game) {
 
 void handle_input(SDLKey key, Game *game) {
   switch(key) {
+  case SDLK_LSHIFT:
+    PLAYER.speed = 3;
+    break;
+
   case SDLK_ESCAPE: case SDL_QUIT:
     game->on = false;
     break;

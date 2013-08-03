@@ -71,11 +71,13 @@ void create_dungeon(Game *game, int dungeonFloor) {
   game->entities = (Entity){
     .type        = 0, 
     .state       = IDLE, 
-    .hp          = 10,
     .frames      = 0, 
+    .hp          = 10,
+    .strength    = 5,
+    .speed       = 1,
+    .idle        = true,
     .location    = ((Location){64, 64}),
     .destination = ((Location){64, 64}),
-    .idle        = true,
     .next        = NULL
   };
 
@@ -91,11 +93,13 @@ void create_dungeon(Game *game, int dungeonFloor) {
     *previous->next = (Entity){
       .type        = 0, 
       .state       = IDLE, 
-      .hp          = 10,
       .frames      = 0, 
+      .hp          = 10,
+      .strength    = dungeonFloor,
+      .speed       = 1,
+      .idle        = true,
       .location    = ((Location){i*128, i*128}),
       .destination = ((Location){i*128, i*128}),
-      .idle        = true,
       .next        = NULL
     };
 
@@ -110,11 +114,11 @@ void update_all_entities(Entity *start, int currentFloor) {
   Entity *entity = player->next;
   while (entity != NULL) {
 
-    if (locations_are_nearby(entity->location, player->location)) {
-      entity_attacks(entity, start, currentFloor);
-      entity = entity->next;
-      continue;
-    }
+    //if (locations_are_nearby(entity->location, player->location)) {
+    //  entity_attacks(entity, start, currentFloor);
+    //  entity = entity->next;
+    //  continue;
+    //}
 
     //if (locations_are_nearby(entity->location, player->location)) {
     //  entity->destination = player->location;
