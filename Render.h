@@ -65,12 +65,24 @@ void draw_entity(Entity *entity, Game *game) {
 }
 
 void render(Game *game) {
+  /* Draw the Floor */
   for (int x = 0; x < SCREENX; x++) {
     for (int y = 0; y < SCREENY; y++) {
       draw_tile(game, FLOOR, x, y);
     }
   }
 
+  /* Draw the health bar */
+  int health = PLAYER.hp;
+  for (int i = 0; i < health; i++) {
+    SDL_Rect location    = {(i*20), SCREENY - 20};
+    SDL_Surface *sprite  = game->sprites[ENTITY];
+    SDL_Rect frame       = game->frames[8][0];
+
+    draw(sprite, &frame, game->screen, &location);
+  }
+
+  /* Draw each entity */
   Entity *entity = &game->entities;
   while (entity != NULL) {
     if(entity->hp > 0) {

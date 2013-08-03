@@ -17,7 +17,7 @@
 typedef struct Game {
   SDL_Surface    *screen;
   SDL_Surface    *sprites[TOTAL_ENTITIES];
-  SDL_Rect       frames[8][2];
+  SDL_Rect       frames[9][2];
   Entity         entities;
 
   uint32_t       time;
@@ -64,6 +64,10 @@ void load_frames(SDL_Rect frames[8][2]) {
   
   frames[7][0] = (SDL_Rect){384, 64, 64, 64};
   frames[7][1] = (SDL_Rect){448, 64, 64, 64};
+
+  /* Full and half-heart container */
+  frames[8][0] = (SDL_Rect){  0,128, 20, 20};
+  frames[8][1] = (SDL_Rect){ 20,128, 20, 20};
 }
 
 void create_dungeon(Game *game, int dungeonFloor) {
@@ -114,11 +118,11 @@ void update_all_entities(Entity *start, int currentFloor) {
   Entity *entity = player->next;
   while (entity != NULL) {
 
-    //if (locations_are_nearby(entity->location, player->location)) {
-    //  entity_attacks(entity, start, currentFloor);
-    //  entity = entity->next;
-    //  continue;
-    //}
+    if (locations_are_nearby(entity->location, player->location)) {
+      entity_attacks(entity, start, currentFloor);
+      entity = entity->next;
+      continue;
+    }
 
     //if (locations_are_nearby(entity->location, player->location)) {
     //  entity->destination = player->location;
