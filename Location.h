@@ -57,6 +57,11 @@ Location subtract_locations(Location l1, Location l2) {
   return location;
 }
 
+Location add_locations(Location l1, Location l2) {
+  Location location = { (l1.x + l2.x), (l1.y + l2.y) };
+  return location;
+}
+
 /*
  * Within a 100-step radius, determine if locations
  * are nearby.
@@ -78,17 +83,23 @@ bool do_collide(Location l1, Location l2) {
    * makes the `collision' box a little more
    * realistic and fluid.
    */
+
   l1.x += 16;
   l1.y += 16;
+
+  Location l1Upper = {l1.x + 32, l1.y + 32};
 
   l2.x += 16;
   l2.y += 16;
 
-  Location l1Upper = {l1.x + 32, l1.y + 32};
   Location l2Upper = {l2.x + 32, l2.y + 32};
 
-  return (l2.x < l1Upper.x && l2Upper.x > l1.x &&
-          l2.y < l1Upper.y && l2Upper.y > l1.y);
+  //! ( P2.y < P3.y || P1.y > P4.y || P2.x < P3.x || P1.x > P4.x )
+  
+  return ! ( l1Upper.y < l2.y || 
+             l1.y > l2Upper.y || 
+             l1Upper.x < l2.x || 
+             l1.x > l2Upper.x );
 }
 
 #endif

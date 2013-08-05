@@ -62,6 +62,11 @@ void draw_entity(Entity *entity, Game *game) {
   SDL_Rect frame        = game->frames[entity->state][animation_frame];
 
   draw(sprite, &frame, game->screen, &location); 
+
+  //SDL_Rect first  = {entity->location.x + 16, entity->location.y + 16, 32, 32};
+
+  //SDL_FillRect(game->screen, &first, SDL_MapRGB((game->screen)->format, 0xFF, 0xFF, 0xFF));
+
 }
 
 void render(Game *game) {

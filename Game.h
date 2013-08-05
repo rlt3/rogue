@@ -118,17 +118,19 @@ void update_all_entities(Entity *start, int currentFloor) {
   Entity *entity = player->next;
   while (entity != NULL) {
 
-    if (locations_are_nearby(entity->location, player->location)) {
-      entity_attacks(entity, start, currentFloor);
-      entity = entity->next;
-      continue;
-    }
-
     //if (locations_are_nearby(entity->location, player->location)) {
-    //  entity->destination = player->location;
+    //  //entity->direction = get_direction_to(player->location);
+    //  entity->state     = get_state(get_direction_to(player->location));
+    //  //entity_attacks(entity, start, currentFloor);
     //  entity = entity->next;
     //  continue;
     //}
+
+    if (locations_are_nearby(entity->location, player->location)) {
+      entity->destination = player->location;
+      entity = entity->next;
+      continue;
+    }
 
     if (are_same_location(entity->location, entity->destination)) {
       Location destination = random_destination_from(entity->location);

@@ -111,23 +111,25 @@ int get_state(Location direction) {
 void move_entity(Entity *entity, Entity *start, int currentFloor) {
   Entity *node = start;
 
+  Location destination = subtract_locations(entity->destination,
+                                            entity->location);
+  Location direction = get_direction_to(destination);
+
+  Location next_step = {
+    entity->location.x + direction.x * entity->speed,
+    entity->location.y + direction.y * entity->speed
+  };
+  
   while (node != NULL) {
-    if(do_collide(entity->destination, node->location) 
+    if(do_collide(next_step, node->location) 
        && entity != node) {
       return;
     }
     node = node->next;
   }
 
-  Location destination = subtract_locations(entity->destination,
-                                            entity->location);
-  Location direction = get_direction_to(destination);
-
-  entity->location.x += direction.x * entity->speed;
-  entity->location.y += direction.y * entity->speed;
-
+  entity->location = next_step;
   entity->state = get_state(direction);
-
   entity->idle = false;
 }
 
