@@ -19,6 +19,11 @@
 
 #include "Location.hpp"
 
+class Entity;
+
+typedef std::list<Entity*>::iterator Entity_Iterator;
+typedef std::list<Entity*> Entity_List;
+
 class Entity {
 public:
   uint8_t   hp;
@@ -39,12 +44,8 @@ public:
   void set_destination(uint32_t x, uint32_t y);
   void update(uint8_t state);
 
-  void move(std::list<Entity*> entities);
-  void attack(std::list<Entity*> &entities);
-
-  /* make next_step() to see if collision */
-  //void move(Entity *entity, Entity *start, int currentFloor);
-  //void attack(Entity* entity, Entity *start, int level);
+  void move(Entity_List entities);
+  void attack(Entity_List &entities);
 
   static int get_state(Location direction);
   static Location get_direction(uint8_t state);

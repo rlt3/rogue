@@ -1,4 +1,5 @@
 #include "Entity.hpp" 
+
 Entity::Entity(uint8_t type, Location location) {
   this->type      = type;
   this->location  = location;
@@ -49,7 +50,7 @@ void Entity::update(uint8_t state) {
   }
 }
 
-void Entity::move(std::list<Entity*> entities) {
+void Entity::move(Entity_List entities) {
   Location diff = Location::subtract(this->destination, this->location);
   Location direction = diff.get_direction_to(); 
 
@@ -59,8 +60,8 @@ void Entity::move(std::list<Entity*> entities) {
       Location(0, 0)
   );
   
-  std::list<Entity*>::const_iterator entity;
-  std::list<Entity*>::const_iterator end = entities.end();
+  Entity_Iterator entity;
+  Entity_Iterator end = entities.end();
   for (entity = entities.begin(); entity != end; ++entity) {
     if (next_step.collides_with((*entity)->location)
         && (*entity) != this) {
@@ -73,7 +74,7 @@ void Entity::move(std::list<Entity*> entities) {
   this->idle = false;
 }
 
-void Entity::attack(std::list<Entity *> &entities) {
+void Entity::attack(Entity_List &entities) {
   int state = (this->state > 3 ? this->state - 4 : this->state);
   Location direction = Entity::get_direction(state);
 
@@ -90,8 +91,8 @@ void Entity::attack(std::list<Entity *> &entities) {
     attack_box.p1.y + (direction.y == 0 ? 16 : 48)
   );
   
-  std::list<Entity*>::iterator entity;
-  std::list<Entity*>::iterator end = entities.end();
+  Entity_Iterator entity;
+  Entity_Iterator end = entities.end();
   for (entity = entities.begin(); entity != end; ++entity) {
     hit_box.p1 = Location((*entity)->location.x + 16, 
                           (*entity)->location.y + 16);
