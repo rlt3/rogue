@@ -134,18 +134,21 @@ void move_entity(Entity *entity, Entity *start, int currentFloor) {
 }
 
 void entity_attacks(Entity* entity, Entity *start, int level) {
+  /* Translate back to a WALK_* from ATTACK_* */
+  int state = (entity->state > 3 ? entity->state - 4 : entity->state);
+
   /* Get direction from entity's state */
   Location direction = {0,0};
-  if(entity->state == WALK_DOWN)
+  if(state == WALK_DOWN)
     direction = (Location){0,1};
-  else if(entity->state == WALK_UP)
+  else if(state == WALK_UP)
     direction = (Location){0,-1};
-  else if(entity->state == WALK_RIGHT)
+  else if(state == WALK_RIGHT)
     direction = (Location){1,0};
-  else if(entity->state == WALK_LEFT)
+  else if(state == WALK_LEFT)
     direction = (Location){-1,0};
 
-  /* 
+  /*
    * Need four locations in specific: the attacking entity's
    * attack box points at the top-left and then bottom-right.
    * Then the opposing entity's hitbox, from the top-left
@@ -155,22 +158,26 @@ void entity_attacks(Entity* entity, Entity *start, int level) {
    */
 
   Location lower = {
-    (entity->location.x + (direction.x != 0 ? direction.x * 64 : 0)),
-    (entity->location.y + (direction.y != 0 ? direction.y * 64 : 0))
+    (entity->location.x + (direction.x != 0 ? direction.x * 48 : 32)),
+    (entity->location.y + (direction.y != 0 ? direction.y * 48 : 32))
   };
 
-  Location upper = {lower.x + 64, lower.y + 64};
+  Location upper = {
+    lower.x + (direction.x == 0 ? 16 : 48),
+    lower.y + (direction.y == 0 ? 16 : 48)
+  };
 
   Entity *node = start;
   while (node != NULL) {
-    Location eLower = {node->location.x, node->location.y};
-    Location eUpper = {node->location.x + 64, node->location.y + 64};
+    Location eLower = {node->location.x + 16, node->location.y + 16};
+    Location eUpper = {eLower.x + 48, eLower.y + 48};
 
     if(eLower.x < upper.x && eUpper.x > lower.x &&
        eLower.y < upper.y && eUpper.y > lower.y
        && node != entity) {
       node->hp -= entity->strength;
     }
+
     node = node->next;
   }
 }
