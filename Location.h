@@ -6,6 +6,11 @@ typedef struct Location {
   uint32_t  y;
 } Location;
 
+typedef struct Area {
+  Location  a;
+  Location  b;
+} Area;
+
 /*
  * Get an integer's sign value at 1: -1, 1, 0
  */
@@ -71,10 +76,14 @@ bool locations_are_nearby(Location l1, Location l2) {
   return (abs(diff.x) <= 100 && abs(diff.y) <= 100);
 }
 
-bool do_collide(Location l1, Location l2) {
-  //Location diff = subtract_locations(l1, l2);
-  //return (abs(diff.x) <= 15 && abs(diff.y) <= 15);
+bool areas_intersect(Area p, Area q) {
+  return ! ( p.b.y < q.a.y || 
+             p.a.y > q.b.y || 
+             p.b.x < q.a.x || 
+             p.a.x > q.b.x );
+}
 
+bool do_collide(Location l1, Location l2) {
   /* These points are measured from the top left
    * of each sprite. This is also where the sprite
    * is drawn from.
@@ -84,22 +93,29 @@ bool do_collide(Location l1, Location l2) {
    * realistic and fluid.
    */
 
-  l1.x += 16;
-  l1.y += 16;
+  Area p = {
+    .a = (Location) {
+           l1.x + 16,
+           l1.y + 16
+         },
+    .b = (Location) {
+           (l1.x + 16) + 32,
+           (l1.y + 16) + 32
+         }
+  };
 
-  Location l1Upper = {l1.x + 32, l1.y + 32};
+  Area r = {
+    .a = (Location) {
+           l2.x + 16,
+           l2.y + 16
+         },
+    .b = (Location) {
+           (l2.x + 16) + 32,
+           (l2.y + 16) + 32
+         }
+  };
 
-  l2.x += 16;
-  l2.y += 16;
-
-  Location l2Upper = {l2.x + 32, l2.y + 32};
-
-  //! ( P2.y < P3.y || P1.y > P4.y || P2.x < P3.x || P1.x > P4.x )
-  
-  return ! ( l1Upper.y < l2.y || 
-             l1.y > l2Upper.y || 
-             l1Upper.x < l2.x || 
-             l1.x > l2Upper.x );
+  return areas_intersect(p, r);
 }
 
 #endif

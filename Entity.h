@@ -66,7 +66,7 @@ void set_destination(Entity *entity, uint32_t x, uint32_t y) {
 void update_entity(Entity *entity, uint8_t state) {
   entity->idle = false;
 
-  if (state == ATTACKING) {
+  if (state == ATTACKING && entity->state < 4) {
     entity->state += 4;
     entity->frames = 2;
     return;
@@ -157,24 +157,25 @@ void entity_attacks(Entity* entity, Entity *start, int level) {
    * Then we test if they collide at any point.
    */
 
-  Location lower = {
+  Area attack_box;
+  Area hit_box;
+
+  attack_box.a = (Location) {
     (entity->location.x + (direction.x != 0 ? direction.x * 48 : 32)),
     (entity->location.y + (direction.y != 0 ? direction.y * 48 : 32))
   };
 
-  Location upper = {
-    lower.x + (direction.x == 0 ? 16 : 48),
-    lower.y + (direction.y == 0 ? 16 : 48)
+  attack_box.b = (Location) {
+    attack_box.a.x + (direction.x == 0 ? 16 : 48),
+    attack_box.a.y + (direction.y == 0 ? 16 : 48)
   };
 
   Entity *node = start;
   while (node != NULL) {
-    Location eLower = {node->location.x + 16, node->location.y + 16};
-    Location eUpper = {eLower.x + 48, eLower.y + 48};
+    hit_box.a = (Location) {node->location.x + 16, node->location.y + 16};
+    hit_box.b = (Location) {hit_box.a.x + 48, hit_box.a.y + 48};
 
-    if(eLower.x < upper.x && eUpper.x > lower.x &&
-       eLower.y < upper.y && eUpper.y > lower.y
-       && node != entity) {
+    if(areas_intersect(attack_box, hit_box) && node != entity) {
       node->hp -= entity->strength;
     }
 

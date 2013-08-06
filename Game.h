@@ -117,26 +117,27 @@ void update_all_entities(Entity *start, int currentFloor) {
   /* The player updates itself based on input, no need to update */
   Entity *entity = player->next;
   while (entity != NULL) {
+      
+    //if (locations_are_adjacent(entity->location, player->location)) {
+    //  entity_attacks(entity, start, currentFloor);
 
-    if (locations_are_nearby(entity->location, player->location)) {
-      //entity->state     = get_state(get_direction_to(player->location));
-      entity_attacks(entity, start, currentFloor);
-      entity = entity->next;
-      continue;
-    }
-
-    //if (locations_are_nearby(entity->location, player->location)) {
-    //  entity->destination = player->location;
     //  entity = entity->next;
     //  continue;
     //}
 
-    //if (are_same_location(entity->location, entity->destination)) {
-    //  Location destination = random_destination_from(entity->location);
-    //  if (IN_WORLD(destination.x, destination.y)) {
-    //    entity->destination = destination;
-    //  }
-    //}
+    if (locations_are_nearby(entity->location, player->location)) {
+      entity->destination = player->location;
+
+      entity = entity->next;
+      continue;
+    }
+
+    if (are_same_location(entity->location, entity->destination)) {
+      Location destination = random_destination_from(entity->location);
+      if (IN_WORLD(destination.x, destination.y)) {
+        entity->destination = destination;
+      }
+    }
 
     entity = entity->next;
   }
@@ -153,6 +154,8 @@ void update_game(unsigned dt, Game *game) {
 
     game->time = SDL_GetTicks();
     game->frame = game->frame ? 0 : 1;
+
+    //printf("STATE: %d\n", PLAYER.state);
 
     if(PLAYER.frames > 0) {
       PLAYER.frames -= 1;
