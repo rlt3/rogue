@@ -27,6 +27,7 @@ public:
   Location p1;
   Location p2;
 
+  Area();
   Area(Location p1, Location p2);
 
   bool intersects(Area other);

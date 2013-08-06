@@ -69,6 +69,16 @@ int Location::sign(int val) {
  * Start definitions for class Area
  */
 
+Area::Area() {
+  this->p1 = Location(0, 0);
+  this->p2 = Location(0, 0);
+}
+
+Area::Area(Location p1, Location p2) {
+  this->p1 = p1;
+  this->p2 = p2;
+}
+
 bool Area::intersects(Area other) {
   return ! ( this->p2.y < other.p1.y || 
              this->p1.y > other.p2.y || 
