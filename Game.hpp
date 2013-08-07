@@ -28,6 +28,7 @@ public:
   bool      on;
 
   Entity_List entities;
+  Entity     *player;
 
   Game();
   ~Game();

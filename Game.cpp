@@ -24,16 +24,22 @@ void Game::create_dungeon() {
   Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
 
-  int i = 1;
-  for (entity = this->entities.begin(); entity != end; ++entity) { 
+  int i;
+  for (i = 0; i < this->level; i++) {
     this->entities.insert(this->entities.begin(), 
                           new Entity(TYPE_MONSTER, Location(i*128, i*128)));
-    i++;
-  }   
+  }
 
-  /* Player is always at the start of the list */
-  this->entities.insert(this->entities.begin(), 
-                        new Entity(TYPE_PLAYER, Location(20, 20)));
+  /* 
+   * We have a pointer just to the player so that
+   * we can manipulate the list of entities in 
+   * any fashion and not lose track of the most
+   * important entity
+   */
+
+  this->player = (Entity*)malloc(sizeof(Entity));
+  this->player = new Entity(TYPE_PLAYER, Location(64, 170));
+  this->entities.insert(this->entities.begin(), player);
 }
 
 void Game::update_all_entities() {
@@ -50,8 +56,8 @@ void Game::update_all_entities() {
     //  continue;
     //}
 
-    if ((*entity)->location.is_nearby(PLAYER->location)) {
-      (*entity)->destination = PLAYER->location;
+    if ((*entity)->location.is_nearby(this->player->location)) {
+      (*entity)->destination = this->player->location;
 
       continue;
     }
@@ -128,7 +134,7 @@ void Game::render() {
   }
 
   /* Draw the health bar */
-  int health = PLAYER->hp;
+  int health = this->player->hp;
   for (int i = 0; i < health; i++) {
     SDL_Rect location    = {(i*20), SCREENY - 20};
     SDL_Surface *sprite  = this->spritesheet;

@@ -14,12 +14,11 @@ int main(int argc, char **argv) {
 
 void main_loop(Game &game) {
   SDL_Event event;
-  Entity *player = (*game.entities.begin());
 
   while (game.on) {
     game.update((SDL_GetTicks() - game.time));
 
-    if (player->hp <= 0) {
+    if (game.player->hp <= 0) {
       puts("You lose!");
       game.on = false;
     }
@@ -46,7 +45,7 @@ void main_loop(Game &game) {
         case SDL_KEYUP:
           switch (event.key.keysym.sym) {
           case SDLK_LSHIFT:
-            player->speed = 1;
+            game.player->speed = 1;
             break;
           default:
             break;
@@ -60,10 +59,9 @@ void main_loop(Game &game) {
 }
 
 void handle_input(SDLKey key, Game &game) {
-  Entity *player = (*game.entities.begin());
   switch(key) {
   case SDLK_LSHIFT:
-    player->speed = 3;
+    game.player->speed = 3;
     break;
 
   case SDLK_ESCAPE: case SDL_QUIT:
@@ -71,24 +69,24 @@ void handle_input(SDLKey key, Game &game) {
     break;
 
   case SDLK_w: case SDLK_UP: case SDLK_k:
-    player->update(WALK_UP);
+    game.player->update(WALK_UP);
     break;
 
   case SDLK_a: case SDLK_LEFT: case SDLK_h:
-    player->update(WALK_LEFT);
+    game.player->update(WALK_LEFT);
     break;
 
   case SDLK_s: case SDLK_DOWN: case SDLK_j:
-    player->update(WALK_DOWN);
+    game.player->update(WALK_DOWN);
     break;
 
   case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-    player->update(WALK_RIGHT);
+    game.player->update(WALK_RIGHT);
     break;
 
   case SDLK_SPACE:
-    player->update(ATTACKING);
-    player->attack(game.entities);
+    game.player->update(ATTACKING);
+    game.player->attack(game.entities);
     break;
 
   default:

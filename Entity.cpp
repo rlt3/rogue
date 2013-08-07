@@ -6,7 +6,7 @@ Entity::Entity(uint8_t type, Location location) {
 
   this->hp        = 10;
   this->strength  = 1;
-  this->speed     = 3;
+  this->speed     = 1;
 
   this->state     = IDLE;
   this->frame     = 0;
