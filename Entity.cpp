@@ -5,7 +5,7 @@ Entity::Entity(uint8_t type, Location location) {
   this->location  = location;
 
   this->hp        = 10;
-  this->strength  = 1;
+  this->strength  = (type == TYPE_PLAYER ? 5 : 1);
   this->speed     = 1;
 
   this->state     = IDLE;
@@ -24,7 +24,12 @@ void Entity::set_destination(uint32_t x, uint32_t y) {
 void Entity::update(uint8_t state) {
   this->idle = false;
 
-  if (state == ATTACKING && this->state < 4) {
+  /* If they are already attacking! */
+  if (this->state > 4) {
+    return;
+  }
+
+  if (state == ATTACKING) {
     this->state += 4;
     this->do_frames = 2;
     return;
@@ -75,17 +80,18 @@ void Entity::move(Entity_List entities) {
 }
 
 void Entity::attack(Entity_List &entities) {
-  int state = (this->state > 3 ? this->state - 4 : this->state);
   Location direction = Entity::get_direction(state);
 
   Area attack_box;
   Area hit_box;
 
+  /* Make the length of the attack face the direction of the entity */
   attack_box.p1 = Location(
     (this->location.x + (direction.x != 0 ? direction.x * 48 : 32)),
     (this->location.y + (direction.y != 0 ? direction.y * 48 : 32))
   );
 
+  /* Set the end points of the rectangle the same as above */
   attack_box.p2 = Location(
     attack_box.p1.x + (direction.x == 0 ? 16 : 48),
     attack_box.p1.y + (direction.y == 0 ? 16 : 48)
@@ -94,14 +100,35 @@ void Entity::attack(Entity_List &entities) {
   Entity_Iterator entity;
   Entity_Iterator end = entities.end();
   for (entity = entities.begin(); entity != end; ++entity) {
-    hit_box.p1 = Location((*entity)->location.x + 16, 
-                          (*entity)->location.y + 16);
+
+    /*
+     * Sprites are technically 64x64, but we reduce its hitbox by a 
+     * fourth to ensure that if the attack_box and hit_box are
+     * intersecting, the player won't think: 
+     *          ``Man, that totally didn't hit me"
+     */
+
+    hit_box.p1 = Location(
+        (*entity)->location.x + 16, 
+        (*entity)->location.y + 16
+    );
+
     hit_box.p2 = Location(hit_box.p1.x + 48, hit_box.p1.y + 48);
 
     if (attack_box.intersects(hit_box) && (*entity) != this) {
       (*entity)->hp -= this->strength;
     }
   }
+}
+
+/* static */
+bool Entity::sort_locations(Entity *first, Entity *second) {
+  if (first->location.x > second->location.x &&
+      first->location.y > second->location.y) {
+    return false;
+  }
+
+  return true;
 }
 
 /* static */
@@ -123,19 +150,21 @@ int Entity::get_state(Location direction) {
 
 /* static */
 Location Entity::get_direction(uint8_t state) {
-  Location direction;
 
-  if (state == WALK_DOWN) {
-    direction = Location(0,1);
-  } else if (state == WALK_UP) {
-    direction = Location(0,-1);
-  } else if (state == WALK_RIGHT) {
-    direction = Location(1,0);
-  } else if (state == WALK_LEFT) {
-    direction = Location(-1,0);
-  } else {
-    direction = Location(0,0);
+  switch(state) {
+  case WALK_DOWN:  case ATTACK_DOWN:
+    return Location(0,1);
+
+  case WALK_UP:    case ATTACK_UP:
+    return Location(0,-1);
+
+  case WALK_RIGHT: case ATTACK_RIGHT:
+    return Location(1,0);
+
+  case WALK_LEFT:  case ATTACK_LEFT:
+    return Location(-1,0);
+
+  default:
+    return Location(0,0);
   }
-
-  return direction;
 }

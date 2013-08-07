@@ -14,19 +14,27 @@ Location::Location(int x, int y) {
   this->y = y;
 }
 
-Location Location::new_destination() {
+/* 
+ * Get a random destination (to simulate AI) with velocity so that all the 
+ * speeds of various entities will work with this.
+ */
+Location Location::new_destination(int velocity) {
+  unsigned short int magnitude = 30;
   unsigned short int i = rand() % 5;
 
   int direction[5][2] = { {0,1}, {-1,0}, {0,0}, {1,0}, {0,-1} };
-  int magnitude[5][2] = { {35,30}, {30,-35}, {0,0}, {-30,35}, {35,30} };
 
   Location destination;
-  destination.x = this->x + direction[i][0]*magnitude[i][0];
-  destination.y = this->y + direction[i][1]*magnitude[i][1];
+  destination.x = this->x + direction[i][0] * (velocity * magnitude);
+  destination.y = this->y + direction[i][1] * (velocity * magnitude);
 
   return destination;
 }
 
+/*
+ * There are no diagonals in this game. So, we follow the X-axis first towards 
+ * a direction, then the Y-axis.
+ */
 Location Location::get_direction_to() {
   Location direction;
 
@@ -48,6 +56,7 @@ bool Location::is_nearby(Location other) {
   return (abs(diff.x) <= 100 && abs(diff.y) <= 100);
 }
 
+/* Tests if center of location is half a sprite's size away */
 bool Location::is_adjacent(Location other) {
   Location l1_center(this->x + 32, this->y + 32);
   Location l2_center(other.x + 32, other.y + 32);

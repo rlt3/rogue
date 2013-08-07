@@ -14,26 +14,36 @@ Game::Game() {
 Game::~Game() {
   Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
+
   for (entity = this->entities.begin(); entity != end; ++entity) { 
     delete (*entity);
     this->entities.erase(entity);
   }
+
+  SDL_FreeSurface(this->spritesheet);
+  SDL_FreeSurface(this->screen);
 }
 
 void Game::create_dungeon() {
   Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
 
+  /* If we don't do this, the player multiplies */
+  if (this->entities.size() > 0) {
+    this->entities.clear();
+  }
+
   int i;
   for (i = 0; i < this->level; i++) {
-    this->entities.insert(this->entities.begin(), 
-                          new Entity(TYPE_MONSTER, Location(i*128, i*128)));
+    this->entities.insert(
+        this->entities.begin(), 
+        new Entity(TYPE_MONSTER, Location(i*128, i*128))
+    );
   }
 
   /* 
-   * We have a pointer just to the player so that
-   * we can manipulate the list of entities in 
-   * any fashion and not lose track of the most
+   * We have a pointer just to the player so that we can manipulate the 
+   * list of entities in any fashion and not lose track of the most
    * important entity
    */
 
@@ -49,36 +59,33 @@ void Game::update_all_entities() {
   /* The player updates itself based on input, no need to update */
   for (entity = ++entity; entity != end; ++entity) { 
       
-    //if (entity->location.is_adjacent(player->location)) {
-    //  entity_attacks(entity, start, currentFloor);
-
-    //  entity = entity->next;
-    //  continue;
-    //}
-
     if ((*entity)->location.is_nearby(this->player->location)) {
-      (*entity)->destination = this->player->location;
-
+      if ((*entity)->location.is_adjacent(this->player->location)) {
+        (*entity)->update(ATTACKING);
+        (*entity)->attack(this->entities);
+      } else {
+        (*entity)->destination = this->player->location;
+      }
       continue;
     }
 
     if ((*entity)->location.is_same((*entity)->destination)) {
-      Location destination = (*entity)->location.new_destination();
-      if (IN_WORLD(destination.x, destination.y)) {
-        (*entity)->destination = destination;
+      Location dest = (*entity)->location.new_destination((*entity)->speed);
+      if (IN_WORLD(dest.x, dest.y)) {
+        (*entity)->destination = dest;
       }
     }
   }
 }
-
 void Game::update(unsigned dt) {
+  Entity_Iterator entity;
+  Entity_Iterator end = this->entities.end();
+
   if(dt >= 250) {
     update_all_entities();
     this->time = SDL_GetTicks();
 
-    Entity_Iterator entity;
-    Entity_Iterator end = this->entities.end();
-
+    end = this->entities.end();
     for (entity = this->entities.begin(); entity != end; ++entity) { 
       /* Cycle through an entity's frames while walking */
       if ((*entity)->idle == false) {
@@ -96,6 +103,37 @@ void Game::update(unsigned dt) {
       }
     }
   }
+
+  if (this->player->hp <= 0) {
+    puts("You lose!");
+    this->on = false;
+  }
+
+  /* If only the player exists, create next level */
+  if (this->entities.size() == 1) {
+    this->level++;
+    this->create_dungeon();
+  }
+
+  end = this->entities.end();
+  for (entity = this->entities.begin(); entity != end; ++entity) { 
+    if((*entity)->hp <= 0) {
+      this->entities.erase(entity);
+    }
+  }
+
+}
+
+void Game::move_all_entities() {
+  Entity_Iterator entity;
+  Entity_Iterator end = this->entities.end();
+
+  for (entity = this->entities.begin(); entity != end; ++entity) { 
+    if (!(*entity)->location.is_same((*entity)->destination)
+        && (*entity)->hp > 0) {
+        (*entity)->move(entities);
+    }
+  }
 }
 
 void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
@@ -107,14 +145,13 @@ void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
 }
 
 void Game::draw_entity(Entity *entity) {
-  int animation_frame   = entity->idle? 0 : entity->frame;
   SDL_Rect location     = {entity->location.x, entity->location.y};
   SDL_Surface *sprite   = this->spritesheet;
 
   /* 
-   * So, we don't have to load a large amount of SDL_Surfaces,
-   * we use math based on an Entity's state/type/frame to see
-   * where on the sprite sheet we are getting the image.
+   * So, we don't have to load a large amount of SDL_Surfaces, we use math 
+   * based on an Entity's state/type/frame to see where on the sprite sheet 
+   * we are getting the image.
    */
 
   SDL_Rect frame = { 
@@ -155,12 +192,19 @@ void Game::render() {
   SDL_Flip(this->screen);
 }
 
+void Game::draw(SDL_Surface *sprite, SDL_Rect *frame, 
+                SDL_Surface *screen, SDL_Rect *location) {
+  if(SDL_BlitSurface(sprite, frame, screen, location) < 0) {
+    printf("Error! Drawing Entity: %s\n", SDL_GetError());
+  }
+}
 
 void Game::load_window() {
   SDL_Init(SDL_INIT_VIDEO);
   SDL_WM_SetCaption("Game", "Game");
   SDL_EnableKeyRepeat(70, 70);
   SDL_SetVideoMode(SCREENX, SCREENY, 0, 0);
+
   atexit(SDL_Quit);
 
   this->screen = SDL_GetVideoSurface();
@@ -189,9 +233,3 @@ void Game::load_spritesheet() {
   this->spritesheet = sprite;
 }
 
-void Game::draw(SDL_Surface *sprite, SDL_Rect *frame, 
-                SDL_Surface *screen, SDL_Rect *location) {
-  if(SDL_BlitSurface(sprite, frame, screen, location) < 0) {
-    printf("Error! Drawing Entity: %s\n", SDL_GetError());
-  }
-}

@@ -1,3 +1,17 @@
+/*
+ * Our entities are all of our `living' things that move around in the game.
+ *
+ * There is a list of Entity Pointers that get manipulated as they walk, move, 
+ * or attack. The reason I used a list of Entity pointers (rather than just a 
+ * list of Entities) is that we need to do pointer comparison at points.
+ *
+ * So, when an entity attacks, it loops through all of the entities to see if 
+ * it hit anyone of them. An entitiy that attacked would almost certainly `hit 
+ * itself' if we didn't have pointer comparison.
+ *
+ * The same goes for movement and collision. 
+ */
+
 #ifndef ROGUE_ENTITY_HPP
 #define ROGUE_ENTITY_HPP
 
@@ -50,6 +64,7 @@ public:
   void move(Entity_List entities);
   void attack(Entity_List &entities);
 
+  static bool sort_locations(Entity *first, Entity *second);
   static int get_state(Location direction);
   static Location get_direction(uint8_t state);
 };
