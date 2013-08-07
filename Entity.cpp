@@ -105,7 +105,7 @@ void Entity::attack(Entity_List &entities) {
 }
 
 /* static */
-int get_state(Location direction) {
+int Entity::get_state(Location direction) {
   int state = IDLE;
 
   if (direction.x == 0 && direction.y == 1) {
@@ -122,7 +122,7 @@ int get_state(Location direction) {
 }
 
 /* static */
-Location get_direction(uint8_t state) {
+Location Entity::get_direction(uint8_t state) {
   Location direction;
 
   if (state == WALK_DOWN) {

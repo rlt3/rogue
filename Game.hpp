@@ -30,10 +30,11 @@ public:
   Entity_List entities;
 
   Game();
+  ~Game();
 
   void create_dungeon();
   void update_all_entities();
-  void update_game(unsigned dt);
+  void update(unsigned dt);
 
   void draw_tile(uint8_t type, uint32_t x, uint32_t y);
   void draw_entity(Entity *entity);

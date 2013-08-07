@@ -11,6 +11,15 @@ Game::Game() {
   create_dungeon();
 }
 
+Game::~Game() {
+  Entity_Iterator entity;
+  Entity_Iterator end = this->entities.end();
+  for (entity = this->entities.begin(); entity != end; ++entity) { 
+    delete (*entity);
+    this->entities.erase(entity);
+  }
+}
+
 void Game::create_dungeon() {
   Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
@@ -56,7 +65,7 @@ void Game::update_all_entities() {
   }
 }
 
-void Game::update_game(unsigned dt) {
+void Game::update(unsigned dt) {
   if(dt >= 250) {
     update_all_entities();
     this->time = SDL_GetTicks();
@@ -85,7 +94,7 @@ void Game::update_game(unsigned dt) {
 
 void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
   SDL_Rect location     = {x * TILESIZE, y * TILESIZE};
-  SDL_Rect mask         = {x * TILESIZE, y * TILESIZE};
+  SDL_Rect mask         = {0, 148, 32, 32};
   SDL_Surface *sprite   = this->spritesheet;
 
   draw(sprite, NULL, this->screen, &location);
