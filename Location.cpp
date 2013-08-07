@@ -48,6 +48,15 @@ bool Location::is_nearby(Location other) {
   return (abs(diff.x) <= 100 && abs(diff.y) <= 100);
 }
 
+bool Location::is_adjacent(Location other) {
+  Location l1_center(this->x + 32, this->y + 32);
+  Location l2_center(other.x + 32, other.y + 32);
+
+  Location diff = Location::subtract(l1_center, l2_center);
+
+  return (abs(diff.x) <= 48 && abs(diff.y) <= 48);
+}
+
 /* static */
 Location Location::subtract(Location l1, Location l2) {
   Location location((l1.x - l2.x), (l1.y - l2.y));

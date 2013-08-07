@@ -14,6 +14,9 @@
 #define ATTACKING         8
 #define IDLE              2
 
+#define TYPE_PLAYER       0
+#define TYPE_MONSTER      64
+
 #include <stdint.h>
 #include <list>
 

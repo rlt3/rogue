@@ -16,6 +16,7 @@ public:
 
   bool is_same(Location other);
   bool is_nearby(Location other);
+  bool is_adjacent(Location other);
 
   static Location subtract(Location l1, Location l2);
   static Location add(Location l1, Location l2);
