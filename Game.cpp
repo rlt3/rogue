@@ -33,7 +33,7 @@ void Game::create_dungeon() {
 
   /* Player is always at the start of the list */
   this->entities.insert(this->entities.begin(), 
-                        new Entity(TYPE_PLAYER, Location(150, 150)));
+                        new Entity(TYPE_PLAYER, Location(20, 20)));
 }
 
 void Game::update_all_entities() {
@@ -97,7 +97,7 @@ void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
   SDL_Rect mask         = {0, 148, 32, 32};
   SDL_Surface *sprite   = this->spritesheet;
 
-  draw(sprite, NULL, this->screen, &location);
+  draw(sprite, &mask, this->screen, &location);
 }
 
 void Game::draw_entity(Entity *entity) {
@@ -132,7 +132,7 @@ void Game::render() {
   for (int i = 0; i < health; i++) {
     SDL_Rect location    = {(i*20), SCREENY - 20};
     SDL_Surface *sprite  = this->spritesheet;
-    SDL_Rect frame       = {20, 128, 20, 20};
+    SDL_Rect frame       = {0, 128, 20, 20};
 
     draw(sprite, &frame, this->screen, &location);
   }

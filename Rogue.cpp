@@ -7,6 +7,8 @@ void move_all_entities(Entity_List &entities);
 int main(int argc, char **argv) {
   Game game;
 
+  main_loop(game);
+
   return EXIT_SUCCESS;
 }
 
