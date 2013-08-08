@@ -17,7 +17,8 @@
 #define TILESIZE          32
 #define SPRITESIZE        64
 
-#define FLOOR             0
+#define FLOOR             148
+#define HEART             128
 
 #define TOTAL_ENTITIES    16
 #define PLAYER            (*this->entities.begin())

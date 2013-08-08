@@ -77,6 +77,11 @@ void Game::update_all_entities() {
     }
   }
 }
+
+/*
+ * Update frames/state every .25 seconds and the general updates that occur at 
+ * each tick (movement, see if anything is dead, etc). 
+ */
 void Game::update(unsigned dt) {
   Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
@@ -137,8 +142,10 @@ void Game::move_all_entities() {
 }
 
 void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
-  SDL_Rect location     = {x * TILESIZE, y * TILESIZE};
-  SDL_Rect mask         = {0, 148, 32, 32};
+  int size = (type > 128 ? 32 : 20);
+
+  SDL_Rect location     = {x, y};
+  SDL_Rect mask         = {0, type, size, size};
   SDL_Surface *sprite   = this->spritesheet;
 
   draw(sprite, &mask, this->screen, &location);
@@ -149,9 +156,9 @@ void Game::draw_entity(Entity *entity) {
   SDL_Surface *sprite   = this->spritesheet;
 
   /* 
-   * So, we don't have to load a large amount of SDL_Surfaces, we use math 
-   * based on an Entity's state/type/frame to see where on the sprite sheet 
-   * we are getting the image.
+   * So, we don't have to load a large amount of SDL_Rects, we use math based 
+   * on an Entity's state/type/frame to see where on the sprite sheet we are 
+   * getting the image.
    */
 
   SDL_Rect frame = { 
@@ -166,18 +173,14 @@ void Game::render() {
   /* Draw the Floor */
   for (int x = 0; x < SCREENX; x++) {
     for (int y = 0; y < SCREENY; y++) {
-      draw_tile(FLOOR, x, y);
+      draw_tile(FLOOR, x * TILESIZE, y * TILESIZE);
     }
   }
 
   /* Draw the health bar */
   int health = this->player->hp;
   for (int i = 0; i < health; i++) {
-    SDL_Rect location    = {(i*20), SCREENY - 20};
-    SDL_Surface *sprite  = this->spritesheet;
-    SDL_Rect frame       = {0, 128, 20, 20};
-
-    draw(sprite, &frame, this->screen, &location);
+    draw_tile(HEART, (i*20), (SCREENY - 20));
   }
 
   /* Draw each entity */
@@ -232,4 +235,3 @@ void Game::load_spritesheet() {
 
   this->spritesheet = sprite;
 }
-
