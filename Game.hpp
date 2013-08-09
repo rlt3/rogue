@@ -30,6 +30,7 @@
 #include <SDL_image/SDL_image.h>
 #include <list>
 
+#include "Item.hpp"
 #include "Entity.hpp"
 #include "Location.hpp"
 
@@ -39,6 +40,7 @@ public:
   uint32_t  time;
   bool      on;
 
+  Item_List   items;
   Entity_List entities;
   Entity     *player;
 

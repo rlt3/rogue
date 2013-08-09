@@ -25,8 +25,8 @@ Game::~Game() {
 }
 
 void Game::create_dungeon() {
-  Entity_Iterator entity;
-  Entity_Iterator end = this->entities.end();
+  //Entity_Iterator entity;
+  //Entity_Iterator end = this->entities.end();
 
   /* If we don't do this, the player multiplies */
   if (this->entities.size() > 0) {
@@ -55,6 +55,24 @@ void Game::create_dungeon() {
 void Game::update_all_entities() {
   Entity_Iterator entity = this->entities.begin();
   Entity_Iterator end = this->entities.end();
+
+  Item_Iterator item;
+  Item_Iterator item_end = this->items.end();
+  for (item = this->items.begin(); item != item_end; ++item) { 
+    Area heart_area;
+    heart_area.p1 = item->location;
+    heart_area.p2 = Location(item->location.x + 20,
+                             item->location.y + 20);
+    Area entity_area;
+    entity_area.p1 = this->player->location;
+    entity_area.p2 = Location(this->player->location.x + 64, 
+                              this->player->location.y + 64);
+
+    if (heart_area.intersects(entity_area)) {
+      item->apply_effect(*entity);
+      this->items.erase(item);
+    }
+  }
 
   /* The player updates itself based on input, no need to update */
   for (entity = ++entity; entity != end; ++entity) { 
@@ -123,7 +141,9 @@ void Game::update(unsigned dt) {
   end = this->entities.end();
   for (entity = this->entities.begin(); entity != end; ++entity) { 
     if((*entity)->hp <= 0) {
-      this->entities.erase(entity);
+        this->items.insert(this->items.begin(), 
+                           Item(TYPE_HEART, (*entity)->location));
+        this->entities.erase(entity);
     }
   }
 
@@ -182,11 +202,17 @@ void Game::render() {
   for (int i = 0; i < health; i++) {
     draw_tile(HEART, (i*20), (SCREENY - 20));
   }
+  
+  Item_Iterator item;
+  Item_Iterator item_end = this->items.end();
+  for (item = this->items.begin(); item != item_end; ++item) { 
+    draw_tile(item->type, item->location.x, item->location.y);
+  }
 
   /* Draw each entity */
   Entity_Iterator entity;
-  Entity_Iterator end = this->entities.end();
-  for (entity = this->entities.begin(); entity != end; ++entity) { 
+  Entity_Iterator entity_end = this->entities.end();
+  for (entity = this->entities.begin(); entity != entity_end; ++entity) { 
     if((*entity)->hp > 0) {
       draw_entity(*entity);
     }
