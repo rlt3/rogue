@@ -22,6 +22,10 @@ int main(int argc, char **argv) {
 
 void handle_input(SDL_Event event, Game &game) {
   switch (event.type) {
+    case SDL_MOUSEBUTTONDOWN:
+      printf("@(%d, %d)\n", event.button.x, event.button.y);
+      break;
+
     case SDL_KEYDOWN:
       switch(event.key.keysym.sym) {
       case SDLK_LSHIFT:
