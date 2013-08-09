@@ -25,7 +25,7 @@ void Entity::update(uint8_t state) {
   this->idle = false;
 
   /* If they are already attacking! */
-  if (this->state > 4) {
+  if (this->state > 3) {
     return;
   }
 
