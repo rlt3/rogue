@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <time.h>
 
+class Area;
+
 class Location {
 public:
   int x;
@@ -33,6 +35,9 @@ public:
   bool is_same(Location other);
   bool is_nearby(Location other);
   bool is_adjacent(Location other);
+
+  Area get_world_area(int radius);
+  Area get_world_area_offset(int offset, int radius);
 
   static Location translate(Location location);
   static Location subtract(Location l1, Location l2);

@@ -30,7 +30,8 @@
 #include <SDL_image/SDL_image.h>
 #include <list>
 
-#include "Item.hpp"
+#include "Heart.hpp"
+//#include "Item.hpp"
 #include "Entity.hpp"
 #include "Location.hpp"
 
@@ -60,14 +61,18 @@ public:
 
 protected:
   SDL_Surface  *screen;
-  SDL_Surface  *spritesheet;
 
   void draw(SDL_Surface *sprite, SDL_Rect *frame, 
             SDL_Surface *screen, SDL_Rect *location);
 
+  static SDL_Surface * load_sprite(const char* file);
+
 private:
+  SDL_Surface  *spritesheet;
+
   void load_window();
-  void load_spritesheet();
 };
+
+#include "Splash.hpp"
 
 #endif

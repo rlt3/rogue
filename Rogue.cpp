@@ -1,16 +1,19 @@
 #include "Game.hpp"
 
-void handle_input(SDL_Event event, Game &game);
+void handle_input(SDL_Event event, Game &game, Splash &loading_screen);
 
 int main(int argc, char **argv) {
   Game game;
   SDL_Event event;
 
+  Splash loading_screen("Graphics/loading.png");
+  loading_screen.splash_loop();
+
   while (game.on) {
     game.update((SDL_GetTicks() - game.time));
 
     while (SDL_PollEvent(&event)) {
-      handle_input(event, game);
+      handle_input(event, game, loading_screen);
     }
 
     game.move_all_entities();
@@ -20,8 +23,13 @@ int main(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
-void handle_input(SDL_Event event, Game &game) {
+/* Union types of Game for the loading screens, etc */
+void handle_input(SDL_Event event, Game &game, Splash &loading_screen) {
   switch (event.type) {
+    case SDL_MOUSEMOTION:
+      printf(">(%d, %d)\n", event.motion.xrel, event.motion.yrel);
+      break;
+
     case SDL_MOUSEBUTTONDOWN:
       printf("@(%d, %d)\n", event.button.x, event.button.y);
       break;
@@ -33,6 +41,8 @@ void handle_input(SDL_Event event, Game &game) {
         break;
 
       case SDLK_ESCAPE: case SDL_QUIT:
+        //loading_screen.on = true;
+        //loading_screen.splash_loop();
         game.on = false;
         break;
 

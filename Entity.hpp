@@ -63,6 +63,8 @@ public:
 
   void move(Entity_List entities);
   void attack(Entity_List &entities);
+  
+  Area get_world_area();
 
   static bool sort_locations(Entity *first, Entity *second);
   static int get_state(Location direction);

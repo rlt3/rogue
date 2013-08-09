@@ -2,7 +2,7 @@
 
 Game::Game() {
   load_window();
-  load_spritesheet();
+  this->spritesheet = this->load_sprite("Graphics/spritesheet.png");
 
   level = 1;
   time  = SDL_GetTicks();
@@ -18,6 +18,13 @@ Game::~Game() {
   for (entity = this->entities.begin(); entity != end; ++entity) { 
     delete (*entity);
     this->entities.erase(entity);
+  }
+  
+  Item_Iterator item;
+  Item_Iterator item_end = this->items.end();
+  for (item = this->items.begin(); item != item_end; ++item) { 
+    delete (*item);
+    this->items.erase(item);
   }
 
   SDL_FreeSurface(this->spritesheet);
@@ -44,26 +51,21 @@ void Game::create_dungeon() {
    * important entity
    */
 
-  this->player = (Entity*)malloc(sizeof(Entity));
   this->player = new Entity(TYPE_PLAYER, Location(64, 170));
-  this->entities.insert(this->entities.begin(), player);
+  this->entities.insert(this->entities.begin(), this->player);
 }
 
 void Game::update_all_entities() {
   Item_Iterator item;
+
   Item_Iterator item_end = this->items.end();
   for (item = this->items.begin(); item != item_end; ++item) { 
-    Area item_area;
-    item_area.p1 = item->location;
-    item_area.p2 = Location(item->location.x + 20,
-                             item->location.y + 20);
-    Area entity_area;
-    entity_area.p1 = this->player->location;
-    entity_area.p2 = Location(this->player->location.x + 64, 
-                              this->player->location.y + 64);
+    Area item_area   = (*item)->get_world_area();
+    Area entity_area = this->player->get_world_area();
 
     if (item_area.intersects(entity_area)) {
-      item->apply_effect(this->player);
+      (*item)->apply_effect(this->player);
+      delete (*item);
       this->items.erase(item);
     }
   }
@@ -125,8 +127,9 @@ void Game::update(unsigned dt) {
   }
 
   if (this->player->hp <= 0) {
-    puts("You lose!");
-    this->on = false;
+    this->player->hp = 10;
+    //puts("You lose!");
+    //this->on = false;
   }
 
   /* If only the player exists, create next level */
@@ -139,7 +142,8 @@ void Game::update(unsigned dt) {
   for (entity = this->entities.begin(); entity != end; ++entity) { 
     if((*entity)->hp <= 0) {
         this->items.insert(this->items.begin(), 
-                           Item(TYPE_HEART, (*entity)->location));
+                           new Heart((*entity)->location));
+        delete (*entity);
         this->entities.erase(entity);
     }
   }
@@ -203,7 +207,7 @@ void Game::render() {
   Item_Iterator item;
   Item_Iterator item_end = this->items.end();
   for (item = this->items.begin(); item != item_end; ++item) { 
-    draw_tile(item->type, item->location.x, item->location.y);
+    draw_tile((*item)->type, (*item)->location.x, (*item)->location.y);
   }
 
   /* Draw each entity */
@@ -236,8 +240,9 @@ void Game::load_window() {
   this->screen = SDL_GetVideoSurface();
 }
 
-void Game::load_spritesheet() {
-  SDL_Surface *temp = IMG_Load("Graphics/spritesheet.png");
+/* static */
+SDL_Surface * Game::load_sprite(const char* file) {
+  SDL_Surface *temp = IMG_Load(file);
 
   SDL_SetColorKey(temp, 
       (SDL_SRCCOLORKEY|SDL_RLEACCEL), 
@@ -256,5 +261,5 @@ void Game::load_spritesheet() {
     exit(1);
   }
 
-  this->spritesheet = sprite;
+  return sprite;
 }

@@ -121,6 +121,10 @@ void Entity::attack(Entity_List &entities) {
   }
 }
 
+Area Entity::get_world_area() {
+  return this->location.get_world_area(64);
+}
+
 /* static */
 bool Entity::sort_locations(Entity *first, Entity *second) {
   if (first->location.x > second->location.x &&

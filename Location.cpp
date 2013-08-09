@@ -1,4 +1,5 @@
 #include "Location.hpp"
+#include <iomanip>
 
 /*
  * Start definitions for class Location
@@ -64,6 +65,13 @@ bool Location::is_adjacent(Location other) {
   Location diff = Location::subtract(l1_center, l2_center);
 
   return (abs(diff.x) <= 48 && abs(diff.y) <= 48);
+}
+
+Area Location::get_world_area(int radius) {
+  Area area;
+  area.p1 = Location(this->x, this->y);
+  area.p2 = Location(this->x + radius, this->y + radius);
+  return area;
 }
 
 /* static */
