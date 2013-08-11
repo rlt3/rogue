@@ -4,9 +4,11 @@ Game::Game() {
   load_window();
   this->spritesheet = this->load_sprite("Graphics/spritesheet.png");
 
-  level = 1;
-  time  = SDL_GetTicks();
-  on    = true;
+  level       = 1;
+  on          = true;
+
+  last_time        = SDL_GetTicks();
+  update_rate = 500;
 
   create_dungeon();
 }
@@ -55,7 +57,7 @@ void Game::create_dungeon() {
   this->entities.insert(this->entities.begin(), this->player);
 }
 
-void Game::update_all_entities() {
+void Game::check_all_entities(unsigned now) {
   Item_Iterator item;
 
   Item_Iterator item_end = this->items.end();
@@ -75,15 +77,10 @@ void Game::update_all_entities() {
 
   /* The player updates itself based on input, no need to update */
   for (entity = ++entity; entity != end; ++entity) { 
-      
-    if ((*entity)->location.is_nearby(this->player->location)) {
-      if ((*entity)->location.is_adjacent(this->player->location)) {
-        (*entity)->update(ATTACKING);
-        (*entity)->attack(this->entities);
-      } else {
-        (*entity)->destination = this->player->location;
-      }
-      continue;
+    if((*entity)->hp <= 0) {
+      this->items.insert(this->items.begin(), new Heart((*entity)->location));
+      delete (*entity);
+      this->entities.erase(entity);
     }
 
     if ((*entity)->location.is_same((*entity)->destination)) {
@@ -92,39 +89,38 @@ void Game::update_all_entities() {
         (*entity)->destination = dest;
       }
     }
+      
+    if ((now - last_time) < update_rate) { continue; }
+    last_time = now;
+
+    /* If we're here, then we're attacing/moving towards the player, etc */
+    if ((*entity)->location.is_nearby(this->player->location)) {
+      if ((*entity)->location.is_adjacent(this->player->location)) {
+        (*entity)->set_state(ATTACKING);
+        (*entity)->attack(this->entities);
+      } else {
+        (*entity)->destination = this->player->location;
+      }
+    }
   }
 }
 
 /*
- * Update frames/state every .25 seconds and the general updates that occur at 
- * each tick (movement, see if anything is dead, etc). 
+ * Update the frames and state for every entity and item. Also check bounds of
+ * these entities/items for collisions, etc. 
+ *
+ * The game updates every half second while the entities frame rates are set to
+ * every quarter second.
  */
-void Game::update(unsigned dt) {
+void Game::update(unsigned now) {
   Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
 
-  if(dt >= 250) {
-    update_all_entities();
-    this->time = SDL_GetTicks();
-
-    end = this->entities.end();
-    for (entity = this->entities.begin(); entity != end; ++entity) { 
-      /* Cycle through an entity's frames while walking */
-      if ((*entity)->idle == false) {
-        (*entity)->frame = (*entity)->frame ? 0 : 1;
-      }
-
-      if((*entity)->do_frames > 0) {
-        (*entity)->do_frames -= 1;
-
-        if((*entity)->do_frames == 0) {
-          (*entity)->state -= (*entity)->state > 3 ? 4 : 0;
-        }
-      } else {
-        (*entity)->idle = true;
-      }
-    }
+  for (entity = this->entities.begin(); entity != end; ++entity) { 
+    (*entity)->update(now);
   }
+
+  check_all_entities(now);
 
   if (this->player->hp <= 0) {
     this->player->hp = 10;
@@ -137,17 +133,6 @@ void Game::update(unsigned dt) {
     this->level++;
     this->create_dungeon();
   }
-
-  end = this->entities.end();
-  for (entity = this->entities.begin(); entity != end; ++entity) { 
-    if((*entity)->hp <= 0) {
-        this->items.insert(this->items.begin(), 
-                           new Heart((*entity)->location));
-        delete (*entity);
-        this->entities.erase(entity);
-    }
-  }
-
 }
 
 void Game::move_all_entities() {
@@ -155,8 +140,7 @@ void Game::move_all_entities() {
   Entity_Iterator end = this->entities.end();
 
   for (entity = this->entities.begin(); entity != end; ++entity) { 
-    if (!(*entity)->location.is_same((*entity)->destination)
-        && (*entity)->hp > 0) {
+    if (!(*entity)->location.is_same((*entity)->destination)) {
         (*entity)->move(entities);
     }
   }

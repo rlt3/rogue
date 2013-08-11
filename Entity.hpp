@@ -43,24 +43,27 @@ typedef std::list<Entity*> Entity_List;
 
 class Entity {
 public:
+  uint8_t   type;
+  uint8_t   state;
+
   uint8_t   hp;
   uint8_t   strength;
   uint8_t   speed;
+  bool      idle;
 
-  uint8_t   type;
-  uint8_t   state;
   uint8_t   frame;
   uint8_t   do_frames;
-  bool      idle;
+  uint8_t   framerate;
+  uint32_t  last_time;
 
   Location  location;
   Location  destination;
 
   Entity(uint8_t type, Location location);
 
+  void update(unsigned current_time);
   void set_destination(uint32_t x, uint32_t y);
-  void update(uint8_t state);
-
+  void set_state(uint8_t state);
   void move(Entity_List entities);
   void attack(Entity_List &entities);
   

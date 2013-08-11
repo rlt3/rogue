@@ -16,4 +16,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-		rm -rf */*.o && rm -rf *.o
+		rm -rf */*.o *.o rogue

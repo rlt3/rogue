@@ -31,15 +31,16 @@
 #include <list>
 
 #include "Heart.hpp"
-//#include "Item.hpp"
 #include "Entity.hpp"
 #include "Location.hpp"
 
 class Game {
 public:
   uint8_t   level;
-  uint32_t  time;
   bool      on;
+
+  uint32_t  last_time;
+  uint32_t  update_rate;
 
   Item_List   items;
   Entity_List entities;
@@ -49,8 +50,8 @@ public:
   ~Game();
 
   void create_dungeon();
-  void update_all_entities();
-  void update(unsigned dt);
+  void check_all_entities(unsigned time);
+  void update(unsigned time);
 
   void move_all_entities();
 

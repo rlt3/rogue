@@ -2,18 +2,40 @@
 
 Entity::Entity(uint8_t type, Location location) {
   this->type      = type;
-  this->location  = location;
+  this->state     = IDLE;
 
   this->hp        = 10;
   this->strength  = (type == TYPE_PLAYER ? 5 : 1);
   this->speed     = 1;
-
-  this->state     = IDLE;
-  this->frame     = 0;
-  this->do_frames = 0;
   this->idle      = true;
 
+  this->frame     = 0;
+  this->do_frames = 0;
+  this->framerate = 250;
+  this->last_time = 0;
+
+  this->location  = location;
   this->destination = this->location;
+}
+
+void Entity::update(unsigned current_time) {
+  if ((current_time - last_time) < framerate) { return; }
+
+  last_time = current_time;
+
+  if (idle == false) {
+    frame = frame ? 0 : 1;
+  }
+
+  if(do_frames > 0) {
+    do_frames -= 1;
+
+    if(do_frames == 0) {
+      state -= state > 3 ? 4 : 0;
+    }
+  } else {
+    idle = true;
+  }
 }
 
 void Entity::set_destination(uint32_t x, uint32_t y) {
@@ -21,7 +43,7 @@ void Entity::set_destination(uint32_t x, uint32_t y) {
   this->destination.y = this->location.y + y;
 }
 
-void Entity::update(uint8_t state) {
+void Entity::set_state(uint8_t state) {
   this->idle = false;
 
   /* If they are already attacking! */

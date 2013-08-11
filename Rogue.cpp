@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
   loading_screen.splash_loop();
 
   while (game.on) {
-    game.update((SDL_GetTicks() - game.time));
+    game.update(SDL_GetTicks());
 
     while (SDL_PollEvent(&event)) {
       handle_input(event, game, loading_screen);
@@ -47,23 +47,23 @@ void handle_input(SDL_Event event, Game &game, Splash &loading_screen) {
         break;
 
       case SDLK_w: case SDLK_UP: case SDLK_k:
-        game.player->update(WALK_UP);
+        game.player->set_state(WALK_UP);
         break;
 
       case SDLK_a: case SDLK_LEFT: case SDLK_h:
-        game.player->update(WALK_LEFT);
+        game.player->set_state(WALK_LEFT);
         break;
 
       case SDLK_s: case SDLK_DOWN: case SDLK_j:
-        game.player->update(WALK_DOWN);
+        game.player->set_state(WALK_DOWN);
         break;
 
       case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-        game.player->update(WALK_RIGHT);
+        game.player->set_state(WALK_RIGHT);
         break;
 
       case SDLK_SPACE:
-        game.player->update(ATTACKING);
+        game.player->set_state(ATTACKING);
         game.player->attack(game.entities);
         break;
 
