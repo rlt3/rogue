@@ -30,7 +30,7 @@ Game::~Game() {
   }
 
   SDL_FreeSurface(this->spritesheet);
-  SDL_FreeSurface(this->screen);
+  SDL_FreeSurface(Screen::surface);
 }
 
 void Game::create_dungeon() {
@@ -153,7 +153,7 @@ void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
   SDL_Rect mask         = {0, type, size, size};
   SDL_Surface *sprite   = this->spritesheet;
 
-  draw(sprite, &mask, this->screen, &location);
+  draw(sprite, &mask, Screen::surface, &location);
 }
 
 void Game::draw_entity(Entity *entity) {
@@ -171,7 +171,7 @@ void Game::draw_entity(Entity *entity) {
     entity->type, SPRITESIZE, SPRITESIZE 
   };
 
-  draw(sprite, &frame, this->screen, &location); 
+  draw(sprite, &frame, Screen::surface, &location); 
 }
 
 void Game::render() {
@@ -203,47 +203,5 @@ void Game::render() {
     }
   }
 
-  SDL_Flip(this->screen);
-}
-
-void Game::draw(SDL_Surface *sprite, SDL_Rect *frame, 
-                SDL_Surface *screen, SDL_Rect *location) {
-  if(SDL_BlitSurface(sprite, frame, screen, location) < 0) {
-    printf("Error! Drawing Entity: %s\n", SDL_GetError());
-  }
-}
-
-void Game::load_window() {
-  SDL_Init(SDL_INIT_VIDEO);
-  SDL_WM_SetCaption("Game", "Game");
-  SDL_EnableKeyRepeat(70, 70);
-  SDL_SetVideoMode(SCREENX, SCREENY, 0, 0);
-
-  atexit(SDL_Quit);
-
-  this->screen = SDL_GetVideoSurface();
-}
-
-/* static */
-SDL_Surface * Game::load_sprite(const char* file) {
-  SDL_Surface *temp = IMG_Load(file);
-
-  SDL_SetColorKey(temp, 
-      (SDL_SRCCOLORKEY|SDL_RLEACCEL), 
-      SDL_MapRGB(temp->format, 0, 0, 0));
-
-  if (temp == NULL) {
-    printf("Error: %s\n", IMG_GetError());
-    exit(1);
-  }
-
-  SDL_Surface *sprite = SDL_DisplayFormat(temp);
-  SDL_FreeSurface(temp);
-
-  if (sprite == NULL) {
-    printf("Failed to convert image to native format\n");
-    exit(1);
-  }
-
-  return sprite;
+  SDL_Flip(Screen::surface);
 }

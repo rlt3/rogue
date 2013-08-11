@@ -1,11 +1,15 @@
-#include "Splash.hpp"
+#include "Loading.hpp"
 
-Splash::Splash(const char* splash) {
-  this->spritesheet = Game::load_sprite(splash);
+/*
+ * Don't do Loading() : Screen() as we don't want to initialize
+ * the main window again
+ */
+Loading::Loading() {
+  this->spritesheet = load_sprite("Graphics/loading.png");
   this->on = true;
 }
 
-void Splash::splash_loop() {
+void Loading::load() {
   SDL_Event event;
 
   while (this->on) {
@@ -19,7 +23,7 @@ void Splash::splash_loop() {
     }
 
     SDL_Rect location = {0, 0};
-    Game::draw(spritesheet, NULL, Game::screen, &location);
-    SDL_Flip(Game::screen);
+    draw(spritesheet, NULL, Screen::surface, &location);
+    SDL_Flip(Screen::surface);
   }
 }

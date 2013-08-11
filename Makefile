@@ -1,7 +1,6 @@
 CC=g++
 CFLAGS=-c
-#SOURCES=Rogue.cpp Game.cpp Entity.cpp Item.cpp Splash.cpp Location.cpp SDL_Main/SDLMain.m
-SOURCES=Rogue.cpp Game.cpp Entity.cpp Splash.cpp Location.cpp SDL_Main/SDLMain.m
+SOURCES=Rogue.cpp Screen.cpp Game.cpp Loading.cpp Entity.cpp Location.cpp SDL_Main/SDLMain.m
 SDLLIBS=-framework SDL -framework SDL_image
 FRAMEWORKS=-framework Cocoa
 OBJECTS=$(SOURCES:.cpp=.o)

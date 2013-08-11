@@ -30,11 +30,13 @@
 #include <SDL_image/SDL_image.h>
 #include <list>
 
+#include "Screen.hpp"
+#include "Loading.hpp"
 #include "Heart.hpp"
 #include "Entity.hpp"
 #include "Location.hpp"
 
-class Game {
+class Game : public Screen {
 public:
   uint8_t   level;
   bool      on;
@@ -60,20 +62,8 @@ public:
 
   void render();
 
-protected:
-  SDL_Surface  *screen;
-
-  void draw(SDL_Surface *sprite, SDL_Rect *frame, 
-            SDL_Surface *screen, SDL_Rect *location);
-
-  static SDL_Surface * load_sprite(const char* file);
-
 private:
   SDL_Surface  *spritesheet;
-
-  void load_window();
 };
-
-#include "Splash.hpp"
 
 #endif
