@@ -110,7 +110,7 @@ void Entity::attack(Entity_List &entities) {
     (this->location.y + (direction.y != 0 ? direction.y * 48 : 32))
   );
 
-  /* Set the end points of the rectangle the same as above */
+  /* Set the end points of the rectangle the same way as above */
   attack_box.p2 = Location(
     attack_box.p1.x + (direction.x == 0 ? 16 : 48),
     attack_box.p1.y + (direction.y == 0 ? 16 : 48)
@@ -137,16 +137,6 @@ void Entity::attack(Entity_List &entities) {
 
 Area Entity::get_world_area() {
   return this->location.get_world_area(64);
-}
-
-/* static */
-bool Entity::sort_locations(Entity *first, Entity *second) {
-  if (first->location.x > second->location.x &&
-      first->location.y > second->location.y) {
-    return false;
-  }
-
-  return true;
 }
 
 /* static */
@@ -186,3 +176,14 @@ Location Entity::get_direction(uint8_t state) {
     return Location(0,0);
   }
 }
+
+/* static */
+bool Entity::sort_entities(const Entity * const & first, 
+                    const Entity * const & second){
+  if ((*first).location.x > (*second).location.x &&
+      (*first).location.y > (*second).location.y) {
+    return false;
+  }
+  return true;
+}
+

@@ -72,12 +72,15 @@ void Game::check_all_entities(unsigned now) {
     }
   }
   
-  Entity_Iterator entity = this->entities.begin();
+  Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
 
-  /* The player updates itself based on input, no need to update */
-  for (entity = ++entity; entity != end; ++entity) { 
-    if((*entity)->hp <= 0) {
+  for (entity = this->entities.begin(); entity != end; ++entity) { 
+
+    /* The player updates itself based on input, no need to update */
+    if (this->player == (*entity)) { continue; }
+
+    if ((*entity)->hp <= 0) {
       this->items.insert(this->items.begin(), new Heart((*entity)->location));
       delete (*entity);
       this->entities.erase(entity);
@@ -92,6 +95,9 @@ void Game::check_all_entities(unsigned now) {
       
     if ((now - last_time) < update_rate) { continue; }
     last_time = now;
+
+    /* Sort entity locations so entities get drawn the right way: top to down */
+    entities.sort(Entity::sort_entities);
 
     /* If we're here, then we're attacing/moving towards the player, etc */
     if ((*entity)->location.is_nearby(this->player->location)) {

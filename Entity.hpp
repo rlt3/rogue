@@ -72,6 +72,9 @@ public:
   static bool sort_locations(Entity *first, Entity *second);
   static int get_state(Location direction);
   static Location get_direction(uint8_t state);
+
+  static bool sort_entities(const Entity * const & first, 
+                             const Entity * const & second);
 };
 
 #endif
