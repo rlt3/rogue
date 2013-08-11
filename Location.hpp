@@ -35,6 +35,7 @@ public:
   bool is_same(Location other);
   bool is_nearby(Location other);
   bool is_adjacent(Location other);
+  bool collides_with(Location other);
 
   Area get_world_area(int radius);
   Area get_world_area_offset(int offset, int radius);
@@ -54,7 +55,6 @@ public:
   Area(Location p1, Location p2);
 
   bool intersects(Area other);
-  bool collides_with(Location other);
 };
 
 #endif

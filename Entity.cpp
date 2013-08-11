@@ -46,11 +46,10 @@ void Entity::set_destination(uint32_t x, uint32_t y) {
 void Entity::set_state(uint8_t state) {
   this->idle = false;
 
-  /* If they are already attacking! */
-  if (this->state > 3) {
-    return;
-  }
+  /* If they are already attacking return, so they can spam space */
+  if (this->state > 3) { return; }
 
+  /* Set state to +4 so it corresponds to their walking direction */
   if (state == ATTACKING) {
     this->state += 4;
     this->do_frames = 2;
@@ -81,11 +80,9 @@ void Entity::move(Entity_List entities) {
   Location diff = Location::subtract(this->destination, this->location);
   Location direction = diff.get_direction_to(); 
 
-  Area next_step(Location(
+  Location next_step(
       this->location.x + direction.x * this->speed,
-      this->location.y + direction.y * this->speed),
-      Location(0, 0)
-  );
+      this->location.y + direction.y * this->speed);
   
   Entity_Iterator entity;
   Entity_Iterator end = entities.end();
@@ -96,7 +93,7 @@ void Entity::move(Entity_List entities) {
     }
   }
 
-  this->location = next_step.p1;
+  this->location = next_step;
   this->state = get_state(direction);
   this->idle = false;
 }
@@ -130,12 +127,7 @@ void Entity::attack(Entity_List &entities) {
      *          ``Man, that totally didn't hit me"
      */
 
-    hit_box.p1 = Location(
-        (*entity)->location.x + 16, 
-        (*entity)->location.y + 16
-    );
-
-    hit_box.p2 = Location(hit_box.p1.x + 48, hit_box.p1.y + 48);
+    hit_box = (*entity)->location.get_world_area_offset(16, 48);
 
     if (attack_box.intersects(hit_box) && (*entity) != this) {
       (*entity)->hp -= this->strength;

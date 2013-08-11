@@ -68,10 +68,20 @@ bool Location::is_adjacent(Location other) {
 }
 
 Area Location::get_world_area(int radius) {
+  return this->get_world_area_offset(0, radius);
+}
+
+Area Location::get_world_area_offset(int offset, int radius) {
   Area area;
-  area.p1 = Location(this->x, this->y);
-  area.p2 = Location(this->x + radius, this->y + radius);
+  area.p1 = Location(this->x + offset, this->y + offset);
+  area.p2 = Location((this->x  + offset) + radius, (this->y + offset) + radius);
   return area;
+}
+
+bool Location::collides_with(Location other) {
+  Area p = this->get_world_area_offset(16, 32);
+  Area r = other.get_world_area_offset(16, 32);
+  return p.intersects(r);
 }
 
 /* static */
@@ -110,14 +120,4 @@ bool Area::intersects(Area other) {
              this->p1.y > other.p2.y || 
              this->p2.x < other.p1.x || 
              this->p1.x > other.p2.x );
-}
-
-bool Area::collides_with(Location other) {
-  Area p(Location(this->p1.x + 16, this->p1.y + 16),
-         Location((this->p1.x + 16) + 32, (this->p1.y + 16) + 32));
-
-  Area r(Location(other.x + 16, other.y + 16),
-         Location((other.x + 16) + 32, (other.y + 16) + 32));
-
-  return p.intersects(r);
 }
