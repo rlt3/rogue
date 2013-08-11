@@ -37,6 +37,7 @@ void handle_input(SDL_Event event, Game &game) {
     case SDL_KEYDOWN:
       switch(event.key.keysym.sym) {
       case SDLK_LSHIFT:
+        game.player->framerate = 125;
         game.player->speed = 3;
         break;
 
@@ -75,6 +76,7 @@ void handle_input(SDL_Event event, Game &game) {
     case SDL_KEYUP:
       switch (event.key.keysym.sym) {
       case SDLK_LSHIFT:
+        game.player->framerate = 250;
         game.player->speed = 1;
         break;
       default:
