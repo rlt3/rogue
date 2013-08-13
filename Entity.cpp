@@ -47,7 +47,7 @@ void Entity::set_state(uint8_t state) {
   this->idle = false;
 
   /* If they are already attacking return, so they can spam space */
-  if (this->state > 3) { return; }
+  if (this->state > 3 && state > 3) { return; }
 
   /* Set state to +4 so it corresponds to their walking direction */
   if (state == ATTACKING) {
@@ -99,6 +99,7 @@ void Entity::move(Entity_List entities) {
 }
 
 void Entity::attack(Entity_List &entities) {
+  this->destination = this->location;
   Location direction = Entity::get_direction(state);
 
   Area attack_box;

@@ -2,12 +2,12 @@
 
 Game::Game() {
   load_window();
-  this->spritesheet = this->load_sprite("Graphics/spritesheet.png");
+  spritesheet = load_sprite("Graphics/spritesheet.png");
 
   level       = 1;
   on          = true;
 
-  last_time        = SDL_GetTicks();
+  last_time   = SDL_GetTicks();
   update_rate = 500;
 
   create_dungeon();
@@ -164,7 +164,7 @@ void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
 
 void Game::draw_entity(Entity *entity) {
   SDL_Rect location     = {entity->location.x, entity->location.y};
-  SDL_Surface *sprite   = this->spritesheet;
+  SDL_Surface *sprite   = spritesheet;
 
   /* 
    * So, we don't have to load a large amount of SDL_Rects, we use math based 
@@ -204,9 +204,7 @@ void Game::render() {
   Entity_Iterator entity;
   Entity_Iterator entity_end = this->entities.end();
   for (entity = this->entities.begin(); entity != entity_end; ++entity) { 
-    if((*entity)->hp > 0) {
-      draw_entity(*entity);
-    }
+    draw_entity(*entity);
   }
 
   SDL_Flip(Screen::surface);
