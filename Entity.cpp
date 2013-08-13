@@ -28,6 +28,7 @@ void Entity::update(unsigned current_time) {
   }
 
   if(do_frames > 0) {
+    //frame = do_frames == 2 ? 1 : 0;
     do_frames -= 1;
 
     if(do_frames == 0) {
@@ -36,6 +37,20 @@ void Entity::update(unsigned current_time) {
   } else {
     idle = true;
   }
+
+  //if (idle == false) {
+  //  frame = frame ? 0 : 1;
+  //} 
+
+  //if (do_frames >= 1) {
+  //  frame = 0;
+  //  do_frames -= 1;
+  //} 
+
+  //if (do_frames == 0) {
+  //  state -= state > 3 ? 4 : 0;
+  //  idle = true;
+  //}
 }
 
 void Entity::set_destination(uint32_t x, uint32_t y) {
@@ -99,7 +114,9 @@ void Entity::move(Entity_List entities) {
 }
 
 void Entity::attack(Entity_List &entities) {
+  /* Stop moving and attack */
   this->destination = this->location;
+  
   Location direction = Entity::get_direction(state);
 
   Area attack_box;
