@@ -7,9 +7,9 @@ int main(int argc, char **argv) {
   SDL_Event event;
 
   Loading loading_screen;
-  loading_screen.load();
+  bool off = loading_screen.display();
 
-  while (game.on) {
+  while (game.on && off) {
     game.update(SDL_GetTicks());
 
     while (SDL_PollEvent(&event)) {

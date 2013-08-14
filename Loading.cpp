@@ -7,6 +7,7 @@
 Loading::Loading() {
   spritesheet = load_sprite("Graphics/loading.png");
   on          = true;
+  game_off    = true;
   location    = (SDL_Rect){0, 0};
   frame       = (SDL_Rect){0, 0, 640, 512};
 
@@ -15,10 +16,19 @@ Loading::Loading() {
     (SDL_Rect){0, 572, 220, 60},
     (SDL_Rect){0, 512, 220, 60},
     &Loading::get_frame,
-    &Loading::is_on_start
+    &Loading::on_start
+  };
+
+  Button quit = {
+    (SDL_Rect){210, 300, 220, 60},
+    (SDL_Rect){220, 572, 220, 60},
+    (SDL_Rect){220, 512, 220, 60},
+    &Loading::get_frame,
+    &Loading::on_quit
   };
 
   buttons.insert(buttons.begin(), start);
+  buttons.insert(buttons.begin(), quit);
 }
 
 bool Loading::mouse_is_on(Button *self, int x, int y) {
@@ -35,13 +45,20 @@ SDL_Rect Loading::get_frame(Button *self, int x, int y) {
   return self->normal;
 }
 
-void Loading::is_on_start(Button *self, Loading *loading, int x, int y) {
+void Loading::on_start(Button *self, Loading *loading, int x, int y) {
   if (Loading::mouse_is_on(self, x, y)) {
     loading->on = false;
   }
 }
 
-void Loading::load() {
+void Loading::on_quit(Button *self, Loading *loading, int x, int y) {
+  if (Loading::mouse_is_on(self, x, y)) {
+    loading->on = false;
+    loading->game_off = false;
+  }
+}
+
+bool Loading::display() {
   SDL_Event event;
   int mouse_x, mouse_y;
 
@@ -57,7 +74,7 @@ void Loading::load() {
         Button_Iterator button;
         Button_Iterator end = buttons.end();
         for (button = buttons.begin(); button != end; ++button) { 
-          button->is_on(&*button, this, mouse_x, mouse_y);
+          button->on(&*button, this, mouse_x, mouse_y);
         }
         break;
       }
@@ -75,4 +92,6 @@ void Loading::load() {
 
     SDL_Flip(Screen::surface);
   }
+
+  return game_off;
 }
