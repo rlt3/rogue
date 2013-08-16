@@ -1,15 +1,22 @@
 /*
  * Our entities are all of our `living' things that move around in the game.
  *
- * There is a list of Entity Pointers that get manipulated as they walk, move, 
- * or attack. The reason I used a list of Entity pointers (rather than just a 
+ * There is a list of Entity Pointers that get manipulated as they walk, move,
+ * or attack. The reason I used a list of Entity pointers (rather than just a
  * list of Entities) is that we need to do pointer comparison at points.
  *
- * So, when an entity attacks, it loops through all of the entities to see if 
- * it hit anyone of them. An entitiy that attacked would almost certainly `hit 
+ * So, when an entity attacks, it loops through all of the entities to see if
+ * it hit anyone of them. An entitiy that attacked would almost certainly `hit
  * itself' if we didn't have pointer comparison.
  *
  * The same goes for movement and collision. 
+ *
+ * We also need to use a list of Entity Pointers because the player character
+ * needs to be tracked at all times while in the list. The list gets sorted and
+ * the positions of the entities inside are not static. Therefore, being able
+ * to update the player independently from the rest of the entities (while
+ * still being inside the list), requires the list to have pointers. This all
+ * hinges on me not knowing a better way to do this.
  */
 
 #ifndef ROGUE_ENTITY_HPP
