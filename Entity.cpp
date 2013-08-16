@@ -16,6 +16,15 @@ Entity::Entity(uint8_t type, Location location) {
 
   this->location  = location;
   this->destination = this->location;
+
+  this->offsets[0] = Location(0, 0);
+  this->offsets[1] = Location(0, 0);
+  this->offsets[2] = Location(0, 0);
+  this->offsets[3] = Location(0, 0);
+  this->offsets[4] = Location(0, -16);
+  this->offsets[5] = Location(0, -16);
+  this->offsets[6] = Location(-16, 0);
+  this->offsets[7] = Location(-16,-16);
 }
 
 void Entity::update(unsigned current_time) {
@@ -26,31 +35,19 @@ void Entity::update(unsigned current_time) {
   if (idle == false) {
     frame = frame ? 0 : 1;
   }
-
-  if(do_frames > 0) {
-    //frame = do_frames == 2 ? 1 : 0;
-    do_frames -= 1;
-
-    if(do_frames == 0) {
-      state -= state > 3 ? 4 : 0;
-    }
-  } else {
+  
+  if (do_frames == 0) {
+    framerate = 250;
+    state -= state > 3 ? 4 : 0;
     idle = true;
   }
 
-  //if (idle == false) {
-  //  frame = frame ? 0 : 1;
-  //} 
-
-  //if (do_frames >= 1) {
-  //  frame = 0;
-  //  do_frames -= 1;
-  //} 
-
-  //if (do_frames == 0) {
-  //  state -= state > 3 ? 4 : 0;
-  //  idle = true;
-  //}
+  if (do_frames > 0) {
+    frame = ++frame % 3;
+    do_frames -= 1;
+  } else {
+    idle = true;
+  }
 }
 
 void Entity::set_destination(uint32_t x, uint32_t y) {
@@ -66,8 +63,10 @@ void Entity::set_state(uint8_t state) {
 
   /* Set state to +4 so it corresponds to their walking direction */
   if (state == ATTACKING) {
+    framerate = 50;
     this->state += 4;
-    this->do_frames = 2;
+    this->do_frames = 3;
+    this->frame = 0;
     return;
   }
 
@@ -98,7 +97,7 @@ void Entity::move(Entity_List entities) {
   Location next_step(
       this->location.x + direction.x * this->speed,
       this->location.y + direction.y * this->speed);
-  
+
   Entity_Iterator entity;
   Entity_Iterator end = entities.end();
   for (entity = entities.begin(); entity != end; ++entity) {
@@ -123,15 +122,25 @@ void Entity::attack(Entity_List &entities) {
   Area hit_box;
 
   /* Make the length of the attack face the direction of the entity */
+  //attack_box.p1 = Location(
+  //  (this->location.x + (direction.x != 0 ? direction.x * 48 : 32)),
+  //  (this->location.y + (direction.y != 0 ? direction.y * 48 : 32))
+  //);
+  
   attack_box.p1 = Location(
-    (this->location.x + (direction.x != 0 ? direction.x * 48 : 32)),
-    (this->location.y + (direction.y != 0 ? direction.y * 48 : 32))
+    (this->location.x + (offsets[state].x)),
+    (this->location.y + (offsets[state].y))
   );
 
   /* Set the end points of the rectangle the same way as above */
+  //attack_box.p2 = Location(
+  //  attack_box.p1.x + (direction.x == 0 ? 16 : 48),
+  //  attack_box.p1.y + (direction.y == 0 ? 16 : 48)
+  //);
+  
   attack_box.p2 = Location(
-    attack_box.p1.x + (direction.x == 0 ? 16 : 48),
-    attack_box.p1.y + (direction.y == 0 ? 16 : 48)
+    attack_box.p1.x + 32,
+    attack_box.p1.y + 32
   );
   
   Entity_Iterator entity;
@@ -145,7 +154,8 @@ void Entity::attack(Entity_List &entities) {
      *          ``Man, that totally didn't hit me"
      */
 
-    hit_box = (*entity)->location.get_world_area_offset(16, 48);
+    //hit_box = (*entity)->location.get_world_area_offset(16, 48);
+    hit_box = (*entity)->location.get_world_area(16);
 
     if (attack_box.intersects(hit_box) && (*entity) != this) {
       (*entity)->hp -= this->strength;

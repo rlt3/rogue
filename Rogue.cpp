@@ -13,6 +13,9 @@ int main(int argc, char **argv) {
     game.update(SDL_GetTicks());
 
     while (SDL_PollEvent(&event)) {
+      //printf("%d: (%d, %d)\n", game.player->state,
+      //                         game.player->destination.x,
+      //                         game.player->destination.y);
       handle_input(event, game);
     }
 
@@ -27,11 +30,11 @@ int main(int argc, char **argv) {
 void handle_input(SDL_Event event, Game &game) {
   switch (event.type) {
     case SDL_MOUSEMOTION:
-      printf(">(%d, %d)\n", event.motion.xrel, event.motion.yrel);
+      //printf(">(%d, %d)\n", event.motion.xrel, event.motion.yrel);
       break;
 
     case SDL_MOUSEBUTTONDOWN:
-      printf("@(%d, %d)\n", event.button.x, event.button.y);
+      //printf("@(%d, %d)\n", event.button.x, event.button.y);
       break;
 
     case SDL_KEYDOWN:

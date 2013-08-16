@@ -1,7 +1,7 @@
 #ifndef ROGUE_ITEM_HPP
 #define ROGUE_ITEM_HPP
 
-#define TYPE_HEART    128
+#define TYPE_HEART    240
 
 #include <stdint.h>
 

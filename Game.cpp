@@ -2,7 +2,8 @@
 
 Game::Game() {
   load_window();
-  spritesheet = load_sprite("Graphics/spritesheet.png");
+  //spritesheet = load_sprite("Graphics/spritesheet.png");
+  spritesheet = load_sprite("Graphics/loz.png");
 
   level       = 1;
   on          = true;
@@ -97,17 +98,17 @@ void Game::check_all_entities(unsigned now) {
     last_time = now;
 
     /* Sort entity locations so entities get drawn the right way: top to down */
-    entities.sort(Entity::sort_entities);
+    //entities.sort(Entity::sort_entities);
 
-    /* If we're here, then we're attacing/moving towards the player, etc */
-    if ((*entity)->location.is_nearby(this->player->location)) {
-      if ((*entity)->location.is_adjacent(this->player->location)) {
-        (*entity)->set_state(ATTACKING);
-        (*entity)->attack(this->entities);
-      } else {
-        (*entity)->destination = this->player->location;
-      }
-    }
+    ///* If we're here, then we're attacing/moving towards the player, etc */
+    //if ((*entity)->location.is_nearby(this->player->location)) {
+    //  if ((*entity)->location.is_adjacent(this->player->location)) {
+    //    (*entity)->set_state(ATTACKING);
+    //    (*entity)->attack(this->entities);
+    //  } else {
+    //    (*entity)->destination = this->player->location;
+    //  }
+    //}
   }
 }
 
@@ -153,7 +154,8 @@ void Game::move_all_entities() {
 }
 
 void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
-  int size = (type > 128 ? 32 : 20);
+  //int size = (type > 128 ? 32 : 20);
+  int size = 32;
 
   SDL_Rect location     = {x, y};
   SDL_Rect mask         = {0, type, size, size};
@@ -163,7 +165,18 @@ void Game::draw_tile(uint8_t type, uint32_t x, uint32_t y) {
 }
 
 void Game::draw_entity(Entity *entity) {
-  SDL_Rect location     = {entity->location.x, entity->location.y};
+  //SDL_Rect location     = {entity->location.x, entity->location.y};
+  SDL_Rect location;
+
+  if (entity->state > 3) {
+    location = (SDL_Rect){
+          entity->location.x + entity->offsets[entity->state].x, 
+          entity->location.y + entity->offsets[entity->state].y
+    };
+  } else {
+    location = (SDL_Rect){entity->location.x, entity->location.y};
+  }
+
   SDL_Surface *sprite   = spritesheet;
 
   /* 
@@ -172,11 +185,26 @@ void Game::draw_entity(Entity *entity) {
    * getting the image.
    */
 
-  SDL_Rect frame = { 
-    (128 * entity->state) + (64 * entity->frame),
-    entity->type, SPRITESIZE, SPRITESIZE 
-  };
+  //SDL_Rect frame = { 
+  //  (128 * entity->state) + (64 * entity->frame),
+  //  entity->type, SPRITESIZE, SPRITESIZE 
+  //};
+  
+  SDL_Rect frame;
+      //(entity->type + 16) + (16 * entity->frame),
 
+  if (entity->state > 3) {
+    frame = (SDL_Rect){ 
+      (32 * (entity->state % 4)),
+      (entity->type + 16) + (32 * entity->frame),
+      SPRITESIZE*2, SPRITESIZE*2
+    };
+  } else {
+    frame = (SDL_Rect){ 
+      (32 * entity->state) + (16 * entity->frame),
+      entity->type, SPRITESIZE, SPRITESIZE
+    };
+  }
   draw(sprite, &frame, Screen::surface, &location); 
 }
 
@@ -190,8 +218,9 @@ void Game::render() {
 
   /* Draw the health bar */
   int health = this->player->hp;
-  for (int i = 0; i < health; i++) {
-    draw_tile(HEART, (i*20), (SCREENY - 20));
+  for (int i = 1; i <= health; i++) {
+    draw_tile(HEART, (i*24), (SCREENY - 24));
+    //draw_tile(HEART, (i*20), (SCREENY - 20));
   }
   
   Item_Iterator item;

@@ -29,7 +29,7 @@
 #define IDLE              2
 
 #define TYPE_PLAYER       0
-#define TYPE_MONSTER      64
+#define TYPE_MONSTER      112
 
 #include <stdint.h>
 #include <list>
@@ -55,6 +55,8 @@ public:
   uint8_t   do_frames;
   uint8_t   framerate;
   uint32_t  last_time;
+
+  Location  offsets[8];
 
   Location  location;
   Location  destination;

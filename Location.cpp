@@ -79,8 +79,10 @@ Area Location::get_world_area_offset(int offset, int radius) {
 }
 
 bool Location::collides_with(Location other) {
-  Area p = this->get_world_area_offset(16, 32);
-  Area r = other.get_world_area_offset(16, 32);
+  //Area p = this->get_world_area_offset(16, 32);
+  //Area r = other.get_world_area_offset(16, 32);
+  Area p = this->get_world_area_offset(4, 12);
+  Area r = other.get_world_area_offset(4, 12);
   return p.intersects(r);
 }
 

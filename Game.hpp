@@ -14,11 +14,17 @@
 
 #define SCREENX           640
 #define SCREENY           512
-#define TILESIZE          32
-#define SPRITESIZE        64
+//#define TILESIZE          32
+//#define SPRITESIZE        64
 
-#define FLOOR             148
-#define HEART             128
+#define TILESIZE          16
+#define SPRITESIZE        16
+
+//#define FLOOR             148
+//#define HEART             128
+
+#define FLOOR             224
+#define HEART             240
 
 #define TOTAL_ENTITIES    16
 #define PLAYER            (*this->entities.begin())
