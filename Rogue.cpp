@@ -39,7 +39,7 @@ void handle_input(SDL_Event event, Game &game) {
 
     case SDL_KEYDOWN:
       switch(event.key.keysym.sym) {
-      case SDLK_LSHIFT:
+      case SDLK_LSHIFT: case SDLK_RSHIFT:
         game.player->framerate = 125;
         game.player->speed = 3;
         break;

@@ -27,7 +27,6 @@
 #define HEART             240
 
 #define TOTAL_ENTITIES    16
-#define PLAYER            (*this->entities.begin())
 
 #define IN_WORLD(x, y) \
   (x >= 0 && y >= 0 && x < SCREENX && y < SCREENY)

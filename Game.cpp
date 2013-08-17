@@ -37,11 +37,18 @@ Game::~Game() {
 void Game::create_dungeon() {
   /* If we don't do this, the player multiplies */
   if (this->entities.size() > 0) {
+    //Entity_Iterator entity;
+    //Entity_Iterator end = this->entities.end();
+
+    //for (entity = this->entities.begin(); entity != end; ++entity) { 
+    //  delete (*entity);
+    //  this->entities.erase(entity);
+    //}
     this->entities.clear();
   }
 
   int i;
-  for (i = 0; i < this->level; i++) {
+  for (i = 1; i <= this->level; i++) {
     this->entities.insert(
         this->entities.begin(), 
         new Entity(TYPE_MONSTER, Location(i*128, i*128))
@@ -54,7 +61,8 @@ void Game::create_dungeon() {
    * important entity
    */
 
-  this->player = new Entity(TYPE_PLAYER, Location(64, 170));
+  //this->player = new Entity(TYPE_PLAYER, Location(64, 170));
+  this->player = new Entity(TYPE_PLAYER, Location(144, 144));
   this->entities.insert(this->entities.begin(), this->player);
 }
 
@@ -68,7 +76,7 @@ void Game::check_all_entities(unsigned now) {
 
     if (item_area.intersects(entity_area)) {
       (*item)->apply_effect(this->player);
-      delete (*item);
+      //delete (*item);
       this->items.erase(item);
     }
   }
@@ -81,9 +89,12 @@ void Game::check_all_entities(unsigned now) {
     /* The player updates itself based on input, no need to update */
     if (this->player == (*entity)) { continue; }
 
+    /* Display the entire attack animation */
+    if ((*entity)->state > 3)      { continue; }
+
     if ((*entity)->hp <= 0) {
       this->items.insert(this->items.begin(), new Heart((*entity)->location));
-      delete (*entity);
+      //delete (*entity);
       this->entities.erase(entity);
     }
 
@@ -100,15 +111,15 @@ void Game::check_all_entities(unsigned now) {
     /* Sort entity locations so entities get drawn the right way: top to down */
     //entities.sort(Entity::sort_entities);
 
-    ///* If we're here, then we're attacing/moving towards the player, etc */
-    //if ((*entity)->location.is_nearby(this->player->location)) {
-    //  if ((*entity)->location.is_adjacent(this->player->location)) {
-    //    (*entity)->set_state(ATTACKING);
-    //    (*entity)->attack(this->entities);
-    //  } else {
-    //    (*entity)->destination = this->player->location;
-    //  }
-    //}
+    /* If we're here, then we're attacing/moving towards the player, etc */
+    if ((*entity)->location.is_nearby(this->player->location)) {
+      if ((*entity)->location.is_adjacent(this->player->location)) {
+        (*entity)->set_state(ATTACKING);
+        (*entity)->attack(this->entities);
+      } else {
+        (*entity)->destination = this->player->location;
+      }
+    }
   }
 }
 
@@ -131,8 +142,8 @@ void Game::update(unsigned now) {
 
   if (this->player->hp <= 0) {
     this->player->hp = 10;
-    //puts("You lose!");
-    //this->on = false;
+    puts("You lose!");
+    this->on = false;
   }
 
   /* If only the player exists, create next level */
@@ -148,7 +159,7 @@ void Game::move_all_entities() {
 
   for (entity = this->entities.begin(); entity != end; ++entity) { 
     if (!(*entity)->location.is_same((*entity)->destination)) {
-        (*entity)->move(entities);
+      (*entity)->move(entities);
     }
   }
 }

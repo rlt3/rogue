@@ -59,7 +59,7 @@ public:
   bool      idle;
 
   uint8_t   frame;
-  uint8_t   do_frames;
+  int   do_frames;
   uint8_t   framerate;
   uint32_t  last_time;
 

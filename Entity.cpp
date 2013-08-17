@@ -32,12 +32,9 @@ void Entity::update(unsigned current_time) {
 
   last_time = current_time;
 
-  if (idle == false) {
-    frame = frame ? 0 : 1;
-  }
-  
   if (do_frames == 0) {
     framerate = 250;
+    do_frames = -1;
     state -= state > 3 ? 4 : 0;
     idle = true;
   }
@@ -45,9 +42,11 @@ void Entity::update(unsigned current_time) {
   if (do_frames > 0) {
     frame = ++frame % 3;
     do_frames -= 1;
-  } else {
-    idle = true;
+  } else if (idle == false && do_frames == -1) {
+    frame = frame ? 0 : 1;
   }
+
+  idle = true;
 }
 
 void Entity::set_destination(uint32_t x, uint32_t y) {
@@ -63,10 +62,10 @@ void Entity::set_state(uint8_t state) {
 
   /* Set state to +4 so it corresponds to their walking direction */
   if (state == ATTACKING) {
-    framerate = 50;
-    this->state += 4;
+    this->framerate = 50;
+    this->state    += 4;
     this->do_frames = 3;
-    this->frame = 0;
+    this->frame     = 0;
     return;
   }
 
@@ -159,6 +158,10 @@ void Entity::attack(Entity_List &entities) {
 
     if (attack_box.intersects(hit_box) && (*entity) != this) {
       (*entity)->hp -= this->strength;
+      (*entity)->location = Location::add(
+                              (*entity)->location,
+                              Location::multiply(direction, Location(10,10))
+                            );
     }
   }
 }

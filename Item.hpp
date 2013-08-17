@@ -10,8 +10,8 @@
 
 class Item;
 
-typedef std::list<Item*>::iterator Item_Iterator;
-typedef std::list<Item*> Item_List;
+typedef std::list<Item *>::iterator Item_Iterator;
+typedef std::list<Item *> Item_List;
 
 class Item {
 public:

@@ -99,6 +99,12 @@ Location Location::add(Location l1, Location l2) {
 }
 
 /* static */
+Location Location::multiply(Location l1, Location l2) {
+  Location location((l1.x * l2.x), (l1.y * l2.y));
+  return location;
+}
+
+/* static */
 int Location::sign(int val) {
   return (0 < val) - (val < 0);
 }

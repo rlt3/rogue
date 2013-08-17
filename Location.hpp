@@ -43,6 +43,7 @@ public:
   static Location translate(Location location);
   static Location subtract(Location l1, Location l2);
   static Location add(Location l1, Location l2);
+  static Location multiply(Location l1, Location l2);
   static int sign(int value);
 };
 
