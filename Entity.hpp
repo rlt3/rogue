@@ -45,8 +45,8 @@
 
 class Entity;
 
-typedef std::list<Entity*>::iterator Entity_Iterator;
-typedef std::list<Entity*> Entity_List;
+typedef std::list<Entity>::iterator Entity_Iterator;
+typedef std::list<Entity> Entity_List;
 
 class Entity {
 public:
@@ -75,13 +75,15 @@ public:
   void set_state(uint8_t state);
   void move(Entity_List entities);
   void attack(Entity_List &entities);
+  bool is_equal(Entity other);
   
   Area get_world_area();
+
+  bool operator==(const Entity& rhs);
 
   static bool sort_locations(Entity *first, Entity *second);
   static int get_state(Location direction);
   static Location get_direction(uint8_t state);
-
   static bool sort_entities(const Entity * const & first, 
                              const Entity * const & second);
 };

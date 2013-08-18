@@ -100,8 +100,8 @@ void Entity::move(Entity_List entities) {
   Entity_Iterator entity;
   Entity_Iterator end = entities.end();
   for (entity = entities.begin(); entity != end; ++entity) {
-    if (next_step.collides_with((*entity)->location)
-        && (*entity) != this) {
+    if (next_step.collides_with(entity->location)
+        && !entity->is_equal(*this)) {
       return;
     }
   }
@@ -153,17 +153,25 @@ void Entity::attack(Entity_List &entities) {
      *          ``Man, that totally didn't hit me"
      */
 
-    //hit_box = (*entity)->location.get_world_area_offset(16, 48);
-    hit_box = (*entity)->location.get_world_area(16);
+    hit_box = entity->location.get_world_area(16);
 
-    if (attack_box.intersects(hit_box) && (*entity) != this) {
-      (*entity)->hp -= this->strength;
-      (*entity)->location = Location::add(
-                              (*entity)->location,
-                              Location::multiply(direction, Location(10,10))
-                            );
+    if (attack_box.intersects(hit_box) && !entity->is_equal(*this)) {
+      entity->hp -= this->strength;
+      entity->location = Location::add(
+                            entity->location,
+                            Location::multiply(direction, Location(10,10)));
     }
   }
+}
+
+bool Entity::is_equal(Entity other) {
+  return (this->location.is_same(other.location) &&
+          this->destination.is_same(other.destination));
+}
+
+bool Entity::operator==(const Entity& rhs) {
+  return (location.is_same(rhs.location) &&
+          destination.is_same(rhs.destination));
 }
 
 Area Entity::get_world_area() {

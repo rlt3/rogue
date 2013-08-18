@@ -49,9 +49,10 @@ public:
   uint32_t  last_time;
   uint32_t  update_rate;
 
-  Item_List   items;
-  Entity_List entities;
-  Entity     *player;
+  Item_List       items;
+  Entity_List     entities;
+  Entity_Iterator player;
+  //Entity     *player;
 
   Game();
   ~Game();

@@ -15,20 +15,20 @@ Game::Game() {
 }
 
 Game::~Game() {
-  Entity_Iterator entity;
-  Entity_Iterator end = this->entities.end();
+  //Entity_Iterator entity;
+  //Entity_Iterator end = this->entities.end();
 
-  for (entity = this->entities.begin(); entity != end; ++entity) { 
-    delete (*entity);
-    this->entities.erase(entity);
-  }
-  
-  Item_Iterator item;
-  Item_Iterator item_end = this->items.end();
-  for (item = this->items.begin(); item != item_end; ++item) { 
-    delete (*item);
-    this->items.erase(item);
-  }
+  //for (entity = this->entities.begin(); entity != end; ++entity) { 
+  //  //deleteentity;
+  //  this->entities.erase(entity);
+  //}
+  //
+  //Item_Iterator item;
+  //Item_Iterator item_end = this->items.end();
+  //for (item = this->items.begin(); item != item_end; ++item) { 
+  //  //delete (*item);
+  //  this->items.erase(item);
+  //}
 
   SDL_FreeSurface(this->spritesheet);
   SDL_FreeSurface(Screen::surface);
@@ -41,7 +41,7 @@ void Game::create_dungeon() {
     //Entity_Iterator end = this->entities.end();
 
     //for (entity = this->entities.begin(); entity != end; ++entity) { 
-    //  delete (*entity);
+    //  deleteentity;
     //  this->entities.erase(entity);
     //}
     this->entities.clear();
@@ -51,7 +51,7 @@ void Game::create_dungeon() {
   for (i = 1; i <= this->level; i++) {
     this->entities.insert(
         this->entities.begin(), 
-        new Entity(TYPE_MONSTER, Location(i*128, i*128))
+        Entity(TYPE_MONSTER, Location(i*128, i*128))
     );
   }
 
@@ -61,25 +61,24 @@ void Game::create_dungeon() {
    * important entity
    */
 
-  //this->player = new Entity(TYPE_PLAYER, Location(64, 170));
-  this->player = new Entity(TYPE_PLAYER, Location(144, 144));
-  this->entities.insert(this->entities.begin(), this->player);
+  //this->player = new Entity(TYPE_PLAYER, Location(144, 144));
+  this->entities.insert(this->entities.begin(), Entity(TYPE_PLAYER, Location(144, 144)));
+  this->player = this->entities.begin();
 }
 
 void Game::check_all_entities(unsigned now) {
-  Item_Iterator item;
+  //Item_Iterator item;
+  //Item_Iterator item_end = this->items.end();
+  //for (item = this->items.begin(); item != item_end; ++item) { 
+  //  Area item_area   = (*item)->get_world_area();
+  //  Area entity_area = this->player->get_world_area();
 
-  Item_Iterator item_end = this->items.end();
-  for (item = this->items.begin(); item != item_end; ++item) { 
-    Area item_area   = (*item)->get_world_area();
-    Area entity_area = this->player->get_world_area();
-
-    if (item_area.intersects(entity_area)) {
-      (*item)->apply_effect(this->player);
-      //delete (*item);
-      this->items.erase(item);
-    }
-  }
+  //  if (item_area.intersects(entity_area)) {
+  //    (*item)->apply_effect(&*player);
+  //    //delete (*item);
+  //    this->items.remove(item);
+  //  }
+  //}
   
   Entity_Iterator entity;
   Entity_Iterator end = this->entities.end();
@@ -87,21 +86,21 @@ void Game::check_all_entities(unsigned now) {
   for (entity = this->entities.begin(); entity != end; ++entity) { 
 
     /* The player updates itself based on input, no need to update */
-    if (this->player == (*entity)) { continue; }
+    if (this->player ==entity) { continue; }
 
     /* Display the entire attack animation */
-    if ((*entity)->state > 3)      { continue; }
+    if (entity->state > 3)      { continue; }
 
-    if ((*entity)->hp <= 0) {
-      this->items.insert(this->items.begin(), new Heart((*entity)->location));
-      //delete (*entity);
-      this->entities.erase(entity);
+    if (entity->hp <= 0) {
+      this->items.insert(this->items.begin(), new Heart(entity->location));
+      //deleteentity;
+      this->entities.remove(*entity);
     }
 
-    if ((*entity)->location.is_same((*entity)->destination)) {
-      Location dest = (*entity)->location.new_destination((*entity)->speed);
+    if (entity->location.is_same(entity->destination)) {
+      Location dest =entity->location.new_destination(entity->speed);
       if (IN_WORLD(dest.x, dest.y)) {
-        (*entity)->destination = dest;
+       entity->destination = dest;
       }
     }
       
@@ -112,12 +111,12 @@ void Game::check_all_entities(unsigned now) {
     //entities.sort(Entity::sort_entities);
 
     /* If we're here, then we're attacing/moving towards the player, etc */
-    if ((*entity)->location.is_nearby(this->player->location)) {
-      if ((*entity)->location.is_adjacent(this->player->location)) {
-        (*entity)->set_state(ATTACKING);
-        (*entity)->attack(this->entities);
+    if (entity->location.is_nearby(this->player->location)) {
+      if (entity->location.is_adjacent(this->player->location)) {
+       entity->set_state(ATTACKING);
+       entity->attack(this->entities);
       } else {
-        (*entity)->destination = this->player->location;
+       entity->destination = this->player->location;
       }
     }
   }
@@ -135,7 +134,7 @@ void Game::update(unsigned now) {
   Entity_Iterator end = this->entities.end();
 
   for (entity = this->entities.begin(); entity != end; ++entity) { 
-    (*entity)->update(now);
+   entity->update(now);
   }
 
   check_all_entities(now);
@@ -158,8 +157,8 @@ void Game::move_all_entities() {
   Entity_Iterator end = this->entities.end();
 
   for (entity = this->entities.begin(); entity != end; ++entity) { 
-    if (!(*entity)->location.is_same((*entity)->destination)) {
-      (*entity)->move(entities);
+    if (!entity->location.is_same(entity->destination)) {
+     entity->move(entities);
     }
   }
 }
@@ -234,17 +233,17 @@ void Game::render() {
     //draw_tile(HEART, (i*20), (SCREENY - 20));
   }
   
-  Item_Iterator item;
-  Item_Iterator item_end = this->items.end();
-  for (item = this->items.begin(); item != item_end; ++item) { 
-    draw_tile((*item)->type, (*item)->location.x, (*item)->location.y);
-  }
+  //Item_Iterator item;
+  //Item_Iterator item_end = this->items.end();
+  //for (item = this->items.begin(); item != item_end; ++item) { 
+  //  draw_tile((*item)->type, (*item)->location.x, (*item)->location.y);
+  //}
 
   /* Draw each entity */
   Entity_Iterator entity;
   Entity_Iterator entity_end = this->entities.end();
   for (entity = this->entities.begin(); entity != entity_end; ++entity) { 
-    draw_entity(*entity);
+    draw_entity(&*entity);
   }
 
   SDL_Flip(Screen::surface);
