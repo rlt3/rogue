@@ -1,10 +1,21 @@
 #ifndef DEARTH_GAME_HPP
 #define DEARTH_GAME_HPP
 
-#include "Render.h"
+//#include "Render.h"
+#include "Window.h"
 #include "Entity.h"
 
 #define TOTAL_ENTITIES    16
+
+/*
+ * Here, there is no reason to have a C++ style object full of methods. We only
+ * need front-facing methods (function pointers) and then declare static 
+ * functions as a kind of `private method.' So, this object would only have 
+ * update, move_all_entities, render, and it's other non-function members.
+ *
+ * The functions like draw_tile would be static and just part of the game and
+ * not for other use outside Game.c
+ */
 
 struct Game {
   bool      on;
@@ -12,7 +23,7 @@ struct Game {
   uint32_t  last_time;
   uint32_t  update_rate;
 
-  SDL_Surface  *spritesheet;
+  Spritesheet spritesheet;
 
   //struct Item   *items_head;
   struct Entity *entities_head;

@@ -9,8 +9,8 @@
 #define TOTAL_ENTITIES    16
 
 int main(int argc, char **argv) {
-  SDL_Surface *surface     = load_window();
-  SDL_Surface *spritesheet = load_sprite("Graphics/loz.png");
+  window_load();
+  Spritesheet spritesheet = load_sheet("Graphics/loz.png");
 
   struct Entity *entities_head = malloc(sizeof(struct Entity));
   *entities_head = (struct Entity){
@@ -48,20 +48,19 @@ int main(int argc, char **argv) {
       }
     }
 
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xCC, 0xCC, 0xCC));
+    window_fill(0xCC, 0xCC, 0xCC);
 
     struct Entity *entity = entities_head;
     while (entity != NULL) {
-      draw_entity(entity, spritesheet, surface);
+      draw_entity(entity, spritesheet);
       entity = entity->next;
     }
 
-    SDL_Flip(surface);
+    window_display();
 
   }
 
-  SDL_FreeSurface(spritesheet);
-  SDL_FreeSurface(surface);
+  window_free(&spritesheet);
 
   struct Entity *prev;
   struct Entity *node = entities_head;

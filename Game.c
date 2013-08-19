@@ -2,13 +2,12 @@
 
 struct Game* new_game() {
   struct Game *game = malloc(sizeof(struct Game));
-
   *game = (struct Game) {
     .on                 = true,
     .level              = 1,
     .last_time          = 0,
     .update_rate        = 500,
-    .spritesheet        = load_sprite("Graphics/loz.png"),
+    .spritesheet        = load_sheet("Graphics/loz.png"),
     .entities_head      = malloc(sizeof(struct Entity)),
     .check_all_entities = &check_all_entities,
     .move_all_entities  = &move_all_entities,
@@ -139,13 +138,11 @@ void draw_tile(struct Game *this, uint8_t type, uint32_t x, uint32_t y) {
   //draw(sprite, &mask, Screen::surface, &location);
 }
 
-void draw_entity(struct Entity *entity, 
-                 SDL_Surface *sprite, 
-                 SDL_Surface *surface) {
-  SDL_Rect location;
+void draw_entity(struct Entity *entity, Spritesheet sprite) {
+  Area location;
   location = (SDL_Rect){entity->location.x, entity->location.y};
 
-  SDL_Rect frame;
+  Area frame;
   frame = (SDL_Rect){ 
     (32 * entity->state) + (16 * entity->frame),
     entity->type, 
@@ -153,7 +150,7 @@ void draw_entity(struct Entity *entity,
     SPRITESIZE
   };
 
-  draw(sprite, &frame, surface, &location); 
+  window_draw(sprite, &frame, &location); 
 }
 
 //void draw_entity(struct Game *this, Entity *entity) {
