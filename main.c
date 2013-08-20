@@ -3,73 +3,81 @@
 
 #include "Game.h"
 
-#define FLOOR             224
-#define HEART             240
-
-#define TOTAL_ENTITIES    16
+void handle_input(SDL_Event event, struct Game *game);
 
 int main(int argc, char **argv) {
   window_load();
-  Spritesheet spritesheet = load_sheet("Graphics/loz.png");
-
-  struct Entity *entities_head = malloc(sizeof(struct Entity));
-  *entities_head = (struct Entity){
-    .type        = 0,
-    .state       = IDLE,
-    .hp          = 10,
-    .frame       = 0,
-    .idle        = true,
-    .location    = ((struct Location){64, 64}),
-    .destination = ((struct Location){64, 64}),
-    .next        = NULL
-  };
-
+  struct Game *game = new_game();
   SDL_Event event;
-  bool on = true;
 
-  while (on) {
-
+  while (game->on) {
     while (SDL_PollEvent(&event)) {
-      switch (event.type) {
-        case SDL_KEYDOWN:
-          switch(event.key.keysym.sym) {
-          case SDLK_ESCAPE: case SDL_QUIT:
-            on = false;
-            break;
-          case SDLK_LSHIFT: case SDLK_RSHIFT:
-            remove_second_entity(&entities_head);
-            break;
-          case SDLK_SPACE:
-            add_entity(&entities_head);
-            break;
-          default:
-            break;
-          }
-      }
+      handle_input(event, game);
     }
-
-    window_fill(0xCC, 0xCC, 0xCC);
-
-    struct Entity *entity = entities_head;
-    while (entity != NULL) {
-      draw_entity(entity, spritesheet);
-      entity = entity->next;
-    }
-
-    window_display();
-
+    game->render(game);
   }
 
-  window_free(&spritesheet);
-
-  struct Entity *prev;
-  struct Entity *node = entities_head;
-
-  while (node->next != NULL) {
-    prev = node;
-    node = node->next;
-    free(prev);
-  }
-  
+  delete_game(game);
   return EXIT_SUCCESS;
+}
+
+void handle_input(SDL_Event event, struct Game *game) {
+  switch (event.type) {
+    case SDL_MOUSEMOTION:
+      //printf(">(%d, %d)\n", event.motion.xrel, event.motion.yrel);
+      break;
+
+    case SDL_MOUSEBUTTONDOWN:
+      //printf("@(%d, %d)\n", event.button.x, event.button.y);
+      break;
+
+    case SDL_KEYDOWN:
+      switch(event.key.keysym.sym) {
+      case SDLK_LSHIFT: case SDLK_RSHIFT:
+        //game->player->framerate = 125;
+        //game->player->speed = 3;
+        break;
+
+      case SDLK_ESCAPE: case SDL_QUIT:
+        //loading_screen.on = true;
+        //loading_screen.splash_loop();
+        game->on = false;
+        break;
+
+      case SDLK_w: case SDLK_UP: case SDLK_k:
+        //game->player->set_state(WALK_UP);
+        break;
+
+      case SDLK_a: case SDLK_LEFT: case SDLK_h:
+        //game->player->set_state(WALK_LEFT);
+        break;
+
+      case SDLK_s: case SDLK_DOWN: case SDLK_j:
+        //game->player->set_state(WALK_DOWN);
+        break;
+
+      case SDLK_d: case SDLK_RIGHT: case SDLK_l:
+        //game->player->set_state(WALK_RIGHT);
+        break;
+
+      case SDLK_SPACE:
+        //game->player->set_state(ATTACKING);
+        //game->player->attack(game->entities);
+        break;
+
+      default:
+        break;
+      }
+      break;
+
+    case SDL_KEYUP:
+      switch (event.key.keysym.sym) {
+      case SDLK_LSHIFT:
+        //game->player->framerate = 250;
+        //game->player->speed = 1;
+        break;
+      default:
+        break;
+      }
+  }
 }

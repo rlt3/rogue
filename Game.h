@@ -1,21 +1,13 @@
 #ifndef DEARTH_GAME_HPP
 #define DEARTH_GAME_HPP
 
-//#include "Render.h"
 #include "Window.h"
 #include "Entity.h"
 
-#define TOTAL_ENTITIES    16
+#define FLOOR             224
+#define HEART             240
 
-/*
- * Here, there is no reason to have a C++ style object full of methods. We only
- * need front-facing methods (function pointers) and then declare static 
- * functions as a kind of `private method.' So, this object would only have 
- * update, move_all_entities, render, and it's other non-function members.
- *
- * The functions like draw_tile would be static and just part of the game and
- * not for other use outside Game.c
- */
+#define TOTAL_ENTITIES    16
 
 struct Game {
   bool      on;
@@ -28,28 +20,13 @@ struct Game {
   //struct Item   *items_head;
   struct Entity *entities_head;
   struct Entity *player;
-  
-  void (*check_all_entities)(struct Game*, unsigned time);
-  void (*move_all_entities)(struct Game*);
-  void (*create_dungeon)(struct Game*);
 
   void (*update)(struct Game*, unsigned time);
-
-  void (*draw_tile)(struct Game*, uint8_t type, uint32_t x, uint32_t y);
-  //void (*draw_entity)(struct Game*, struct Entity *entity);
+  void (*handle)(struct Game*);
   void (*render)(struct Game*);
 };
 
 struct Game* new_game();
-
-void check_all_entities(struct Game*, unsigned time);
-void move_all_entities(struct Game*);
-void create_dungeon(struct Game*);
-
-void update(struct Game*, unsigned time);
-
-void draw_tile(struct Game*, uint8_t type, uint32_t x, uint32_t y);
-//void draw_entity(struct Game*, Entity *entity);
-void render(struct Game*);
+void delete_game(struct Game*);
 
 #endif

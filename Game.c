@@ -1,64 +1,94 @@
 #include "Game.h"
 
+/* Public Functions */
+
+struct Game* new_game();
+void delete_game(struct Game* game);
+void update(struct Game*, unsigned time);
+void handle(struct Game*);
+void render(struct Game*);
+
+/* Private Functions */
+
+static void create_player(struct Game*);
+static void create_monsters(struct Game*);
+static void create_dungeon(struct Game*);
+static void create_level(struct Game*);
+static void move_all_entities(struct Game*);
+static void draw_tile(struct Game*, uint8_t type, uint32_t x, uint32_t y);
+static void draw_entity(struct Entity *entity, Spritesheet sprite);
+
+/* Definitions */
+
 struct Game* new_game() {
   struct Game *game = malloc(sizeof(struct Game));
+
   *game = (struct Game) {
     .on                 = true,
     .level              = 1,
     .last_time          = 0,
     .update_rate        = 500,
     .spritesheet        = load_sheet("Graphics/loz.png"),
-    .entities_head      = malloc(sizeof(struct Entity)),
-    .check_all_entities = &check_all_entities,
-    .move_all_entities  = &move_all_entities,
-    .create_dungeon     = &create_dungeon,
     .update             = &update,
-    .draw_tile          = &draw_tile,
-    //.draw_entity        = &draw_entity,
+    .handle             = &handle,
     .render             = &render
   };
+
+  create_level(game);
 
   return game;
 }
 
-void create_dungeon(struct Game *this) {
-  ///* If we don't do this, the player multiplies */
-  //if (this->entities.size() > 0) {
-  //  // clear list
-  //}
+void delete_game(struct Game* game) {
+  window_free(&game->spritesheet);
 
-  //int i;
-  //for (i = 1; i <= this->level; i++) {
-  //  this->entities.insert(
-  //      this->entities.begin(), 
-  //      Entity(TYPE_MONSTER, Location(i*128, i*128))
-  //  );
-  //}
+  struct Entity *prev;
+  struct Entity *node = game->entities_head;
+  while (node->next != NULL) {
+    prev = node;
+    node = node->next;
+    free(prev);
+  }
 
-  ///* 
-  // * We have a pointer just to the player so that we can manipulate the 
-  // * list of entities in any fashion and not lose track of the most
-  // * important entity
-  // */
-
-  ////this->player = new Entity(TYPE_PLAYER, Location(144, 144));
-  //this->entities.insert(this->entities.begin(), Entity(TYPE_PLAYER, Location(144, 144)));
-  //this->player = this->entities.begin();
+  free(game);
 }
 
-void check_all_entities(struct Game *this, unsigned now) {
-  //for (entity = this->entities.begin(); entity != end; ++entity) { 
+void update(struct Game *self, unsigned now) {
+  //Entity_Iterator entity;
+  //Entity_Iterator end = self->entities.end();
+
+  //for (entity = self->entities.begin(); entity != end; ++entity) { 
+  // entity->update(now);
+  //}
+
+  //check_all_entities(now);
+
+  //if (self->player->hp <= 0) {
+  //  self->player->hp = 10;
+  //  puts("You lose!");
+  //  self->on = false;
+  //}
+
+  ///* If only the player exists, create next level */
+  //if (self->entities.size() == 1) {
+  //  self->level++;
+  //  self->create_dungeon();
+  //}
+}
+
+void handle(struct Game *self) {
+  //for (entity = self->entities.begin(); entity != end; ++entity) { 
 
   //  /* The player updates itself based on input, no need to update */
-  //  if (this->player ==entity) { continue; }
+  //  if (self->player ==entity) { continue; }
 
   //  /* Display the entire attack animation */
   //  if (entity->state > 3)      { continue; }
 
   //  if (entity->hp <= 0) {
-  //    this->items.insert(this->items.begin(), new Heart(entity->location));
+  //    self->items.insert(self->items.begin(), new Heart(entity->location));
   //    //deleteentity;
-  //    this->entities.remove(*entity);
+  //    self->entities.remove(*entity);
   //  }
 
   //  if (entity->location.is_same(entity->destination)) {
@@ -75,70 +105,116 @@ void check_all_entities(struct Game *this, unsigned now) {
   //  //entities.sort(Entity::sort_entities);
 
   //  /* If we're here, then we're attacing/moving towards the player, etc */
-  //  if (entity->location.is_nearby(this->player->location)) {
-  //    if (entity->location.is_adjacent(this->player->location)) {
+  //  if (entity->location.is_nearby(self->player->location)) {
+  //    if (entity->location.is_adjacent(self->player->location)) {
   //     entity->set_state(ATTACKING);
-  //     entity->attack(this->entities);
+  //     entity->attack(self->entities);
   //    } else {
-  //     entity->destination = this->player->location;
+  //     entity->destination = self->player->location;
   //    }
   //  }
   //}
 }
 
-/*
- * Update the frames and state for every entity and item. Also check bounds of
- * these entities/items for collisions, etc. 
- *
- * The game updates every half second while the entities frame rates are set to
- * every quarter second.
- */
-void update(struct Game *this, unsigned now) {
-  //Entity_Iterator entity;
-  //Entity_Iterator end = this->entities.end();
+void render(struct Game *self) {
+  window_fill(0xCC, 0xCC, 0xCC);
 
-  //for (entity = this->entities.begin(); entity != end; ++entity) { 
-  // entity->update(now);
+  struct Entity *entity = self->entities_head;
+  while (entity != NULL) {
+    draw_entity(entity, self->spritesheet);
+    entity = entity->next;
+  }
+
+  window_display();
+
+  ///* Draw the health bar */
+  //int health = self->player->hp;
+  //for (int i = 1; i <= health; i++) {
+  //  draw_tile(HEART, (i*24), (SCREENY - 24));
+  //  //draw_tile(HEART, (i*20), (SCREENY - 20));
   //}
-
-  //check_all_entities(now);
-
-  //if (this->player->hp <= 0) {
-  //  this->player->hp = 10;
-  //  puts("You lose!");
-  //  this->on = false;
-  //}
-
-  ///* If only the player exists, create next level */
-  //if (this->entities.size() == 1) {
-  //  this->level++;
-  //  this->create_dungeon();
-  //}
+  //
+  ////Item_Iterator item;
+  ////Item_Iterator item_end = self->items.end();
+  ////for (item = self->items.begin(); item != item_end; ++item) { 
+  ////  draw_tile((*item)->type, (*item)->location.x, (*item)->location.y);
+  ////}
 }
 
-void move_all_entities(struct Game *this) {
-  //Entity_Iterator entity;
-  //Entity_Iterator end = this->entities.end();
+static void create_player(struct Game* game) {
+  game->player = malloc(sizeof(struct Entity));
+  *game->player = (struct Entity){
+    .type        = 0,
+    .state       = IDLE,
+    .hp          = 10,
+    .frame       = 0,
+    .idle        = true,
+    .location    = ((struct Location){64, 64}),
+    .destination = ((struct Location){64, 64}),
+    .next        = NULL
+  };
 
-  //for (entity = this->entities.begin(); entity != end; ++entity) { 
+  game->entities_head = game->player;
+}
+
+static void create_monsters(struct Game* game) {
+  //
+}
+
+static void create_level(struct Game* game) {
+  create_player(game);
+  create_monsters(game);
+}
+
+static void move_all_entities(struct Game *self) {
+  //Entity_Iterator entity;
+  //Entity_Iterator end = self->entities.end();
+
+  //for (entity = self->entities.begin(); entity != end; ++entity) { 
   //  if (!entity->location.is_same(entity->destination)) {
   //   entity->move(entities);
   //  }
   //}
 }
 
-void draw_tile(struct Game *this, uint8_t type, uint32_t x, uint32_t y) {
+static void create_dungeon(struct Game *self) {
+  ///* If we don't do self, the player multiplies */
+  //if (self->entities.size() > 0) {
+  //  // clear list
+  //}
+
+  //int i;
+  //for (i = 1; i <= self->level; i++) {
+  //  self->entities.insert(
+  //      self->entities.begin(), 
+  //      Entity(TYPE_MONSTER, Location(i*128, i*128))
+  //  );
+  //}
+
+  ///* 
+  // * We have a pointer just to the player so that we can manipulate the 
+  // * list of entities in any fashion and not lose track of the most
+  // * important entity
+  // */
+
+  ////self->player = new Entity(TYPE_PLAYER, Location(144, 144));
+  //self->entities.insert(self->entities.begin(), Entity(TYPE_PLAYER, Location(144, 144)));
+  //self->player = self->entities.begin();
+}
+
+
+static void draw_tile(struct Game *self, uint8_t type, uint32_t x, uint32_t y) {
   //int size = (type > 128 ? 32 : 20);
   //int size = 32;
 
   //SDL_Rect location     = {x, y};
   //SDL_Rect mask         = {0, type, size, size};
-  //SDL_Surface *sprite   = this->spritesheet;
+  //SDL_Surface *sprite   = self->spritesheet;
 
   //draw(sprite, &mask, Screen::surface, &location);
 }
 
-void draw_entity(struct Entity *entity, Spritesheet sprite) {
+static void draw_entity(struct Entity *entity, Spritesheet sprite) {
   Area location;
   location = (SDL_Rect){entity->location.x, entity->location.y};
 
@@ -153,7 +229,7 @@ void draw_entity(struct Entity *entity, Spritesheet sprite) {
   window_draw(sprite, &frame, &location); 
 }
 
-//void draw_entity(struct Game *this, Entity *entity) {
+//void draw_entity(struct Game *self, Entity *entity) {
   //SDL_Rect location     = {entity->location.x, entity->location.y};
   //SDL_Rect location;
 
@@ -196,34 +272,3 @@ void draw_entity(struct Entity *entity, Spritesheet sprite) {
   //}
   //draw(sprite, &frame, Screen::surface, &location); 
 //}
-
-void render(struct Game *this) {
-  ///* Draw the Floor */
-  //for (int x = 0; x < SCREENX; x++) {
-  //  for (int y = 0; y < SCREENY; y++) {
-  //    draw_tile(FLOOR, x * TILESIZE, y * TILESIZE);
-  //  }
-  //}
-
-  ///* Draw the health bar */
-  //int health = this->player->hp;
-  //for (int i = 1; i <= health; i++) {
-  //  draw_tile(HEART, (i*24), (SCREENY - 24));
-  //  //draw_tile(HEART, (i*20), (SCREENY - 20));
-  //}
-  //
-  ////Item_Iterator item;
-  ////Item_Iterator item_end = this->items.end();
-  ////for (item = this->items.begin(); item != item_end; ++item) { 
-  ////  draw_tile((*item)->type, (*item)->location.x, (*item)->location.y);
-  ////}
-
-  ///* Draw each entity */
-  //Entity_Iterator entity;
-  //Entity_Iterator entity_end = this->entities.end();
-  //for (entity = this->entities.begin(); entity != entity_end; ++entity) { 
-  //  draw_entity(&*entity);
-  //}
-
-  //SDL_Flip(Screen::surface);
-}
