@@ -11,13 +11,15 @@ int main(int argc, char **argv) {
   SDL_Event event;
 
   while (game->on) {
+    game->update(game, get_ticks());
     while (SDL_PollEvent(&event)) {
       handle_input(event, game);
     }
+    game->handle(game);
     game->render(game);
   }
 
-  delete_game(game);
+  cleanup_game(game);
   return EXIT_SUCCESS;
 }
 
@@ -45,19 +47,19 @@ void handle_input(SDL_Event event, struct Game *game) {
         break;
 
       case SDLK_w: case SDLK_UP: case SDLK_k:
-        //game->player->set_state(WALK_UP);
+        game->player->set_state(game->player, WALK_UP);
         break;
 
       case SDLK_a: case SDLK_LEFT: case SDLK_h:
-        //game->player->set_state(WALK_LEFT);
+        game->player->set_state(game->player, WALK_LEFT);
         break;
 
       case SDLK_s: case SDLK_DOWN: case SDLK_j:
-        //game->player->set_state(WALK_DOWN);
+        game->player->set_state(game->player, WALK_DOWN);
         break;
 
       case SDLK_d: case SDLK_RIGHT: case SDLK_l:
-        //game->player->set_state(WALK_RIGHT);
+        game->player->set_state(game->player, WALK_RIGHT);
         break;
 
       case SDLK_SPACE:

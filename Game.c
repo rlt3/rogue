@@ -3,7 +3,7 @@
 /* Public Functions */
 
 struct Game* new_game();
-void delete_game(struct Game* game);
+void cleanup_game(struct Game* game);
 void update(struct Game*, unsigned time);
 void handle(struct Game*);
 void render(struct Game*);
@@ -24,14 +24,14 @@ struct Game* new_game() {
   struct Game *game = malloc(sizeof(struct Game));
 
   *game = (struct Game) {
-    .on                 = true,
-    .level              = 1,
-    .last_time          = 0,
-    .update_rate        = 500,
-    .spritesheet        = load_sheet("Graphics/loz.png"),
-    .update             = &update,
-    .handle             = &handle,
-    .render             = &render
+    .on             = true,
+    .level          = 1,
+    .last_time      = 0,
+    .update_rate    = 500,
+    .spritesheet    = load_sheet("Graphics/loz.png"),
+    .update         = &update,
+    .handle         = &handle,
+    .render         = &render
   };
 
   create_level(game);
@@ -39,16 +39,16 @@ struct Game* new_game() {
   return game;
 }
 
-void delete_game(struct Game* game) {
+void cleanup_game(struct Game* game) {
   window_free(&game->spritesheet);
-
+  
   struct Entity *prev;
   struct Entity *node = game->entities_head;
-  while (node->next != NULL) {
+  do {
     prev = node;
     node = node->next;
     free(prev);
-  }
+  } while (node != NULL);
 
   free(game);
 }
@@ -76,7 +76,49 @@ void update(struct Game *self, unsigned now) {
   //}
 }
 
+static void move_entity(struct Entity *entity, struct Entity *head) {
+  if (location_is_same(entity->location, entity->destination)) {
+    return;
+  }
+
+  struct Location direction = get_direction(entity->destination,
+                                            entity->location);
+
+  struct Location next_step = {
+    entity->location.x + direction.x * entity->speed,
+    entity->location.y + direction.y * entity->speed
+  };
+
+  struct Entity *other = head;
+  while (other != NULL) {
+    if (locations_collide(entity->location, other->location) 
+        && entity != other) {
+      return;
+    }
+    other = other->next;
+  }
+
+  entity->move(entity, next_step, direction);
+}
+
 void handle(struct Game *self) {
+  struct Entity *entity;
+  struct Entity *next = self->entities_head;
+
+  do {
+    entity = next;
+    next   = next->next;
+
+    /* need a way to handle collisions all at one point
+     * in the code. Also a way to have location and direction
+     * in one structure.
+     */
+
+    handle_death(entity);
+    move_entity(entity, self->entities_head);
+
+  } while (next != NULL);
+
   //for (entity = self->entities.begin(); entity != end; ++entity) { 
 
   //  /* The player updates itself based on input, no need to update */
@@ -143,17 +185,7 @@ void render(struct Game *self) {
 
 static void create_player(struct Game* game) {
   game->player = malloc(sizeof(struct Entity));
-  *game->player = (struct Entity){
-    .type        = 0,
-    .state       = IDLE,
-    .hp          = 10,
-    .frame       = 0,
-    .idle        = true,
-    .location    = ((struct Location){64, 64}),
-    .destination = ((struct Location){64, 64}),
-    .next        = NULL
-  };
-
+ *game->player = new_player();
   game->entities_head = game->player;
 }
 
@@ -215,15 +247,13 @@ static void draw_tile(struct Game *self, uint8_t type, uint32_t x, uint32_t y) {
 }
 
 static void draw_entity(struct Entity *entity, Spritesheet sprite) {
-  Area location;
-  location = (SDL_Rect){entity->location.x, entity->location.y};
+  Area location = (SDL_Rect){entity->location.x, entity->location.y};
 
-  Area frame;
-  frame = (SDL_Rect){ 
-    (32 * entity->state) + (16 * entity->frame),
-    entity->type, 
-    SPRITESIZE, 
-    SPRITESIZE
+  Area frame = { 
+    .x = (32 * entity->state) + (16 * entity->frame),
+    .y = entity->type, 
+    .w = SPRITESIZE, 
+    .h = SPRITESIZE
   };
 
   window_draw(sprite, &frame, &location); 

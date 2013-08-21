@@ -1,7 +1,7 @@
 CC=gcc
 SDLLIBS=-framework SDL -framework SDL_image
 FRAMEWORKS=-framework Cocoa
-SOURCES=main.c Game.c Entity.c Window.c SDL_Main/SDLMain.m
+SOURCES=main.c Game.c Entity.c Location.c Window.c SDL_Main/SDLMain.m
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=rogue
 

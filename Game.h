@@ -27,6 +27,6 @@ struct Game {
 };
 
 struct Game* new_game();
-void delete_game(struct Game*);
+void cleanup_game(struct Game*);
 
 #endif

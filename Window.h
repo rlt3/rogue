@@ -20,6 +20,8 @@ void window_free(Spritesheet *sheet);
 void window_load();
 void window_quit();
 
+uint32_t get_ticks();
+
 Spritesheet load_sheet(const char *file);
 
 #endif

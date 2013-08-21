@@ -37,6 +37,10 @@ void window_quit() {
   SDL_Quit();
 }
 
+uint32_t get_ticks() {
+  return SDL_GetTicks();
+}
+
 Spritesheet load_sheet(const char* file) {
   SDL_Surface *temp = IMG_Load(file);
 

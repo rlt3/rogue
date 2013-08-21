@@ -23,16 +23,26 @@
 
 struct Entity {
   uint8_t type;
-  uint8_t state;
+  uint8_t speed;
   uint8_t hp;
-  uint8_t frame;
+
+  uint8_t state;
   bool    idle;
+
+  uint8_t frame;
+  uint8_t framerate;
+  uint8_t do_frames;
 
   struct Location location;
   struct Location destination;
 
   struct Entity *next;
+
+  void (*move)(struct Entity*, struct Location next_step, struct Location direction);
+  void (*set_state)(struct Entity*, uint8_t);
 };
+
+struct Entity new_player();
 
 void add_entity(struct Entity **head);
 void remove_entity(struct Entity **head, struct Entity *old);
