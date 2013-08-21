@@ -114,7 +114,7 @@ void handle(struct Game *self) {
      * in one structure.
      */
 
-    handle_death(entity);
+    /*handle_death(entity);*/
     move_entity(entity, self->entities_head);
 
   } while (next != NULL);
@@ -190,7 +190,28 @@ static void create_player(struct Game* game) {
 }
 
 static void create_monsters(struct Game* game) {
-  //
+  int i;
+
+  struct Entity *node = game->entities_head;
+  for (i = 1; i <= game->level; i++) {
+    node->next = malloc(sizeof(struct Entity));
+   *node->next = (struct Entity){
+      .type        = 0,
+      .speed       = 1,
+      .hp          = 10,
+      .state       = IDLE,
+      .idle        = true,
+      .frame       = 0,
+      .framerate   = 250,
+      .do_frames   = 0,
+      .location    = ((struct Location){i*128, i*128}),
+      .destination = ((struct Location){i*128, i*128}),
+      .next        = NULL,
+      .set_state   = &set_state,
+      .move        = &move
+    };
+    node = node->next;
+  }
 }
 
 static void create_level(struct Game* game) {

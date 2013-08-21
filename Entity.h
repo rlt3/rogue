@@ -44,6 +44,9 @@ struct Entity {
 
 struct Entity new_player();
 
+void set_state(struct Entity*, uint8_t);
+void move(struct Entity*, struct Location next_step, struct Location direction);
+
 void add_entity(struct Entity **head);
 void remove_entity(struct Entity **head, struct Entity *old);
 void remove_second_entity(struct Entity **head);
