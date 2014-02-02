@@ -1,91 +1,64 @@
-/*
- * Our entities are all of our `living' things that move around in the game.
- *
- * There is a list of Entity Pointers that get manipulated as they walk, move,
- * or attack. The reason I used a list of Entity pointers (rather than just a
- * list of Entities) is that we need to do pointer comparison at points.
- *
- * So, when an entity attacks, it loops through all of the entities to see if
- * it hit anyone of them. An entitiy that attacked would almost certainly `hit
- * itself' if we didn't have pointer comparison.
- *
- * The same goes for movement and collision. 
- *
- * We also need to use a list of Entity Pointers because the player character
- * needs to be tracked at all times while in the list. The list gets sorted and
- * the positions of the entities inside are not static. Therefore, being able
- * to update the player independently from the rest of the entities (while
- * still being inside the list), requires the list to have pointers. This all
- * hinges on me not knowing a better way to do this.
- */
-
-#ifndef ROGUE_ENTITY_HPP
-#define ROGUE_ENTITY_HPP
-
-#define WALK_UP           0
-#define WALK_RIGHT        1
-#define WALK_DOWN         2
-#define WALK_LEFT         3
-
-#define ATTACK_UP         4
-#define ATTACK_RIGHT      5
-#define ATTACK_DOWN       6
-#define ATTACK_LEFT       7
-
-#define ATTACKING         8
-#define IDLE              2
-
-#define TYPE_PLAYER       0
-#define TYPE_MONSTER      112
+#ifndef DEARTH_ENTITY_HPP
+#define DEARTH_ENTITY_HPP
 
 #include <stdint.h>
-#include <list>
+#include <SDL/SDL.h>
+#include "Vector.hpp"
 
-#include "Location.hpp"
+/*
+ * Since Vector handles every bit of movement for the entity, we can have 
+ * states that overlap with the directions.
+ *
+ * Changing player's state from one thing to another will not affect it's
+ * movement or location, but, basically, which sprite gets drawn. Will 
+ * probably need to change `idle' to what it really means (walking or not
+ * walking).
+ *
+ * So, an entity could be walking right and then attack, changing its state.
+ * It's direction never actually got changed, but its state did. But an
+ * entity does not move when it is attacking. So, set idle to true (or 
+ * whatever it will be) and then update the state so that, ultimately, it
+ * affects the frame that gets drawn on the screen.
+ *
+ * This way of doing things implies a single access point: change_state from
+ * the old class. The entity will turn itself, or attack, or whatever based
+ * on the input given -- but it will determine itself how.
+ */
 
-class Entity;
-
-typedef std::list<Entity>::iterator Entity_Iterator;
-typedef std::list<Entity> Entity_List;
+typedef SDL_Rect Area;
 
 class Entity {
 public:
-  uint8_t   type;
-  uint8_t   state;
-
-  uint8_t   hp;
-  uint8_t   strength;
-  uint8_t   speed;
-  bool      idle;
-
-  uint8_t   frame;
-  int   do_frames;
-  uint8_t   framerate;
-  uint32_t  last_time;
-
-  Location  offsets[8];
-
-  Location  location;
-  Location  destination;
-
-  Entity(uint8_t type, Location location);
-
-  void update(unsigned current_time);
-  void set_destination(uint32_t x, uint32_t y);
-  void set_state(uint8_t state);
-  void move(Entity_List entities);
-  void attack(Entity_List &entities);
-  bool is_equal(Entity other);
+  Vector movement;
   
-  Area get_world_area();
+  Entity();
+  Entity(int, int, bool, uint8_t, uint8_t, uint8_t, unsigned, uint8_t, uint8_t);
 
-  bool operator==(const Entity& rhs);
+  void update(unsigned dt);
+  void set_state(uint8_t state);
 
-  static bool sort_locations(Entity *first, Entity *second);
-  static int get_state(Location direction);
-  static Location get_direction(uint8_t state);
-  static bool sort_entities(const Entity * const & first, 
-                             const Entity * const & second);
+  void attack(int&);
+
+  uint8_t attack_power();
+  uint8_t state();
+
+  Area location();
+  Area frame();
+
+protected:
+  void move(uint8_t direction);
+
+private:
+  bool    moving_;
+  uint8_t frame_;
+  uint8_t state_;
+
+  uint8_t str_;
+  uint8_t hp_;
+
+  uint8_t  rate_;
+  unsigned last_;
+
 };
 
 #endif
